@@ -27,6 +27,13 @@ class StaticHandler implements HttpHandler {
                 Map<String, String> queryParameters = Util.splitQuery(uri);
                 String accessToken = queryParameters.get("accessToken");
                 data = "callback accepted".getBytes();
+
+                // Todo: How to open window without freezing process?
+                //MessageDialog dialog = new MessageDialog();
+                //dialog.pack();
+                //dialog.setVisible(true);
+                //System.exit(0);
+
                 break;
             default:
                 String response = "StaticHandler handle: " + path;

@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="45e7c7d3-ce1c-49e9-bc7f-e1e3dc88dcf5" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/src/MainDialog.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/MainDialog.form" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MainDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MainDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/mainClass.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/mainClass.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -17,6 +16,7 @@
     <session id="-42723964">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
+          <entry key="project.closed" value="1" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.opened" value="1" />
         </counts>
@@ -26,36 +26,36 @@
           <entry key="class" value="2" />
           <entry key="form" value="6" />
           <entry key="gitignore" value="1" />
-          <entry key="java" value="12" />
+          <entry key="java" value="14" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="CLASS" value="2" />
           <entry key="GUI_DESIGNER_FORM" value="6" />
-          <entry key="JAVA" value="12" />
+          <entry key="JAVA" value="14" />
           <entry key="PLAIN_TEXT" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="java" value="616" />
+          <entry key="java" value="685" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JAVA" value="616" />
+          <entry key="JAVA" value="685" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/MainDialog.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="493">
-              <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
+            <state relative-caret-position="408">
+              <caret line="39" lean-forward="true" selection-start-line="39" selection-end-line="39" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#680#855#0" expanded="true" />
@@ -66,23 +66,24 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/mainClass.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="328">
-              <caret line="52" selection-start-line="52" selection-end-line="52" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+            <state relative-caret-position="51">
+              <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="jar://C:/Program Files/Java/jdk1.8.0_131/src.zip!/java/awt/event/MouseAdapter.java">
+        <entry file="jar://C:/Program Files/Java/jdk1.8.0_131/src.zip!/java/awt/Dialog.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="383">
-              <caret line="73" column="16" selection-start-line="73" selection-start-column="16" selection-end-line="73" selection-end-column="16" />
+            <state relative-caret-position="587">
+              <caret line="1003" column="16" selection-start-line="1003" selection-start-column="16" selection-end-line="1003" selection-end-column="16" />
+              <folding>
+                <element signature="e#39692#39693#0" expanded="true" />
+                <element signature="e#39727#39728#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -90,6 +91,21 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/MainDialog.form">
           <provider selected="true" editor-type-id="ui-designer" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/MessageDialog.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="51">
+              <caret line="3" column="13" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="initializer##0;class#MessageDialog#0" expanded="true" />
+                <element signature="e#4391#4392#0" expanded="true" />
+                <element signature="e#4425#4426#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
         </entry>
       </file>
     </leaf>
@@ -116,12 +132,12 @@
         <option value="$PROJECT_DIR$/src/LoginForm.form" />
         <option value="$PROJECT_DIR$/src/MainGuiForm.form" />
         <option value="$PROJECT_DIR$/src/main.java" />
-        <option value="$PROJECT_DIR$/src/MessageDialog.java" />
         <option value="$PROJECT_DIR$/src/MessageDialog.form" />
         <option value="$PROJECT_DIR$/src/Util.java" />
-        <option value="$PROJECT_DIR$/src/MainDialog.form" />
-        <option value="$PROJECT_DIR$/src/mainClass.java" />
         <option value="$PROJECT_DIR$/src/MainDialog.java" />
+        <option value="$PROJECT_DIR$/src/MainDialog.form" />
+        <option value="$PROJECT_DIR$/src/MessageDialog.java" />
+        <option value="$PROJECT_DIR$/src/mainClass.java" />
       </list>
     </option>
   </component>
@@ -156,12 +172,6 @@
               <item name="SecureChannelChat" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="mainClass.java" type="529ef68f:ClassesTreeStructureProvider$PsiClassOwnerTreeNode" />
-            </path>
-            <path>
-              <item name="SecureChannelChat" type="b2602c69:ProjectViewProjectNode" />
-              <item name="SecureChannelChat" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="MainDialog" type="e9f4de52:FormNode" />
             </path>
           </expand>
           <select />
@@ -256,7 +266,7 @@
       <window_info anchor="bottom" id="Message" order="3" />
       <window_info anchor="bottom" id="Find" order="4" />
       <window_info anchor="bottom" id="Run" order="5" weight="0.32917467" />
-      <window_info anchor="bottom" id="Debug" order="6" visible="true" weight="0.3128599" />
+      <window_info anchor="bottom" id="Debug" order="6" weight="0.3128599" />
       <window_info anchor="bottom" id="Cvs" order="7" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="8" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="9" />
@@ -346,19 +356,6 @@
     <entry file="file://$PROJECT_DIR$/src/MainGuiForm.form">
       <provider selected="true" editor-type-id="ui-designer" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MessageDialog.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="3" column="13" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="initializer##0;class#MessageDialog#0" expanded="true" />
-            <element signature="e#4473#4474#0" expanded="true" />
-            <element signature="e#4507#4508#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/MessageDialog.form">
       <provider selected="true" editor-type-id="ui-designer" />
     </entry>
@@ -390,8 +387,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MainDialog.form">
-      <provider selected="true" editor-type-id="ui-designer" />
+    <entry file="file://$PROJECT_DIR$/src/MainDialog.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="39" lean-forward="true" selection-start-line="39" selection-end-line="39" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#680#855#0" expanded="true" />
+            <element signature="e#854#855#0" expanded="true" />
+            <element signature="initializer##0;class#MainDialog#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
     </entry>
     <entry file="jar://C:/Program Files/Java/jdk1.8.0_131/src.zip!/java/awt/event/MouseAdapter.java">
       <provider selected="true" editor-type-id="text-editor">
@@ -400,26 +407,37 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/mainClass.java">
+    <entry file="file://$PROJECT_DIR$/src/MainDialog.form">
+      <provider selected="true" editor-type-id="ui-designer" />
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.8.0_131/src.zip!/java/awt/Dialog.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="52" selection-start-line="52" selection-end-line="52" />
+        <state relative-caret-position="587">
+          <caret line="1003" column="16" selection-start-line="1003" selection-start-column="16" selection-end-line="1003" selection-end-column="16" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#39692#39693#0" expanded="true" />
+            <element signature="e#39727#39728#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MainDialog.java">
+    <entry file="file://$PROJECT_DIR$/src/MessageDialog.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
+        <state relative-caret-position="51">
+          <caret line="3" column="13" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#680#855#0" expanded="true" />
-            <element signature="e#854#855#0" expanded="true" />
-            <element signature="initializer##0;class#MainDialog#0" expanded="true" />
+            <element signature="initializer##0;class#MessageDialog#0" expanded="true" />
+            <element signature="e#4391#4392#0" expanded="true" />
+            <element signature="e#4425#4426#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mainClass.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
         </state>
       </provider>
     </entry>
