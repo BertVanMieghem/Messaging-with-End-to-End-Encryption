@@ -4,17 +4,34 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.util.Map;
 
 class StaticHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
 
-        System.out.println("StaticHandler handle: " + httpExchange.getRequestURI().getPath());
+        String path = httpExchange.getRequestURI().getPath();
+        System.out.println("StaticHandler handle: " + path);
 
-        String response = "StaticHandler handle: " + httpExchange.getRequestURI().getPath();
+        byte[] data;
+        switch (path) {
+            case "/login.html":
+                data = Util.ReadFileLineByLine("res" + path).getBytes();
+                break;
+            case "/callback":
+                URI uri = httpExchange.getRequestURI();
+                Map<String, String> queryParameters = Util.splitQuery(uri);
+                String accessToken = queryParameters.get("accessToken");
+                data = "callback accepted".getBytes();
+                break;
+            default:
+                String response = "StaticHandler handle: " + path;
 
-        byte[] data = response.getBytes();
+                data = response.getBytes();
+                break;
+        }
         httpExchange.sendResponseHeaders(200, data.length);
         httpExchange.getResponseBody().write(data);
         httpExchange.getResponseBody().close();
