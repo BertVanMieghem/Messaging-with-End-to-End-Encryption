@@ -1,17 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="45e7c7d3-ce1c-49e9-bc7f-e1e3dc88dcf5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/MainDialog.form" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/MainDialog.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/MessageDialog.form" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/MessageDialog.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/mainClass.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MainGuiForm.form" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MainGuiForm.java" beforeDir="false" />
-    </list>
+    <list default="true" id="45e7c7d3-ce1c-49e9-bc7f-e1e3dc88dcf5" name="Default Changelist" comment="" />
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -32,14 +22,14 @@
           <entry key="class" value="1" />
           <entry key="form" value="5" />
           <entry key="gitignore" value="1" />
-          <entry key="java" value="6" />
+          <entry key="java" value="7" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="CLASS" value="1" />
           <entry key="GUI_DESIGNER_FORM" value="5" />
-          <entry key="JAVA" value="6" />
+          <entry key="JAVA" value="7" />
           <entry key="PLAIN_TEXT" value="1" />
         </counts>
       </usages-collector>
@@ -68,21 +58,6 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/MessageDialog.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="34">
-              <caret line="3" column="13" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="initializer##0;class#MessageDialog#0" expanded="true" />
-                <element signature="e#4473#4474#0" expanded="true" />
-                <element signature="e#4507#4508#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor" />
         </entry>
@@ -90,8 +65,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/mainClass.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="238">
-              <caret line="14" column="91" selection-start-line="14" selection-start-column="91" selection-end-line="14" selection-end-column="91" />
+            <state relative-caret-position="289">
+              <caret line="17" column="59" selection-start-line="17" selection-start-column="59" selection-end-line="17" selection-end-column="59" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -248,7 +223,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1176" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="UI Designer" order="0" />
       <window_info id="Favorites" order="1" side_tool="true" />
@@ -262,7 +236,7 @@
       <window_info anchor="bottom" id="Message" order="3" />
       <window_info anchor="bottom" id="Find" order="4" />
       <window_info anchor="bottom" id="Run" order="5" weight="0.32917467" />
-      <window_info active="true" anchor="bottom" id="Debug" order="6" visible="true" weight="0.53166986" />
+      <window_info active="true" anchor="bottom" id="Debug" order="6" visible="true" weight="0.3128599" />
       <window_info anchor="bottom" id="Cvs" order="7" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="8" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="9" />
@@ -338,19 +312,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MainDialog.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="12" column="5" lean-forward="true" selection-start-line="12" selection-start-column="5" selection-end-line="12" selection-end-column="5" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="initializer##0;class#MainDialog#0" expanded="true" />
-            <element signature="e#2529#2530#0" expanded="true" />
-            <element signature="e#2563#2564#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/MainGuiForm.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="34">
@@ -394,10 +355,22 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/MainDialog.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="307">
+          <caret line="48" column="7" lean-forward="true" selection-start-line="48" selection-start-column="7" selection-end-line="48" selection-end-column="7" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#2529#2530#0" expanded="true" />
+            <element signature="e#2563#2564#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/mainClass.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="14" column="91" selection-start-line="14" selection-start-column="91" selection-end-line="14" selection-end-column="91" />
+        <state relative-caret-position="289">
+          <caret line="17" column="59" selection-start-line="17" selection-start-column="59" selection-end-line="17" selection-end-column="59" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
