@@ -2,9 +2,11 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+import java.awt.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 class StaticHandler implements HttpHandler {
@@ -39,7 +41,7 @@ class StaticHandler implements HttpHandler {
 }
 
 public class mainClass {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, URISyntaxException {
         System.out.println("Hello World!");
 
         // Port should not be in this list: https://svn.nmap.org/nmap/nmap-services
@@ -49,9 +51,23 @@ public class mainClass {
         server.setExecutor(null); // creates a default executor
         server.start();
 
+
+
         MainDialog dialog = new MainDialog();
         dialog.pack();
         dialog.setVisible(true);
+
+        /*dialog.butt.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                // display/center the jdialog when the button is pressed
+                JDialog d = new JDialog(frame, "Hello", true);
+                d.setLocationRelativeTo(frame);
+                d.setVisible(true);
+            }
+        });*/
+
 
         //System.exit(0);
     }
