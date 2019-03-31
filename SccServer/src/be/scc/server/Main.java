@@ -1,4 +1,4 @@
-package be.scc;
+package be.scc.server;
 
 import be.scc.common.Util;
 import com.sun.net.httpserver.HttpExchange;
@@ -30,18 +30,17 @@ public class Main {
             byte[] data;
             try {
                 switch (path) {
-                    case "/insertUser":
+                    case "/registerUser":
 
                         URI uri = httpExchange.getRequestURI();
                         Map<String, String> queryParameters = Util.splitQuery(uri);
-                        String accessToken = queryParameters.get("accessToken");
-                        data = "callback accepted".getBytes();
+                        String access_token = queryParameters.get("access_token");
 
-                        URL url = new URL("https://graph.facebook.com/v3.2/me?access_token=" + accessToken + "&method=get&pretty=0&sdk=joey&suppress_http_code=1");
+                        URL url = new URL("https://graph.facebook.com/v3.2/me?access_token=" + access_token + "&method=get&pretty=0&sdk=joey&suppress_http_code=1");
                         String ret = Util.SyncRequest(url);
                         JSONObject obj = new JSONObject(ret);
-                        String username = obj.getString("userName");
-                        int userid = obj.getInt("id");
+                        String username = obj.getString("name");
+                        long userid = Long.parseLong(obj.getString("id"));
 
                         Random r = new Random();
                         DbSingleton.inst().InsertUser(userid, r.nextInt(1000));
@@ -53,9 +52,12 @@ public class Main {
                         data = response.getBytes();
                         break;
                 }
-            } catch (SQLException e) {
+            } catch (java.lang.Exception e) {
                 statusCode = 500;
-                data = e.getMessage().getBytes();
+                String msg = e.getMessage();
+                if (msg == null)
+                    msg = e.getClass().getName();
+                data = msg.getBytes();
                 e.printStackTrace();
             }
 

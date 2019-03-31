@@ -1,4 +1,4 @@
-package be.scc;
+package be.scc.server;
 
 import java.sql.*;
 
@@ -31,7 +31,7 @@ public class DbSingleton {
         return single_instance;
     }
 
-    public void InsertUser(int facebookId, int publicKey) throws SQLException {
+    public void InsertUser(long facebookId, int publicKey) throws SQLException {
 
         Statement statement = conn.createStatement();
         statement.executeUpdate("INSERT INTO users VALUES (NULL, " + facebookId + ", " + publicKey + ")");

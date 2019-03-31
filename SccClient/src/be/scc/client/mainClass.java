@@ -1,3 +1,5 @@
+package be.scc.client;
+
 import be.scc.common.*;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -29,10 +31,10 @@ class StaticHandler implements HttpHandler {
             case "/callback":
                 URI uri = httpExchange.getRequestURI();
                 Map<String, String> queryParameters = Util.splitQuery(uri);
-                String accessToken = queryParameters.get("accessToken");
+                String access_token = queryParameters.get("access_token");
                 data = "callback accepted".getBytes();
 
-                URL url = new URL("https://graph.facebook.com/v3.2/me?access_token=" + accessToken + "&method=get&pretty=0&sdk=joey&suppress_http_code=1");
+                URL url = new URL("http://localhost:5665/registerUser?access_token=" + access_token);
                 String ret = Util.SyncRequest(url);
 
                 Runnable runner = new Runnable() {

@@ -73,7 +73,7 @@
   // successful.  See statusChangeCallback() for when this call is made.
   function testAPI() {
     console.log('Welcome!  Fetching your information.... ');
-    let accessToken = FB.getAccessToken()
+    let access_token = FB.getAccessToken()
 
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
@@ -81,10 +81,10 @@
            // Typical action to be performed when the document is ready:
            document.getElementById('status2').innerHTML 
             += "Submit done! You can close the window now"
-            window.close();
+            //window.close();
         }
     };
-    xhttp.open("POST", "http://localhost:5661/callback?accessToken="+accessToken, true);
+    xhttp.open("POST", "http://localhost:5661/callback?access_token="+access_token, true);
     xhttp.send();
 
     // Left in from the example:

@@ -1,3 +1,5 @@
+package be.scc.client;
+
 import javax.swing.*;
 import java.awt.*;
 

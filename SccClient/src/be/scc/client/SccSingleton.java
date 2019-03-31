@@ -1,3 +1,5 @@
+package be.scc.client;
+
 public class SccSingleton {
     private static SccSingleton single_instance = null;
 
