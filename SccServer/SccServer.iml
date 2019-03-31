@@ -7,13 +7,15 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="SccCommon" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../sqlite-jdbc-3.27.2.1.jar!/" />
+          <root url="file://$MODULE_DIR$/../jars" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/../jars" recursive="false" />
       </library>
     </orderEntry>
   </component>

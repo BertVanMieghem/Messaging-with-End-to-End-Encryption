@@ -1,3 +1,5 @@
+package be.scc.common;
+
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
@@ -6,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
+
 
 public class Util {
 

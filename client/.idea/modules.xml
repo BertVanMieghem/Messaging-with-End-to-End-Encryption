@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../SccCommon/SccCommon.iml" filepath="$PROJECT_DIR$/../SccCommon/SccCommon.iml" />
       <module fileurl="file://$PROJECT_DIR$/SecureChannelChat.iml" filepath="$PROJECT_DIR$/SecureChannelChat.iml" />
     </modules>
   </component>
