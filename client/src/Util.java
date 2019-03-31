@@ -1,8 +1,5 @@
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLDecoder;
+import java.io.*;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -11,6 +8,27 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public class Util {
+
+    public static String SyncRequest(URL url) throws IOException {
+        // https://www.baeldung.com/java-http-request
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+
+        con.setDoOutput(true);
+        DataOutputStream out = new DataOutputStream(con.getOutputStream());
+        //out.writeBytes(ParameterStringBuilder.getParamsString(parameters));
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuffer content = new StringBuffer();
+        while ((inputLine = in.readLine()) != null) {
+            content.append(inputLine);
+        }
+        in.close();
+
+        out.flush();
+        out.close();
+        return content.toString();
+    }
 
     // https://howtodoinjava.com/java/io/java-read-file-to-string-examples/
     public static String ReadFileLineByLine(String filePath) {

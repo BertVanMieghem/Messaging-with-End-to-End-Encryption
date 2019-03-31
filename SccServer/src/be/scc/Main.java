@@ -2,18 +2,20 @@ package be.scc;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 
 import java.awt.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
+import java.net.*;
+import java.sql.*;
 import java.util.Map;
+import java.util.Random;
+
 
 public class Main {
 
-    class StaticHandler implements HttpHandler {
+    static class StaticHandler implements HttpHandler {
 
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
@@ -21,22 +23,43 @@ public class Main {
             String path = httpExchange.getRequestURI().getPath();
             System.out.println("StaticHandler handle: " + path);
 
+            int statusCode = 200;
             byte[] data;
-            switch (path) {
-                default:
-                    String response = "StaticHandler handle: " + path;
+            try {
+                switch (path) {
+                    case "/insertUser":
+                        Random r = new Random();
+                        DbSingleton.inst().InsertUser(r.nextInt(1000), r.nextInt(1000));
+                        data = "insertUser done".getBytes();
+                        break;
+                    default:
+                        String response = "StaticHandler default handle: " + path;
 
-                    data = response.getBytes();
-                    break;
+                        data = response.getBytes();
+                        break;
+                }
+            } catch (SQLException e) {
+                statusCode = 500;
+                data = e.getMessage().getBytes();
+                e.printStackTrace();
             }
-            httpExchange.sendResponseHeaders(200, data.length);
+
+            httpExchange.sendResponseHeaders(statusCode, data.length);
             httpExchange.getResponseBody().write(data);
             httpExchange.getResponseBody().close();
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         System.out.println("Setver started");
+
+        // Port should not be in this list: https://svn.nmap.org/nmap/nmap-services
+        // Port number is 'Secure Chanel Chat Server' written in bad leet
+        HttpServer server = HttpServer.create(new InetSocketAddress(5665), 0);
+        server.createContext("/", new StaticHandler());
+        server.setExecutor(null); // creates a default executor
+        server.start();
+
 
     }
 }

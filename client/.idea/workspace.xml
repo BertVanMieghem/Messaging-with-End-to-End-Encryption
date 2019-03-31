@@ -2,10 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="45e7c7d3-ce1c-49e9-bc7f-e1e3dc88dcf5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/SccSingleton.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SccServer/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SccServer/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SccServer/SccServer.sqlite" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../SccServer/src/be/scc/DbSingleton.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../sqlite-jdbc-3.27.2.1.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SccServer/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../SccServer/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SccServer/SccServer.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../SccServer/SccServer.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SccServer/out/production/SccServer/be/scc/Main$StaticHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/../SccServer/out/production/SccServer/be/scc/Main$StaticHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SccServer/out/production/SccServer/be/scc/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/../SccServer/out/production/SccServer/be/scc/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../SccServer/src/be/scc/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../SccServer/src/be/scc/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/res/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/res/login.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/mainClass.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/mainClass.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -52,33 +60,68 @@
         </counts>
       </usages-collector>
     </session>
+    <session id="1418371797">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.open.time.1" value="1" />
+          <entry key="project.opened" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.edit">
+        <counts>
+          <entry key="java" value="141" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.edit">
+        <counts>
+          <entry key="JAVA" value="141" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.open">
+        <counts>
+          <entry key="java" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open">
+        <counts>
+          <entry key="JAVA" value="1" />
+        </counts>
+      </usages-collector>
+    </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/MainDialog.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="238">
+            <state relative-caret-position="374">
               <caret line="22" selection-start-line="22" selection-end-line="22" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#749#1387#0" expanded="true" />
-                <element signature="e#1386#1387#0" expanded="true" />
-                <element signature="initializer##0;class#MainDialog#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/mainClass.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="340">
+              <caret line="35" lean-forward="true" selection-start-line="35" selection-end-line="35" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#1710#1711#0" expanded="true" />
+                <element signature="e#1804#1805#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/mainClass.java">
+        <entry file="file://$PROJECT_DIR$/src/Util.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="61" lean-forward="true" selection-start-line="10" selection-end-line="61" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="class#StaticHandler#0" />
-              </folding>
+            <state relative-caret-position="102">
+              <caret line="6" column="21" selection-start-line="6" selection-start-column="21" selection-end-line="6" selection-end-column="21" />
             </state>
           </provider>
         </entry>
@@ -86,8 +129,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/SccSingleton.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="15" column="45" selection-start-line="15" selection-start-column="45" selection-end-line="15" selection-end-column="45" />
+            <state relative-caret-position="442">
+              <caret line="26" column="29" lean-forward="true" selection-start-line="26" selection-start-column="29" selection-end-line="26" selection-end-column="29" />
             </state>
           </provider>
         </entry>
@@ -100,8 +143,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/MessageDialog.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="34">
-              <caret line="3" column="13" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
+            <state relative-caret-position="255">
+              <caret line="15" column="5" lean-forward="true" selection-start-line="15" selection-start-column="5" selection-end-line="15" selection-end-column="5" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="initializer##0;class#MessageDialog#0" expanded="true" />
@@ -128,7 +171,7 @@
     </findStrings>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -137,19 +180,20 @@
         <option value="$PROJECT_DIR$/src/MainGuiForm.form" />
         <option value="$PROJECT_DIR$/src/main.java" />
         <option value="$PROJECT_DIR$/src/MessageDialog.form" />
-        <option value="$PROJECT_DIR$/src/Util.java" />
         <option value="$PROJECT_DIR$/src/MainDialog.java" />
         <option value="$PROJECT_DIR$/src/MainDialog.form" />
         <option value="$PROJECT_DIR$/src/MessageDialog.java" />
         <option value="$PROJECT_DIR$/src/SccSingleton.java" />
         <option value="$PROJECT_DIR$/src/mainClass.java" />
+        <option value="$PROJECT_DIR$/src/Util.java" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="40" />
+    <option name="y" value="3" />
     <option name="width" value="1616" />
-    <option name="height" value="886" />
+    <option name="height" value="883" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -160,37 +204,32 @@
     </navigator>
     <panes>
       <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
-              <item name="SecureChannelChat" type="b2602c69:ProjectViewProjectNode" />
-              <item name="SecureChannelChat" type="462c0819:PsiDirectoryNode" />
+              <item name="client" type="b2602c69:ProjectViewProjectNode" />
+              <item name="client" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
-              <item name="SecureChannelChat" type="b2602c69:ProjectViewProjectNode" />
-              <item name="SecureChannelChat" type="462c0819:PsiDirectoryNode" />
+              <item name="client" type="b2602c69:ProjectViewProjectNode" />
+              <item name="client" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="SecureChannelChat" type="b2602c69:ProjectViewProjectNode" />
-              <item name="SecureChannelChat" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="mainClass.java" type="529ef68f:ClassesTreeStructureProvider$PsiClassOwnerTreeNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.SHOW" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../SccServer" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
-    <property name="settings.editor.selected.configurable" value="project.propGUI" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -262,7 +301,7 @@
       <window_info id="UI Designer" order="0" />
       <window_info id="Favorites" order="1" side_tool="true" />
       <window_info id="Designer" order="2" />
-      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.21162046" />
+      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.21375267" />
       <window_info id="Structure" order="4" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="0" />
       <window_info anchor="bottom" id="Event Log" order="1" side_tool="true" />
@@ -270,7 +309,7 @@
       <window_info anchor="bottom" id="Message" order="3" />
       <window_info anchor="bottom" id="Find" order="4" />
       <window_info anchor="bottom" id="Run" order="5" weight="0.32917467" />
-      <window_info anchor="bottom" id="Debug" order="6" weight="0.3128599" />
+      <window_info anchor="bottom" id="Debug" order="6" visible="true" weight="0.3128599" />
       <window_info anchor="bottom" id="Cvs" order="7" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="8" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="9" />
@@ -344,17 +383,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Util.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="21" column="9" lean-forward="true" selection-start-line="21" selection-start-column="9" selection-end-line="21" selection-end-column="9" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#829#845#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://C:/Program Files/Java/jdk1.8.0_131/jre/lib/rt.jar!/com/sun/net/httpserver/HttpServer.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="192">
@@ -390,19 +418,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MainDialog.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="22" selection-start-line="22" selection-end-line="22" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#749#1387#0" expanded="true" />
-            <element signature="e#1386#1387#0" expanded="true" />
-            <element signature="initializer##0;class#MainDialog#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://C:/Program Files/Java/jdk1.8.0_131/jre/lib/rt.jar!/sun/misc/Unsafe.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
@@ -414,13 +429,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="14076">
           <caret line="897" column="16" selection-start-line="897" selection-start-column="16" selection-end-line="897" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/SccSingleton.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="15" column="45" selection-start-line="15" selection-start-column="45" selection-end-line="15" selection-end-column="45" />
         </state>
       </provider>
     </entry>
@@ -449,16 +457,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/MainDialog.form">
-      <provider selected="true" editor-type-id="ui-designer" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/MessageDialog.form">
       <provider selected="true" editor-type-id="ui-designer" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/MainDialog.form">
+      <provider selected="true" editor-type-id="ui-designer" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/SccSingleton.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="442">
+          <caret line="26" column="29" lean-forward="true" selection-start-line="26" selection-start-column="29" selection-end-line="26" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/MessageDialog.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="3" column="13" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
+        <state relative-caret-position="255">
+          <caret line="15" column="5" lean-forward="true" selection-start-line="15" selection-start-column="5" selection-end-line="15" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="initializer##0;class#MessageDialog#0" expanded="true" />
@@ -468,14 +483,32 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/mainClass.java">
+    <entry file="file://$PROJECT_DIR$/src/MainDialog.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="61" lean-forward="true" selection-start-line="10" selection-end-line="61" />
+        <state relative-caret-position="374">
+          <caret line="22" selection-start-line="22" selection-end-line="22" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="class#StaticHandler#0" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mainClass.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="35" lean-forward="true" selection-start-line="35" selection-end-line="35" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1710#1711#0" expanded="true" />
+            <element signature="e#1804#1805#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Util.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="21" selection-start-line="6" selection-start-column="21" selection-end-line="6" selection-end-column="21" />
         </state>
       </provider>
     </entry>

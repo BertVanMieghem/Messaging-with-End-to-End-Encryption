@@ -4,8 +4,10 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.*;
 import java.util.Map;
 
@@ -22,23 +24,15 @@ class StaticHandler implements HttpHandler {
             case "/login.html":
                 data = Util.ReadFileLineByLine("res" + path).getBytes();
                 break;
+
             case "/callback":
                 URI uri = httpExchange.getRequestURI();
                 Map<String, String> queryParameters = Util.splitQuery(uri);
                 String accessToken = queryParameters.get("accessToken");
                 data = "callback accepted".getBytes();
 
-                // https://www.baeldung.com/java-http-request
                 URL url = new URL("https://graph.facebook.com/v3.2/me?access_token=" + accessToken + "&method=get&pretty=0&sdk=joey&suppress_http_code=1");
-                HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                con.setRequestMethod("GET");
-
-                con.setDoOutput(true);
-                DataOutputStream out = new DataOutputStream(con.getOutputStream());
-                //out.writeBytes(ParameterStringBuilder.getParamsString(parameters));
-
-                out.flush();
-                out.close();
+                String ret = Util.SyncRequest(url);
 
                 Runnable runner = new Runnable() {
                     public void run() {
@@ -46,7 +40,6 @@ class StaticHandler implements HttpHandler {
                     }
                 };
                 EventQueue.invokeLater(runner);
-
                 break;
             default:
                 String response = "StaticHandler handle: " + path;
