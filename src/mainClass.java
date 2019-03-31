@@ -3,10 +3,10 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
 import java.util.Map;
 
 class StaticHandler implements HttpHandler {
@@ -28,11 +28,24 @@ class StaticHandler implements HttpHandler {
                 String accessToken = queryParameters.get("accessToken");
                 data = "callback accepted".getBytes();
 
-                // Todo: How to open window without freezing process?
-                //MessageDialog dialog = new MessageDialog();
-                //dialog.pack();
-                //dialog.setVisible(true);
-                //System.exit(0);
+                // https://www.baeldung.com/java-http-request
+                URL url = new URL("https://graph.facebook.com/v3.2/me?access_token=" + accessToken + "&method=get&pretty=0&sdk=joey&suppress_http_code=1");
+                HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                con.setRequestMethod("GET");
+
+                con.setDoOutput(true);
+                DataOutputStream out = new DataOutputStream(con.getOutputStream());
+                //out.writeBytes(ParameterStringBuilder.getParamsString(parameters));
+
+                out.flush();
+                out.close();
+
+                Runnable runner = new Runnable() {
+                    public void run() {
+                        SccSingleton.inst().FromLoginToMessageDialog();
+                    }
+                };
+                EventQueue.invokeLater(runner);
 
                 break;
             default:
@@ -59,23 +72,7 @@ public class mainClass {
         server.start();
 
 
+        SccSingleton.inst().ShowLoginDialog();
 
-        MainDialog dialog = new MainDialog();
-        dialog.pack();
-        dialog.setVisible(true);
-
-        /*dialog.butt.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                // display/center the jdialog when the button is pressed
-                JDialog d = new JDialog(frame, "Hello", true);
-                d.setLocationRelativeTo(frame);
-                d.setVisible(true);
-            }
-        });*/
-
-
-        //System.exit(0);
     }
 }
