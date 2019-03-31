@@ -81,7 +81,7 @@
            // Typical action to be performed when the document is ready:
            document.getElementById('status2').innerHTML 
             += "Submit done! You can close the window now"
-            //window.close();
+            window.close();
         }
     };
     xhttp.open("POST", "http://localhost:5661/callback?access_token="+access_token, true);
