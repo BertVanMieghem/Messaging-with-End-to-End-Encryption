@@ -44,7 +44,10 @@ public class Main {
 
                         Random r = new Random();
                         DbSingleton.inst().InsertUser(userid, r.nextInt(1000));
-                        data = "insertUser done".getBytes();
+                        JSONObject jsonRet = new JSONObject();
+                        jsonRet.put("message", "insertUser done");
+                        jsonRet.put("facebook_id", userid);
+                        data = jsonRet.toString().getBytes();
                         break;
                     default:
                         String response = "StaticHandler default handle: " + path;

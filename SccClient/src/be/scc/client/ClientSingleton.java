@@ -15,6 +15,8 @@ public class ClientSingleton {
         return single_instance;
     }
 
+    public ClientDB db = new ClientDB();
+
     LoginDialog loginDialog = new LoginDialog();
     ChatDialog chatDialog = new ChatDialog();
 

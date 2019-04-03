@@ -2,6 +2,7 @@ package be.scc.client;
 
 import be.scc.common.*;
 import com.sun.net.httpserver.*;
+import org.json.JSONObject;
 
 import java.awt.*;
 import java.io.*;
@@ -35,15 +36,26 @@ class StaticHandler implements HttpHandler {
                 String access_token = queryParameters.get("access_token");
                 data = "callback accepted".getBytes();
 
-                URL url = new URL("http://localhost:5665/registerUser?access_token=" + access_token);
-                String ret = Util.SyncRequest(url);
+                try {
+                    KeyPair pair = SccEncryption.GenerateKeypair();
+                    // TODO: Post request
+                    URL url = new URL("http://localhost:5665/registerUser?access_token=" + access_token);//+ "&public_key=" + SccEncryption.serializeKey(pair.getPublic()));
+                    String ret = Util.SyncRequest(url);
+                    JSONObject obj = new JSONObject(ret);
+                    int facebook_id = obj.getInt("facebook_id");
 
-                Runnable runner = new Runnable() {
-                    public void run() {
-                        ClientSingleton.inst().FromLoginToChatDialog();
-                    }
-                };
-                EventQueue.invokeLater(runner);
+                    ClientSingleton.inst().db.setFacebookId(facebook_id);
+                    ClientSingleton.inst().db.setSecretPublicKeys(pair);
+
+                    Runnable runner = new Runnable() {
+                        public void run() {
+                            ClientSingleton.inst().FromLoginToChatDialog();
+                        }
+                    };
+                    EventQueue.invokeLater(runner);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
             default:
                 String response = "StaticHandler handle: " + path;
