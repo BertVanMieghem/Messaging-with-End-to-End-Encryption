@@ -1,18 +1,18 @@
 package be.scc.client;
 
 import be.scc.common.*;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.*;
 
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.*;
 import java.util.Map;
+
+import java.security.*;
+import java.security.cert.Certificate; // Solves a java version incompatibility error
+import java.util.Arrays;
+import javax.crypto.*;
+import javax.crypto.spec.*;
 
 class StaticHandler implements HttpHandler {
 
@@ -40,7 +40,7 @@ class StaticHandler implements HttpHandler {
 
                 Runnable runner = new Runnable() {
                     public void run() {
-                        SccSingleton.inst().FromLoginToChatDialog();
+                        ClientSingleton.inst().FromLoginToChatDialog();
                     }
                 };
                 EventQueue.invokeLater(runner);
@@ -69,7 +69,7 @@ public class mainClass {
         server.start();
 
 
-        SccSingleton.inst().ShowLoginDialog();
+        ClientSingleton.inst().ShowLoginDialog();
 
     }
 }

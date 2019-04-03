@@ -1,16 +1,16 @@
 package be.scc.client;
 
-public class SccSingleton {
-    private static SccSingleton single_instance = null;
+public class ClientSingleton {
+    private static ClientSingleton single_instance = null;
 
     // private constructor restricted to this class itself
-    private SccSingleton() {
+    private ClientSingleton() {
     }
 
     // static method to create instance of Singleton class
-    public static SccSingleton inst() {
+    public static ClientSingleton inst() {
         if (single_instance == null)
-            single_instance = new SccSingleton();
+            single_instance = new ClientSingleton();
 
         return single_instance;
     }
@@ -29,5 +29,4 @@ public class SccSingleton {
         chatDialog.pack();
         chatDialog.setVisible(true);
     }
-
 }
