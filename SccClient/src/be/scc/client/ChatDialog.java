@@ -3,7 +3,7 @@ package be.scc.client;
 import javax.swing.*;
 import java.awt.*;
 
-public class MessageDialog extends JDialog {
+public class ChatDialog extends JDialog {
     private JPanel contentPane;
     private JList listMessages;
     private JList listChannels;
@@ -11,14 +11,14 @@ public class MessageDialog extends JDialog {
     private JTextField messageInput;
     private JButton buttonOK;
 
-    public MessageDialog() {
+    public ChatDialog() {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
     }
 
     public static void main(String[] args) {
-        MessageDialog dialog = new MessageDialog();
+        ChatDialog dialog = new ChatDialog();
         dialog.pack();
         dialog.setVisible(true);
         System.exit(0);

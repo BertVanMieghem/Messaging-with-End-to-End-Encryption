@@ -10,12 +10,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class MainDialog extends JDialog {
+public class LoginDialog extends JDialog {
     private JPanel contentPane;
     private JButton loginButton;
     private JButton buttonOK;
 
-    public MainDialog() {
+    public LoginDialog() {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -46,7 +46,7 @@ public class MainDialog extends JDialog {
     }
 
     public static void main(String[] args) {
-        MainDialog dialog = new MainDialog();
+        LoginDialog dialog = new LoginDialog();
         dialog.pack();
         dialog.setVisible(true);
         System.exit(0);

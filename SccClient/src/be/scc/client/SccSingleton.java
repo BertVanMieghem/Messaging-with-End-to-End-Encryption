@@ -15,19 +15,19 @@ public class SccSingleton {
         return single_instance;
     }
 
-    MainDialog mainDialog = new MainDialog();
-    MessageDialog messageDialog = new MessageDialog();
+    LoginDialog loginDialog = new LoginDialog();
+    ChatDialog chatDialog = new ChatDialog();
 
     public void ShowLoginDialog() {
-        mainDialog.pack();
-        mainDialog.setVisible(true);
+        loginDialog.pack();
+        loginDialog.setVisible(true);
     }
 
-    public void FromLoginToMessageDialog() {
-        mainDialog.setVisible(false);
+    public void FromLoginToChatDialog() {
+        loginDialog.setVisible(false);
 
-        messageDialog.pack();
-        messageDialog.setVisible(true);
+        chatDialog.pack();
+        chatDialog.setVisible(true);
     }
 
 }

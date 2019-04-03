@@ -40,7 +40,7 @@ class StaticHandler implements HttpHandler {
 
                 Runnable runner = new Runnable() {
                     public void run() {
-                        SccSingleton.inst().FromLoginToMessageDialog();
+                        SccSingleton.inst().FromLoginToChatDialog();
                     }
                 };
                 EventQueue.invokeLater(runner);
