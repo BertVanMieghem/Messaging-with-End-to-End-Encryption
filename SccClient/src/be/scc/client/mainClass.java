@@ -31,6 +31,7 @@ class StaticHandler implements HttpHandler {
             case "/callback":
                 URI uri = httpExchange.getRequestURI();
                 Map<String, String> queryParameters = Util.splitQuery(uri);
+
                 String access_token = queryParameters.get("access_token");
                 data = "callback accepted".getBytes();
 

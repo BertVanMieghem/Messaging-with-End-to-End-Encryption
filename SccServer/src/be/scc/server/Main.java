@@ -57,7 +57,7 @@ public class Main {
                 String msg = e.getMessage();
                 if (msg == null)
                     msg = e.getClass().getName();
-                data = msg.getBytes();
+                data = msg.getBytes(); // TODO disable in release mode
                 e.printStackTrace();
             }
 
@@ -68,7 +68,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println("Setver started");
+        System.out.println("Server started");
 
         // Port should not be in this list: https://svn.nmap.org/nmap/nmap-services
         // Port number is 'Secure Chanel Chat Server' written in bad leet
