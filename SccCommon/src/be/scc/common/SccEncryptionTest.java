@@ -4,12 +4,13 @@ import org.junit.jupiter.api.Test;
 
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class SccEncryptionTest {
 
-    // Encryption
     @Test
     void makeKeyEncryptDecrypt() throws Exception {
         KeyPair pair = SccEncryption.GenerateKeypair();
@@ -18,5 +19,32 @@ class SccEncryptionTest {
         byte[] cypherText = SccEncryption.Encript(pair.getPublic(), origMessage);
         String resultText = SccEncryption.Decript(pair.getPrivate(), cypherText);
         assert (origMessage.equals(resultText));
+    }
+
+    @Test
+    void serialising() throws Exception {
+        KeyPair pairOrig = SccEncryption.GenerateKeypair();
+
+        PrivateKey priv = pairOrig.getPrivate();
+        PublicKey publ = pairOrig.getPublic();
+
+        String privStr = SccEncryption.serializeKey(priv);
+        String publStr = SccEncryption.serializeKey(publ);
+
+        KeyPair pair = new KeyPair(SccEncryption.deserialisePublicKey(publStr), SccEncryption.deserialisePrivateKey(privStr));
+
+        {
+            String origMessage = "Hello test!";
+            byte[] cypherText = SccEncryption.Encript(pair.getPublic(), origMessage);
+            String resultText = SccEncryption.Decript(pairOrig.getPrivate(), cypherText);
+            assert (origMessage.equals(resultText));
+        }
+
+        {
+            String origMessage = "Hello test!";
+            byte[] cypherText = SccEncryption.Encript(pair.getPublic(), origMessage);
+            String resultText = SccEncryption.Decript(pair.getPrivate(), cypherText);
+            assert (origMessage.equals(resultText));
+        }
     }
 }
