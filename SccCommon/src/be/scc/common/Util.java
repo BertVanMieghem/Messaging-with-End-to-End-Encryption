@@ -1,6 +1,7 @@
 package be.scc.common;
 
 import com.sun.net.httpserver.HttpExchange;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.net.*;
@@ -71,6 +72,12 @@ public class Util {
 
         var in = con.getInputStream();
         return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+    }
+
+    public static JSONObject SyncJsonRequest(URL url) throws IOException {
+        var ret = SyncRequest(url);
+        JSONObject obj = new JSONObject(ret);
+        return obj;
     }
 
     public static String SyncRequest(URL url) throws IOException {

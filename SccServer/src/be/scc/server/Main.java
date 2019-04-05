@@ -32,16 +32,14 @@ public class Main {
             byte[] data;
             try {
                 switch (path) {
-                    case "/registerUser":
+                    case "/register_user": {
 
-                        URI uri = httpExchange.getRequestURI();
                         var bodyParams = Util.getBodyParams(httpExchange);
                         var access_token = bodyParams.get("access_token").get(0);
                         var public_key = bodyParams.get("public_key").get(0);
 
                         URL url = new URL("https://graph.facebook.com/v3.2/me?access_token=" + access_token + "&method=get&pretty=0&sdk=joey&suppress_http_code=1");
-                        String ret = Util.SyncRequest(url);
-                        JSONObject obj = new JSONObject(ret);
+                        var obj = Util.SyncJsonRequest(url);
                         String username = obj.getString("name");
                         long userid = Long.parseLong(obj.getString("id"));
 
@@ -52,11 +50,26 @@ public class Main {
                         jsonRet.put("facebook_id", userid);
                         data = jsonRet.toString().getBytes();
                         break;
-                    default:
+                    }
+                    case "/get_users": {
+                        // Todo: user needs session token before accesing this
+                        //URI uri = httpExchange.getRequestURI();
+                        //var qs = Util.decodeQueryString(uri);
+                        var users = DbSingleton.inst().GetAllUsers();
+                        data = users.toString().getBytes();
+                        break;
+                    }
+                    //case "/get_handshake_buffer": {
+                    //    URI uri = httpExchange.getRequestURI();
+                    //    var qs = Util.decodeQueryString(uri);
+                    //    break;
+                    //}
+                    default: {
                         String response = "StaticHandler default handle: " + path;
 
                         data = response.getBytes();
                         break;
+                    }
                 }
             } catch (java.lang.Exception e) {
                 statusCode = 500;

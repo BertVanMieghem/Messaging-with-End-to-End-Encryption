@@ -28,33 +28,59 @@ public class ClientDB {
         System.out.println("Opened database successfully");
     }
 
-    public void setFacebookId(int facebook_id) throws SQLException {
-        PreparedStatement pstmt = conn.prepareStatement("UPDATE single_row SET facebook_id=?");
-        pstmt.setInt(1, facebook_id);
+    // Don't forget to save t odatabase when changing these properties:
+    public long facebook_id;
+    public KeyPair keyPair;
+    public int last_handshake_buffer_index = 0;
+    public int last_message_buffer_index = 0;
+
+
+    public void addUser(int id, long facebook_id, String public_key) throws SQLException {
+        PreparedStatement pstmt = conn.prepareStatement("INSERT OR REPLACE INTO local_users VALUES (?, ?, ?, ?, ?)");
+        pstmt.setInt(1, id);
+        pstmt.setLong(2, facebook_id);
+        pstmt.setString(3, public_key);
+        pstmt.setNull(4, Types.VARCHAR); // ephemeral_key_outgoing
+        pstmt.setNull(5, Types.VARCHAR); // ephemeral_key_ingoing
         pstmt.executeUpdate();
     }
 
-    public void setKeyPair(KeyPair pair) throws SQLException {
-        PrivateKey priv = pair.getPrivate();
-        PublicKey publ = pair.getPublic();
+    public void saveToDb() throws SQLException {
 
-        var private_key = SccEncryption.serializeKey(priv);
-        var public_key = SccEncryption.serializeKey(publ);
+        var private_key = SccEncryption.serializeKey(this.keyPair.getPrivate());
+        var public_key = SccEncryption.serializeKey(this.keyPair.getPublic());
 
-        PreparedStatement pstmt = conn.prepareStatement("UPDATE single_row SET private_key=? , public_key=?");
-        pstmt.setString(1, private_key);
-        pstmt.setString(2, public_key);
+        PreparedStatement pstmt = conn.prepareStatement("UPDATE single_row SET " +
+                "facebook_id=?," +
+                "private_key=?," +
+                "public_key=?," +
+                "last_handshake_buffer_index=?," +
+                "last_message_buffer_index=?" +
+                "");
+        pstmt.setLong(1, facebook_id);
+        pstmt.setString(2, private_key);
+        pstmt.setString(3, public_key);
+        pstmt.setInt(4, last_handshake_buffer_index);
+        pstmt.setInt(5, last_message_buffer_index);
         pstmt.executeUpdate();
     }
 
-    public KeyPair getKeyPair() throws SQLException, GeneralSecurityException {
+    public void loadFromDb() throws SQLException, GeneralSecurityException {
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery("SELECT * from single_row");
 
-        String privStr = result.getNString("private_key");
-        String publStr = result.getNString("public_key");
+        var facebook_id = result.getLong("facebook_id");
 
-        KeyPair pair = new KeyPair(SccEncryption.deserialisePublicKey(publStr), SccEncryption.deserialisePrivateKey(privStr));
-        return pair;
+        var private_key = result.getNString("private_key");
+        var public_key = result.getNString("public_key");
+        KeyPair pair = new KeyPair(SccEncryption.deserialisePublicKey(public_key), SccEncryption.deserialisePrivateKey(private_key));
+
+        var last_handshake_buffer_index = result.getInt("last_handshake_buffer_index");
+        var last_message_buffer_index = result.getInt("last_message_buffer_index");
+
+        this.facebook_id = facebook_id;
+        this.keyPair = pair;
+        this.last_handshake_buffer_index = last_handshake_buffer_index;
+        this.last_message_buffer_index = last_message_buffer_index;
     }
 }

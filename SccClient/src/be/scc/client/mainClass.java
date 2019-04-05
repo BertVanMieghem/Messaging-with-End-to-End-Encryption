@@ -34,8 +34,8 @@ class StaticHandler implements HttpHandler {
 
                 try {
                     KeyPair pair = SccEncryption.GenerateKeypair();
-                    // TODO: Post request
-                    URL url = new URL("http://localhost:5665/registerUser");
+
+                    URL url = new URL("http://localhost:5665/register_user");
                     var params = new HashMap<String, String>();
                     params.put("access_token", access_token);
                     params.put("public_key", SccEncryption.serializeKey(pair.getPublic()));
@@ -44,8 +44,9 @@ class StaticHandler implements HttpHandler {
                     JSONObject obj = new JSONObject(ret);
                     int facebook_id = obj.getInt("facebook_id");
 
-                    ClientSingleton.inst().db.setFacebookId(facebook_id);
-                    ClientSingleton.inst().db.setKeyPair(pair);
+                    ClientSingleton.inst().db.facebook_id = (facebook_id);
+                    ClientSingleton.inst().db.keyPair = (pair);
+                    ClientSingleton.inst().db.saveToDb();
 
                     Runnable runner = new Runnable() {
                         public void run() {

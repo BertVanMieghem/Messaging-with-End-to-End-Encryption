@@ -1,9 +1,13 @@
 package be.scc.server;
 
 import be.scc.common.SccEncryption;
+import org.json.*;
 
 import java.security.PublicKey;
 import java.sql.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class DbSingleton {
     private static DbSingleton single_instance = null;
@@ -41,5 +45,25 @@ public class DbSingleton {
         pstmt.setLong(1, facebook_id);
         pstmt.setString(2, public_key_str);
         pstmt.executeUpdate();
+    }
+
+    public JSONObject GetAllUsers() throws SQLException {
+
+        Statement statement = conn.createStatement();
+        ResultSet result = statement.executeQuery("SELECT * from users");
+        var collumnNames = List.of("id", "facebook_id", "public_key");
+
+        var jsonArr = new JSONArray();
+        while (result.next()) {
+            var jsonRow = new JSONObject();
+            for (var colName : collumnNames) {
+                jsonRow.put(colName, result.getString(colName));
+            }
+            jsonArr.put(jsonRow);
+        }
+
+        var rootJson = new JSONObject();
+        rootJson.put("users", jsonArr);
+        return rootJson;
     }
 }
