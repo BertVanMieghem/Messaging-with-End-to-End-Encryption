@@ -30,8 +30,8 @@ class SccEncryptionTest {
         PrivateKey priv = pairOrig.getPrivate();
         PublicKey publ = pairOrig.getPublic();
 
-        String privStr = SccEncryption.serializeKey(priv);
-        String publStr = SccEncryption.serializeKey(publ);
+        var privStr = SccEncryption.serializeKey(priv);
+        var publStr = SccEncryption.serializeKey(publ);
 
         KeyPair pair = new KeyPair(SccEncryption.deserialisePublicKey(publStr), SccEncryption.deserialisePrivateKey(privStr));
 

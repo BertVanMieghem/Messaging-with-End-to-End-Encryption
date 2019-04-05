@@ -11,7 +11,7 @@ import javax.crypto.*;
 import javax.crypto.spec.*;
 import javax.crypto.interfaces.*;
 
-import com.sun.crypto.provider.SunJCE;
+//import com.sun.crypto.provider.SunJCE;
 
 public class SccDiffieHellman {
 

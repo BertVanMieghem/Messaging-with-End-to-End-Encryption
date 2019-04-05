@@ -29,8 +29,12 @@ public class ClientDB {
     }
 
     public void setFacebookId(int facebook_id) throws SQLException {
-        Statement statement = conn.createStatement();
-        statement.executeUpdate("UPDATE single_row SET facebook_id=\"" + facebook_id + "\"");
+        //Statement statement = conn.createStatement();
+        //statement.executeUpdate("UPDATE single_row SET facebook_id=\"" + facebook_id + "\"");
+
+        PreparedStatement pstmt = conn.prepareStatement("UPDATE single_row SET facebook_id=?");
+        pstmt.setInt(1, facebook_id);
+        pstmt.executeUpdate();
     }
 
     public void setSecretPublicKeys(KeyPair pair) throws SQLException {
