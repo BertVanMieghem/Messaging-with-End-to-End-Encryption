@@ -1,5 +1,8 @@
 package be.scc.server;
 
+import be.scc.common.SccEncryption;
+
+import java.security.PublicKey;
 import java.sql.*;
 
 public class DbSingleton {
@@ -31,10 +34,12 @@ public class DbSingleton {
         return single_instance;
     }
 
-    public void InsertUser(long facebookId, int publicKey) throws SQLException {
+    public void InsertUser(long facebook_id, PublicKey public_key) throws SQLException {
+        var public_key_str = SccEncryption.serializeKey(public_key);
 
-        Statement statement = conn.createStatement();
-        statement.executeUpdate("INSERT INTO users VALUES (NULL, " + facebookId + ", " + publicKey + ")");
-        //conn.commit();
+        PreparedStatement pstmt = conn.prepareStatement("INSERT INTO users VALUES (NULL, ?, ?)");
+        pstmt.setLong(1, facebook_id);
+        pstmt.setString(2, public_key_str);
+        pstmt.executeUpdate();
     }
 }

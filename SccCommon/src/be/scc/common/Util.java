@@ -1,36 +1,85 @@
 package be.scc.common;
 
+import com.sun.net.httpserver.HttpExchange;
+
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.nio.file.*;
+import java.util.*;
 import java.util.stream.Stream;
 
 
 public class Util {
 
-    public static String SyncRequest(URL url) throws IOException {
+    public static String encodePostParams(Map<String, String> params) {
+        StringBuilder result = new StringBuilder();
+
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            result.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
+            result.append("=");
+            result.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
+            result.append("&");
+        }
+
+        String resultString = result.toString();
+        return resultString.length() > 0
+                ? resultString.substring(0, resultString.length() - 1)
+                : resultString;
+    }
+
+    public static Map<String, List<String>> decodePostParams(String postBody) {
+        Map<String, List<String>> parms = new HashMap<String, List<String>>();
+        String defs[] = postBody.split("[&]");
+        for (String def : defs) {
+            int ix = def.indexOf('=');
+            String name;
+            String value;
+            if (ix < 0) {
+                name = URLDecoder.decode(def, StandardCharsets.UTF_8);
+                value = "";
+            } else {
+                name = URLDecoder.decode(def.substring(0, ix), StandardCharsets.UTF_8);
+                value = URLDecoder.decode(def.substring(ix + 1), StandardCharsets.UTF_8);
+            }
+            List<String> list = parms.get(name);
+            if (list == null) {
+                list = new ArrayList<String>();
+                parms.put(name, list);
+            }
+            list.add(value);
+        }
+        return parms;
+    }
+
+    public static Map<String, List<String>> getBodyParams(HttpExchange httpExchange) throws IOException {
+        var body = httpExchange.getRequestBody();
+        var bodyStr = new String(body.readAllBytes(), StandardCharsets.UTF_8);
+        return decodePostParams(bodyStr);
+    }
+
+    public static String SyncRequestPost(URL url, Map<String, String> postParameters) throws IOException {
         // https://www.baeldung.com/java-http-request
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
+        con.setRequestMethod("POST");
 
         con.setDoOutput(true);
         DataOutputStream out = new DataOutputStream(con.getOutputStream());
-        //out.writeBytes(ParameterStringBuilder.getParamsString(parameters));
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer content = new StringBuffer();
-        while ((inputLine = in.readLine()) != null) {
-            content.append(inputLine);
-        }
-        in.close();
-
+        out.writeBytes(encodePostParams(postParameters));
         out.flush();
         out.close();
-        return content.toString();
+
+        var in = con.getInputStream();
+        return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+    }
+
+    public static String SyncRequest(URL url) throws IOException {
+        // https://www.baeldung.com/java-http-request
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET"); // Is default
+
+        var in = con.getInputStream();
+        return new String(in.readAllBytes(), StandardCharsets.UTF_8);
     }
 
     // https://howtodoinjava.com/java/io/java-read-file-to-string-examples/
@@ -44,13 +93,13 @@ public class Util {
         return contentBuilder.toString();
     }
 
-    public static Map<String, String> splitQuery(URI url) throws UnsupportedEncodingException {
+    public static Map<String, String> decodeQueryString(URI url) {
         Map<String, String> query_pairs = new LinkedHashMap<String, String>();
         String query = url.getQuery();
         String[] pairs = query.split("&");
         for (String pair : pairs) {
             int idx = pair.indexOf("=");
-            query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+            query_pairs.put(URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8), URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8));
         }
         return query_pairs;
     }

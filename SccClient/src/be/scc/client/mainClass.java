@@ -7,13 +7,9 @@ import org.json.JSONObject;
 import java.awt.*;
 import java.io.*;
 import java.net.*;
-import java.util.Map;
+import java.util.*;
 
 import java.security.*;
-import java.security.cert.Certificate; // Solves a java version incompatibility error
-import java.util.Arrays;
-import javax.crypto.*;
-import javax.crypto.spec.*;
 
 class StaticHandler implements HttpHandler {
 
@@ -31,7 +27,7 @@ class StaticHandler implements HttpHandler {
 
             case "/callback":
                 URI uri = httpExchange.getRequestURI();
-                Map<String, String> queryParameters = Util.splitQuery(uri);
+                Map<String, String> queryParameters = Util.decodeQueryString(uri);
 
                 String access_token = queryParameters.get("access_token");
                 data = "callback accepted".getBytes();
@@ -39,13 +35,17 @@ class StaticHandler implements HttpHandler {
                 try {
                     KeyPair pair = SccEncryption.GenerateKeypair();
                     // TODO: Post request
-                    URL url = new URL("http://localhost:5665/registerUser?access_token=" + access_token);//+ "&public_key=" + SccEncryption.serializeKey(pair.getPublic()));
-                    String ret = Util.SyncRequest(url);
+                    URL url = new URL("http://localhost:5665/registerUser");
+                    var params = new HashMap<String, String>();
+                    params.put("access_token", access_token);
+                    params.put("public_key", SccEncryption.serializeKey(pair.getPublic()));
+
+                    String ret = Util.SyncRequestPost(url, params);
                     JSONObject obj = new JSONObject(ret);
                     int facebook_id = obj.getInt("facebook_id");
 
                     ClientSingleton.inst().db.setFacebookId(facebook_id);
-                    ClientSingleton.inst().db.setSecretPublicKeys(pair);
+                    ClientSingleton.inst().db.setKeyPair(pair);
 
                     Runnable runner = new Runnable() {
                         public void run() {

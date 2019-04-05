@@ -1,5 +1,6 @@
 package be.scc.server;
 
+import be.scc.common.SccEncryption;
 import be.scc.common.Util;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -9,6 +10,7 @@ import java.awt.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.Map;
 import java.util.Random;
@@ -33,8 +35,9 @@ public class Main {
                     case "/registerUser":
 
                         URI uri = httpExchange.getRequestURI();
-                        Map<String, String> queryParameters = Util.splitQuery(uri);
-                        String access_token = queryParameters.get("access_token");
+                        var bodyParams = Util.getBodyParams(httpExchange);
+                        var access_token = bodyParams.get("access_token").get(0);
+                        var public_key = bodyParams.get("public_key").get(0);
 
                         URL url = new URL("https://graph.facebook.com/v3.2/me?access_token=" + access_token + "&method=get&pretty=0&sdk=joey&suppress_http_code=1");
                         String ret = Util.SyncRequest(url);
@@ -42,8 +45,8 @@ public class Main {
                         String username = obj.getString("name");
                         long userid = Long.parseLong(obj.getString("id"));
 
-                        Random r = new Random();
-                        DbSingleton.inst().InsertUser(userid, r.nextInt(1000));
+
+                        DbSingleton.inst().InsertUser(userid, SccEncryption.deserialisePublicKey(public_key));
                         JSONObject jsonRet = new JSONObject();
                         jsonRet.put("message", "insertUser done");
                         jsonRet.put("facebook_id", userid);

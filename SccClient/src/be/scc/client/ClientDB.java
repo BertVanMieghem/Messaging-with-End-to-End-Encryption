@@ -29,26 +29,25 @@ public class ClientDB {
     }
 
     public void setFacebookId(int facebook_id) throws SQLException {
-        //Statement statement = conn.createStatement();
-        //statement.executeUpdate("UPDATE single_row SET facebook_id=\"" + facebook_id + "\"");
-
         PreparedStatement pstmt = conn.prepareStatement("UPDATE single_row SET facebook_id=?");
         pstmt.setInt(1, facebook_id);
         pstmt.executeUpdate();
     }
 
-    public void setSecretPublicKeys(KeyPair pair) throws SQLException {
+    public void setKeyPair(KeyPair pair) throws SQLException {
         PrivateKey priv = pair.getPrivate();
         PublicKey publ = pair.getPublic();
 
-        String privStr = SccEncryption.serializeKey(priv);
-        String publStr = SccEncryption.serializeKey(publ);
+        var private_key = SccEncryption.serializeKey(priv);
+        var public_key = SccEncryption.serializeKey(publ);
 
-        Statement statement = conn.createStatement();
-        statement.executeUpdate("UPDATE single_row SET private_key=\"" + privStr + "\", public_key=\"" + publStr + "\"");
+        PreparedStatement pstmt = conn.prepareStatement("UPDATE single_row SET private_key=? , public_key=?");
+        pstmt.setString(1, private_key);
+        pstmt.setString(2, public_key);
+        pstmt.executeUpdate();
     }
 
-    public KeyPair getSecretPublicKeys() throws SQLException, GeneralSecurityException {
+    public KeyPair getKeyPair() throws SQLException, GeneralSecurityException {
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery("SELECT * from single_row");
 
