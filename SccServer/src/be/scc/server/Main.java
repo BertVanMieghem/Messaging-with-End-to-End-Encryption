@@ -59,11 +59,13 @@ public class Main {
                         data = users.toString().getBytes();
                         break;
                     }
-                    //case "/get_handshake_buffer": {
-                    //    URI uri = httpExchange.getRequestURI();
-                    //    var qs = Util.decodeQueryString(uri);
-                    //    break;
-                    //}
+                    case "/get_handshake_buffer": {
+                        URI uri = httpExchange.getRequestURI();
+                        var qs = Util.decodeQueryString(uri);
+                        var last_handshake_buffer_index = Integer.parseInt(qs.get("last_handshake_buffer_index"));
+
+                        break;
+                    }
                     default: {
                         String response = "StaticHandler default handle: " + path;
 

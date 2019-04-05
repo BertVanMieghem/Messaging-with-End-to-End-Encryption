@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 
 public class ChatDialog extends JDialog {
     private JPanel contentPane;
@@ -24,7 +23,7 @@ public class ChatDialog extends JDialog {
             public void mouseClicked(MouseEvent e) {
                 try {
                     ClientSingleton.inst().PullUsers();
-                    //ClientSingleton.inst().PullKpi();
+                    ClientSingleton.inst().PullServerEvents();
 
                 } catch (Exception e1) {
                     e1.printStackTrace();

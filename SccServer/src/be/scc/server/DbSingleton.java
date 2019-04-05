@@ -47,6 +47,34 @@ public class DbSingleton {
         pstmt.executeUpdate();
     }
 
+    public int insertHandshake(String message) throws SQLException {
+
+        PreparedStatement pstmt = conn.prepareStatement("INSERT INTO handshake_buffer VALUES (NULL, ?)");
+        pstmt.setString(1, message);
+        pstmt.executeUpdate();
+        return 1;
+    }
+
+    public JSONObject GetHandshakes(int last_handshake_buffer_index) throws SQLException {
+
+        Statement statement = conn.createStatement();
+        ResultSet result = statement.executeQuery("SELECT * FROM handshake_buffer WHERE id>" + last_handshake_buffer_index);
+        var collumnNames = List.of("id", "message");
+
+        var jsonArr = new JSONArray();
+        while (result.next()) {
+            var jsonRow = new JSONObject();
+            for (var colName : collumnNames) {
+                jsonRow.put(colName, result.getString(colName));
+            }
+            jsonArr.put(jsonRow);
+        }
+
+        var rootJson = new JSONObject();
+        rootJson.put("handshake_buffer", jsonArr);
+        return rootJson;
+    }
+
     public JSONObject GetAllUsers() throws SQLException {
 
         Statement statement = conn.createStatement();

@@ -57,7 +57,7 @@ public class ClientSingleton {
         }
     }
 
-    public void PullKpi() throws IOException {
+    public void PullServerEvents() throws IOException {
 
         var idx = ClientSingleton.inst().db.last_handshake_buffer_index;
         URL url = new URL("http://localhost:5665/get_handshake_buffer?last_handshake_buffer_index=" + idx);
