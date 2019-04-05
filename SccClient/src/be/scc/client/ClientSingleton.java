@@ -4,7 +4,6 @@ import be.scc.common.Util;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
 
@@ -13,6 +12,14 @@ public class ClientSingleton {
 
     // private constructor restricted to this class itself
     private ClientSingleton() {
+    }
+
+    public void Initilise() throws Exception {
+        db.loadFromDb();
+        loginDialog = new LoginDialog();
+        chatDialog = new ChatDialog();
+
+        loginDialog.Initialisation();
     }
 
     // static method to create instance of Singleton class
@@ -25,8 +32,8 @@ public class ClientSingleton {
 
     public ClientDB db = new ClientDB();
 
-    LoginDialog loginDialog = new LoginDialog();
-    ChatDialog chatDialog = new ChatDialog();
+    LoginDialog loginDialog;
+    ChatDialog chatDialog;
 
     public void ShowLoginDialog() {
         loginDialog.pack();

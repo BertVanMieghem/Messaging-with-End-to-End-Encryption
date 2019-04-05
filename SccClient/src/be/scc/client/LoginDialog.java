@@ -19,12 +19,6 @@ public class LoginDialog extends JDialog {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
         loginButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -33,9 +27,7 @@ public class LoginDialog extends JDialog {
                 if (Desktop.isDesktopSupported()) {
                     try {
                         Desktop.getDesktop().browse(new URI("http://localhost:5661/login.html"));
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    } catch (URISyntaxException e1) {
+                    } catch (Exception e1) {
                         e1.printStackTrace();
                     }
                 }
@@ -45,11 +37,10 @@ public class LoginDialog extends JDialog {
         });
     }
 
-    public static void main(String[] args) {
-        LoginDialog dialog = new LoginDialog();
-        dialog.pack();
-        dialog.setVisible(true);
-        System.exit(0);
+    public void Initialisation() {
+        if (ClientSingleton.inst().db.facebook_id != 0) {
+            ClientSingleton.inst().FromLoginToChatDialog();
+        }
     }
 
     {

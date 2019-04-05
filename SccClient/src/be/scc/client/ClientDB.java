@@ -14,13 +14,9 @@ public class ClientDB {
 
     // private constructor restricted to this class itself
     public ClientDB() {
-
-
         try {
             Class.forName("org.sqlite.JDBC");
             conn = DriverManager.getConnection("jdbc:sqlite:SccClient.sqlite");
-
-
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -46,9 +42,13 @@ public class ClientDB {
     }
 
     public void saveToDb() throws SQLException {
+        String private_key = null;
+        String public_key = null;
 
-        var private_key = SccEncryption.serializeKey(this.keyPair.getPrivate());
-        var public_key = SccEncryption.serializeKey(this.keyPair.getPublic());
+        if (this.keyPair != null) {
+            private_key = SccEncryption.serializeKey(this.keyPair.getPrivate());
+            public_key = SccEncryption.serializeKey(this.keyPair.getPublic());
+        }
 
         PreparedStatement pstmt = conn.prepareStatement("UPDATE single_row SET " +
                 "facebook_id=?," +
@@ -68,12 +68,19 @@ public class ClientDB {
     public void loadFromDb() throws SQLException, GeneralSecurityException {
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery("SELECT * from single_row");
-
+        if (result.isClosed()) {
+            Statement statement2 = conn.createStatement();
+            statement.execute("INSERT INTO single_row VALUES (0, NULL, NULL, 0, 0)");
+            saveToDb();
+            return;
+        }
         var facebook_id = result.getLong("facebook_id");
 
-        var private_key = result.getNString("private_key");
-        var public_key = result.getNString("public_key");
-        KeyPair pair = new KeyPair(SccEncryption.deserialisePublicKey(public_key), SccEncryption.deserialisePrivateKey(private_key));
+        var private_key = result.getString("private_key");
+        var public_key = result.getString("public_key");
+        KeyPair pair = null;
+        if (public_key != null && private_key != null)
+            pair = new KeyPair(SccEncryption.deserialisePublicKey(public_key), SccEncryption.deserialisePrivateKey(private_key));
 
         var last_handshake_buffer_index = result.getInt("last_handshake_buffer_index");
         var last_message_buffer_index = result.getInt("last_message_buffer_index");

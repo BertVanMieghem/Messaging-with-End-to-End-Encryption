@@ -42,7 +42,7 @@ class StaticHandler implements HttpHandler {
 
                     String ret = Util.SyncRequestPost(url, params);
                     JSONObject obj = new JSONObject(ret);
-                    int facebook_id = obj.getInt("facebook_id");
+                    var facebook_id = obj.getLong("facebook_id");
 
                     ClientSingleton.inst().db.facebook_id = (facebook_id);
                     ClientSingleton.inst().db.keyPair = (pair);
@@ -71,8 +71,9 @@ class StaticHandler implements HttpHandler {
 }
 
 public class mainClass {
-    public static void main(String[] args) throws IOException, URISyntaxException {
+    public static void main(String[] args) throws Exception {
         System.out.println("Hello World!");
+        ClientSingleton.inst().Initilise();
 
         // Port should not be in this list: https://svn.nmap.org/nmap/nmap-services
         // Port number is 'Secure Chanel Chat Interface' written in bad leet
@@ -80,7 +81,6 @@ public class mainClass {
         server.createContext("/", new StaticHandler());
         server.setExecutor(null); // creates a default executor
         server.start();
-
 
         ClientSingleton.inst().ShowLoginDialog();
 
