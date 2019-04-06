@@ -51,6 +51,17 @@ public class Main {
                         data = jsonRet.toString().getBytes();
                         break;
                     }
+                    case "/add_handshake": {
+                        var bodyParams = Util.getBodyParams(httpExchange);
+                        var message = bodyParams.get("message").get(0);
+
+                        var id = DbSingleton.inst().insertHandshake(message);
+                        JSONObject jsonRet = new JSONObject();
+                        jsonRet.put("message", "add_handshake done");
+                        jsonRet.put("message_id", id);
+                        data = jsonRet.toString().getBytes();
+                        break;
+                    }
                     case "/get_users": {
                         // Todo: user needs session token before accesing this
                         //URI uri = httpExchange.getRequestURI();
@@ -64,6 +75,8 @@ public class Main {
                         var qs = Util.decodeQueryString(uri);
                         var last_handshake_buffer_index = Integer.parseInt(qs.get("last_handshake_buffer_index"));
 
+                        var json = DbSingleton.inst().GetHandshakes(last_handshake_buffer_index);
+                        data = json.toString().getBytes();
                         break;
                     }
                     default: {

@@ -7,8 +7,7 @@ import java.security.*;
 import java.security.cert.Certificate; // Solves a java version incompatibility error
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.RSAPrivateKeySpec;
-import java.security.spec.RSAPublicKeySpec;
+import java.security.spec.*;
 import java.util.Arrays;
 import javax.crypto.*;
 import javax.crypto.spec.*;
@@ -22,6 +21,7 @@ public class SccEncryption {
         KeyPair pair = keyGen.generateKeyPair();
         return pair;
     }
+
 
     static public String serializeKey(Key key) {
         if (key instanceof RSAPublicKey)
@@ -42,7 +42,7 @@ public class SccEncryption {
         RSAPublicKeySpec Spec = new RSAPublicKeySpec(
                 new BigInteger(parts[0]),
                 new BigInteger(parts[1]));
-        return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(Spec);
+        return ((RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(Spec));
     }
 
     static public RSAPrivateKey deserialisePrivateKey(String key) throws GeneralSecurityException {
@@ -73,5 +73,28 @@ public class SccEncryption {
         byte[] returned = dec.doFinal(cipherText);
         String plainText = new String(returned, StandardCharsets.UTF_8);
         return plainText;
+    }
+
+    static private IvParameterSpec iv = new IvParameterSpec("jsldghdj;figshig".getBytes(StandardCharsets.UTF_8)); // semi random ;)
+
+    static public SecretKey GenerateSymetricKey() throws GeneralSecurityException {
+        SecureRandom secureRandom = new SecureRandom();
+        int keyBitSize = 256;
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(keyBitSize, secureRandom);
+        return keyGenerator.generateKey();
+    }
+
+    static public byte[] Encript(SecretKey key, String plaintext) throws GeneralSecurityException {
+        Cipher enc = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        enc.init(Cipher.ENCRYPT_MODE, key, iv);
+        return enc.doFinal(plaintext.getBytes(StandardCharsets.UTF_8));
+    }
+
+    static public String Decript(SecretKey key, byte[] cipherText) throws GeneralSecurityException {
+        Cipher dec = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        dec.init(Cipher.DECRYPT_MODE, key, iv);
+        byte[] returned = dec.doFinal(cipherText);
+        return new String(returned, StandardCharsets.UTF_8);
     }
 }

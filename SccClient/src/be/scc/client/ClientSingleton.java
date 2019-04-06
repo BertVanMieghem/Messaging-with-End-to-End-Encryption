@@ -6,6 +6,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class ClientSingleton {
     private static ClientSingleton single_instance = null;

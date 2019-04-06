@@ -2,10 +2,13 @@ package be.scc.common;
 
 import org.junit.jupiter.api.Test;
 
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -48,5 +51,15 @@ class SccEncryptionTest {
             String resultText = SccEncryption.Decript(pair.getPrivate(), cypherText);
             assert (origMessage.equals(resultText));
         }
+    }
+
+    @Test
+    void symetric() throws Exception {
+        var key = SccEncryption.GenerateSymetricKey();
+
+        String origMessage = "Hello test!";
+        byte[] cypherText = SccEncryption.Encript(key, origMessage);
+        String resultText = SccEncryption.Decript(key, cypherText);
+        assert (origMessage.equals(resultText));
     }
 }

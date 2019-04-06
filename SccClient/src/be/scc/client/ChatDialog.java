@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class ChatDialog extends JDialog {
+public class ChatDialog extends JDialog implements SccListener {
     private JPanel contentPane;
     private JList listMessages;
     private JList listUsers;
@@ -18,6 +18,9 @@ public class ChatDialog extends JDialog {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
+
+        ClientSingleton.inst().db.dispatcher.addListener(this);
+
         btnPullPki.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -33,11 +36,9 @@ public class ChatDialog extends JDialog {
         });
     }
 
-    public static void main(String[] args) {
-        ChatDialog dialog = new ChatDialog();
-        dialog.pack();
-        dialog.setVisible(true);
-        System.exit(0);
+    @Override
+    public void SccModelChanged() {
+        //ClientSingleton.inst().db.
     }
 
     {

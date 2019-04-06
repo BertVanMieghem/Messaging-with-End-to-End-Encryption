@@ -1,12 +1,30 @@
 package be.scc.client;
 
 import be.scc.common.SccEncryption;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+interface SccListener {
+    void SccModelChanged();
+}
+
+class SccDispatcher {
+    private List<SccListener> listeners = new ArrayList<SccListener>();
+
+    public void addListener(SccListener toAdd) {
+        listeners.add(toAdd);
+    }
+
+    public void SccDispatchModelChanged() {
+        for (SccListener hl : listeners)
+            hl.SccModelChanged();
+    }
+}
 
 public class ClientDB {
 
@@ -24,7 +42,9 @@ public class ClientDB {
         System.out.println("Opened database successfully");
     }
 
-    // Don't forget to save t odatabase when changing these properties:
+    public SccDispatcher dispatcher = new SccDispatcher();
+
+    // Don't forget to save to database when changing these properties:
     public long facebook_id;
     public KeyPair keyPair;
     public int last_handshake_buffer_index = 0;
@@ -63,6 +83,8 @@ public class ClientDB {
         pstmt.setInt(4, last_handshake_buffer_index);
         pstmt.setInt(5, last_message_buffer_index);
         pstmt.executeUpdate();
+
+        dispatcher.SccDispatchModelChanged();
     }
 
     public void loadFromDb() throws SQLException, GeneralSecurityException {
@@ -90,4 +112,39 @@ public class ClientDB {
         this.last_handshake_buffer_index = last_handshake_buffer_index;
         this.last_message_buffer_index = last_message_buffer_index;
     }
+
+    public List<local_user> getUsers() throws SQLException, GeneralSecurityException {
+
+        Statement statement = conn.createStatement();
+        ResultSet result = statement.executeQuery("SELECT * from local_users");
+
+        var aggregate = new ArrayList<local_user>();
+        while (result.next()) {
+            var row = new local_user();
+            row.id = result.getInt("id");
+            row.facebook_id = result.getLong("facebook_id");
+
+            var public_key = result.getString("public_key");
+            if (public_key != null) row.public_key = SccEncryption.deserialisePublicKey(public_key);
+
+            var ephemeral_key_outgoing = result.getString("ephemeral_key_outgoing");
+            if (ephemeral_key_outgoing != null) row.ephemeral_key_outgoing = SccEncryption.deserialisePublicKey(ephemeral_key_outgoing);
+
+            var ephemeral_key_ingoing = result.getString("ephemeral_key_ingoing");
+            if (ephemeral_key_ingoing != null) row.ephemeral_key_ingoing = SccEncryption.deserialisePublicKey(ephemeral_key_ingoing);
+
+            aggregate.add(row);
+        }
+        return aggregate;
+    }
+
+    class local_user {
+        public int id;
+        public long facebook_id;
+        public PublicKey public_key;
+        public Key ephemeral_key_outgoing;
+        public Key ephemeral_key_ingoing;
+    }
+
+
 }
