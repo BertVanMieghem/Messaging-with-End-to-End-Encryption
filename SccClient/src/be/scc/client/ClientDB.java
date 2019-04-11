@@ -8,8 +8,13 @@ import java.security.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 interface SccListener {
+    /**
+     * Should be idempotent.
+     * This function translates the model information to GUI and should not change any external state.
+     */
     void SccModelChanged();
 }
 
@@ -17,6 +22,7 @@ class SccDispatcher {
     private List<SccListener> listeners = new ArrayList<SccListener>();
 
     public void addListener(SccListener toAdd) {
+        toAdd.SccModelChanged(); // Could be unhandy in some cases
         listeners.add(toAdd);
     }
 
@@ -150,14 +156,20 @@ public class ClientDB {
         }
     }
 
-    class local_user {
-        public int id;
-        public long facebook_id;
-        public String facebook_name;
-        public PublicKey public_key;
-        public Key ephemeral_key_outgoing;
-        public Key ephemeral_key_ingoing;
+}
+
+class local_user {
+    public int id;
+    public long facebook_id;
+    public String facebook_name;
+    public PublicKey public_key;
+    public Key ephemeral_key_outgoing;
+    public Key ephemeral_key_ingoing;
+
+    public String[] toStringList() {
+        Object[] tmp = {id, facebook_id, facebook_name, public_key, ephemeral_key_outgoing, ephemeral_key_ingoing};
+        return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
     }
 
-
+    public final static String[] columnNames = {"id", "facebook_id", "facebook_name", "public_key", "ephemeral_key_outgoing", "ephemeral_key_ingoing"};
 }
