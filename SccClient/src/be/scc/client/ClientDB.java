@@ -58,6 +58,12 @@ public class ClientDB {
 
 
     public void addUser(int id, long facebook_id, String facebook_name, String public_key) throws SQLException {
+        /*var usr = new local_user();
+        usr.id = id;
+        usr.facebook_id = facebook_id;
+        usr.facebook_name = facebook_name;
+        usr.public_key = SccEncryption.deserialisePublicKey(public_key);*/
+
         PreparedStatement pstmt = conn.prepareStatement("INSERT OR REPLACE INTO local_users VALUES (?, ?, ?, ?, ?, ?)");
         var i = 0;
         pstmt.setInt(++i, id);
@@ -130,30 +136,38 @@ public class ClientDB {
 
             var aggregate = new ArrayList<local_user>();
             while (result.next()) {
-                var row = new local_user();
-                row.id = result.getInt("id");
-                row.facebook_id = result.getLong("facebook_id");
-                row.facebook_name = result.getString("facebook_name");
-
-                var public_key = result.getString("public_key");
-                if (public_key != null) row.public_key = SccEncryption.deserialisePublicKey(public_key);
-
-                var ephemeral_key_outgoing = result.getString("ephemeral_key_outgoing");
-                if (ephemeral_key_outgoing != null)
-                    row.ephemeral_key_outgoing = SccEncryption.deserialisePublicKey(ephemeral_key_outgoing);
-
-                var ephemeral_key_ingoing = result.getString("ephemeral_key_ingoing");
-                if (ephemeral_key_ingoing != null)
-                    row.ephemeral_key_ingoing = SccEncryption.deserialisePublicKey(ephemeral_key_ingoing);
-
-                aggregate.add(row);
+                aggregate.add(getUserFromResultRow(result));
             }
             return aggregate;
         } catch (SQLException | GeneralSecurityException e) {
             e.printStackTrace();
             return new ArrayList<local_user>();
-
         }
+    }
+
+    public local_user getUserWithId(long facebook_id) throws SQLException, GeneralSecurityException {
+        Statement statement = conn.createStatement();
+        ResultSet result = statement.executeQuery("SELECT * from local_users WHERE facebook_id=" + facebook_id);
+        return getUserFromResultRow(result);
+    }
+
+    public local_user getUserFromResultRow(ResultSet result) throws SQLException, GeneralSecurityException {
+        var row = new local_user();
+        row.id = result.getInt("id");
+        row.facebook_id = result.getLong("facebook_id");
+        row.facebook_name = result.getString("facebook_name");
+
+        var public_key = result.getString("public_key");
+        if (public_key != null) row.public_key = SccEncryption.deserialisePublicKey(public_key);
+
+        var ephemeral_key_outgoing = result.getString("ephemeral_key_outgoing");
+        if (ephemeral_key_outgoing != null)
+            row.ephemeral_key_outgoing = SccEncryption.deserialisePublicKey(ephemeral_key_outgoing);
+
+        var ephemeral_key_ingoing = result.getString("ephemeral_key_ingoing");
+        if (ephemeral_key_ingoing != null)
+            row.ephemeral_key_ingoing = SccEncryption.deserialisePublicKey(ephemeral_key_ingoing);
+        return row;
     }
 
 }
