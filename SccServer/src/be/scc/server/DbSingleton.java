@@ -1,28 +1,23 @@
 package be.scc.server;
 
 import be.scc.common.SccEncryption;
+import be.scc.common.Util;
 import org.json.*;
 
 import java.security.PublicKey;
 import java.sql.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-public class DbSingleton {
+class DbSingleton {
     private static DbSingleton single_instance = null;
 
     Connection conn = null;
 
     // private constructor restricted to this class itself
     private DbSingleton() {
-
-
         try {
             Class.forName("org.sqlite.JDBC");
             conn = DriverManager.getConnection("jdbc:sqlite:SccServer.sqlite");
-
-
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -38,60 +33,64 @@ public class DbSingleton {
         return single_instance;
     }
 
-    public void InsertUser(long facebook_id, PublicKey public_key) throws SQLException {
+
+    public void insertUser(long facebook_id, String facebook_name, PublicKey public_key) throws SQLException {
         var public_key_str = SccEncryption.serializeKey(public_key);
 
-        PreparedStatement pstmt = conn.prepareStatement("INSERT INTO users VALUES (NULL, ?, ?)");
-        pstmt.setLong(1, facebook_id);
-        pstmt.setString(2, public_key_str);
+        PreparedStatement pstmt = conn.prepareStatement("INSERT INTO users VALUES (NULL, ?, ?, ?)");
+        var i = 0;
+        pstmt.setLong(++i, facebook_id);
+        pstmt.setString(++i, facebook_name);
+        pstmt.setString(++i, public_key_str);
         pstmt.executeUpdate();
     }
 
-    public int insertHandshake(String message) throws SQLException {
+    public JSONObject getAllUsers() throws SQLException {
+        Statement statement = conn.createStatement();
+        ResultSet result = statement.executeQuery("SELECT * from users");
+        //var collumnNames = List.of("id", "facebook_id", "public_key");
+        var jsonArr = Util.SqlResultsToJson(result); // Information on the server is not considered private
 
+        var rootJson = new JSONObject();
+        rootJson.put("users", jsonArr);
+        return rootJson;
+    }
+
+
+    public int addHandshake(String message) throws SQLException {
         PreparedStatement pstmt = conn.prepareStatement("INSERT INTO handshake_buffer VALUES (NULL, ?)");
         pstmt.setString(1, message);
         pstmt.executeUpdate();
-        return 1;
+        return 1; // TODO
     }
 
-    public JSONObject GetHandshakes(int last_handshake_buffer_index) throws SQLException {
-
+    public JSONObject getHandshakes(int last_handshake_buffer_index) throws SQLException {
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery("SELECT * FROM handshake_buffer WHERE id>" + last_handshake_buffer_index);
-        var collumnNames = List.of("id", "message");
 
-        var jsonArr = new JSONArray();
-        while (result.next()) {
-            var jsonRow = new JSONObject();
-            for (var colName : collumnNames) {
-                jsonRow.put(colName, result.getString(colName));
-            }
-            jsonArr.put(jsonRow);
-        }
+        var jsonArr = Util.SqlResultsToJson(result); //, List.of("id", "message"));
 
         var rootJson = new JSONObject();
         rootJson.put("handshake_buffer", jsonArr);
         return rootJson;
     }
 
-    public JSONObject GetAllUsers() throws SQLException {
 
+    public int addMessage(String message) throws SQLException {
+        PreparedStatement pstmt = conn.prepareStatement("INSERT INTO message_buffer VALUES (NULL, ?)");
+        pstmt.setString(1, message);
+        pstmt.executeUpdate();
+        return 1; // TODO
+    }
+
+    public JSONObject getMessages(int last_message_buffer_index) throws SQLException {
         Statement statement = conn.createStatement();
-        ResultSet result = statement.executeQuery("SELECT * from users");
-        var collumnNames = List.of("id", "facebook_id", "public_key");
+        ResultSet result = statement.executeQuery("SELECT * FROM message_buffer WHERE id>" + last_message_buffer_index);
 
-        var jsonArr = new JSONArray();
-        while (result.next()) {
-            var jsonRow = new JSONObject();
-            for (var colName : collumnNames) {
-                jsonRow.put(colName, result.getString(colName));
-            }
-            jsonArr.put(jsonRow);
-        }
+        var jsonArr = Util.SqlResultsToJson(result); //, List.of("id", "message"));
 
         var rootJson = new JSONObject();
-        rootJson.put("users", jsonArr);
+        rootJson.put("message_buffer", jsonArr);
         return rootJson;
     }
 }

@@ -25,7 +25,9 @@ public class ClientSingleton {
         loginDialog.Initialisation();
     }
 
-    // static method to create instance of Singleton class
+    /**
+     * static method to create instance of Singleton class
+     */
     public static ClientSingleton inst() {
         if (single_instance == null)
             single_instance = new ClientSingleton();
@@ -56,11 +58,12 @@ public class ClientSingleton {
         var jsonObj = Util.SyncJsonRequest(url);
         for (Object row : jsonObj.getJSONArray("users")) {
             var obj = (JSONObject) row;
-            db.addUser(obj.getInt("id"), obj.getLong("facebook_id"), obj.getString("public_key"));
+            db.addUser(obj.getInt("id"), obj.getLong("facebook_id"), obj.getString("facebook_name"), obj.getString("public_key"));
         }
+        db.saveToDb();
     }
 
-    public void PullServerEvents() throws IOException {
+    public void PullServerEvents() throws IOException, SQLException {
 
         var idx = ClientSingleton.inst().db.last_handshake_buffer_index;
         URL url = new URL("http://localhost:5665/get_handshake_buffer?last_handshake_buffer_index=" + idx);
@@ -70,9 +73,7 @@ public class ClientSingleton {
         {
             Object keyvalue = jsonObj.get(keyStr);
             System.out.println("key: " + keyStr + " value: " + keyvalue);
-            //for nested objects iteration if required
-            //if (keyvalue instanceof JSONObject)
-            //    printJsonObject((JSONObject)keyvalue);
         });
+        db.saveToDb();
     }
 }

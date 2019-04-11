@@ -14,11 +14,14 @@ public class ChatDialog extends JDialog implements SccListener {
     private JButton btnPullPki;
     private JButton buttonOK;
 
+    private DefaultListModel<String> userModel = new DefaultListModel<>();
+
     public ChatDialog() {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
 
+        listUsers.setModel(userModel);
         ClientSingleton.inst().db.dispatcher.addListener(this);
 
         btnPullPki.addMouseListener(new MouseAdapter() {
@@ -27,7 +30,6 @@ public class ChatDialog extends JDialog implements SccListener {
                 try {
                     ClientSingleton.inst().PullUsers();
                     ClientSingleton.inst().PullServerEvents();
-
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
@@ -38,7 +40,11 @@ public class ChatDialog extends JDialog implements SccListener {
 
     @Override
     public void SccModelChanged() {
-        //ClientSingleton.inst().db.
+        var users = ClientSingleton.inst().db.getUsers();
+        userModel.clear();
+        for (var u : users) {
+            userModel.addElement(u.facebook_name);
+        }
     }
 
     {

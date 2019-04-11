@@ -6,14 +6,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-import java.awt.*;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.*;
-import java.nio.charset.StandardCharsets;
-import java.sql.*;
-import java.util.Map;
-import java.util.Random;
 
 import org.json.*;
 
@@ -40,48 +34,68 @@ public class Main {
 
                         URL url = new URL("https://graph.facebook.com/v3.2/me?access_token=" + access_token + "&method=get&pretty=0&sdk=joey&suppress_http_code=1");
                         var obj = Util.SyncJsonRequest(url);
-                        String username = obj.getString("name");
-                        long userid = Long.parseLong(obj.getString("id"));
+                        long facebook_id = Long.parseLong(obj.getString("id"));
+                        String facebook_name = obj.getString("name");
 
 
-                        DbSingleton.inst().InsertUser(userid, SccEncryption.deserialisePublicKey(public_key));
+                        DbSingleton.inst().insertUser(facebook_id, facebook_name, SccEncryption.deserialisePublicKey(public_key));
                         JSONObject jsonRet = new JSONObject();
                         jsonRet.put("message", "insertUser done");
-                        jsonRet.put("facebook_id", userid);
-                        data = jsonRet.toString().getBytes();
-                        break;
-                    }
-                    case "/add_handshake": {
-                        var bodyParams = Util.getBodyParams(httpExchange);
-                        var message = bodyParams.get("message").get(0);
-
-                        var id = DbSingleton.inst().insertHandshake(message);
-                        JSONObject jsonRet = new JSONObject();
-                        jsonRet.put("message", "add_handshake done");
-                        jsonRet.put("message_id", id);
+                        jsonRet.put("facebook_id", facebook_id);
+                        jsonRet.put("facebook_name", facebook_name);
                         data = jsonRet.toString().getBytes();
                         break;
                     }
                     case "/get_users": {
                         // Todo: user needs session token before accesing this
-                        //URI uri = httpExchange.getRequestURI();
-                        //var qs = Util.decodeQueryString(uri);
-                        var users = DbSingleton.inst().GetAllUsers();
+                        var users = DbSingleton.inst().getAllUsers();
                         data = users.toString().getBytes();
+                        break;
+                    }
+
+                    case "/add_handshake": {
+                        var bodyParams = Util.getBodyParams(httpExchange);
+                        var message = bodyParams.get("message").get(0);
+
+                        var id = DbSingleton.inst().addHandshake(message);
+                        JSONObject jsonRet = new JSONObject();
+                        jsonRet.put("message", path + " done");
+                        jsonRet.put("handshake_id", id);
+                        data = jsonRet.toString().getBytes();
                         break;
                     }
                     case "/get_handshake_buffer": {
                         URI uri = httpExchange.getRequestURI();
                         var qs = Util.decodeQueryString(uri);
                         var last_handshake_buffer_index = Integer.parseInt(qs.get("last_handshake_buffer_index"));
-
-                        var json = DbSingleton.inst().GetHandshakes(last_handshake_buffer_index);
+                        var json = DbSingleton.inst().getHandshakes(last_handshake_buffer_index);
                         data = json.toString().getBytes();
                         break;
                     }
+
+                    case "/add_message": {
+                        var bodyParams = Util.getBodyParams(httpExchange);
+                        var message = bodyParams.get("message").get(0);
+
+                        var id = DbSingleton.inst().addMessage(message);
+                        JSONObject jsonRet = new JSONObject();
+                        jsonRet.put("message", path + " done");
+                        jsonRet.put("message_id", id);
+                        data = jsonRet.toString().getBytes();
+                        break;
+                    }
+                    case "/get_message_buffer": {
+                        URI uri = httpExchange.getRequestURI();
+                        var qs = Util.decodeQueryString(uri);
+                        var last_message_buffer_index = Integer.parseInt(qs.get("last_message_buffer_index"));
+                        var json = DbSingleton.inst().getHandshakes(last_message_buffer_index);
+                        data = json.toString().getBytes();
+                        break;
+                    }
+
                     default: {
                         String response = "StaticHandler default handle: " + path;
-
+                        statusCode = 404;
                         data = response.getBytes();
                         break;
                     }

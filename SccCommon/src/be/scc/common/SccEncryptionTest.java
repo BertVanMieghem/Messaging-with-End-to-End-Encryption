@@ -2,17 +2,11 @@ package be.scc.common;
 
 import org.junit.jupiter.api.Test;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
+import java.beans.ExceptionListener;
+import java.beans.XMLEncoder;
+import java.io.*;
 import java.security.*;
-import java.time.Duration;
-import java.time.Instant;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class SccEncryptionTest {
 
@@ -55,7 +49,7 @@ class SccEncryptionTest {
 
     @Test
     void symetric() throws Exception {
-        var key = SccEncryption.GenerateSymetricKey();
+        SecretKey key = SccEncryption.GenerateSymetricKey();
 
         String origMessage = "Hello test!";
         byte[] cypherText = SccEncryption.Encript(key, origMessage);

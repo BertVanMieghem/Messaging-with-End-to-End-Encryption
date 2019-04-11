@@ -14,10 +14,16 @@ import javax.crypto.spec.*;
 
 public class SccEncryption {
 
-    // This takes ~35ms for keysize 1024. ~7ms for keysize 512
+    /**
+     * This takes
+     * ~265ms for keysize 2048
+     * ~35ms for keysize 1024.
+     * ~7ms for keysize 512
+     * Key length based on: https://www.keylength.com/en/compare/
+     */
     static public KeyPair GenerateKeypair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(1024);
+        keyGen.initialize(2048);
         KeyPair pair = keyGen.generateKeyPair();
         return pair;
     }

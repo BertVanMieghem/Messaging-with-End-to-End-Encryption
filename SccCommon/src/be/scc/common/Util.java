@@ -1,12 +1,16 @@
 package be.scc.common;
 
 import com.sun.net.httpserver.HttpExchange;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -137,5 +141,32 @@ public class Util {
             }
         }
         return buf.toString();
+    }
+
+
+    /**
+     * Will guess the column names out of the ResultSet
+     * Sligtly less secure, but more flexible
+     */
+    public static JSONArray SqlResultsToJson(ResultSet result) throws SQLException {
+        ResultSetMetaData rsmd = result.getMetaData();
+        var collumnNames = new ArrayList<String>();
+        var count = rsmd.getColumnCount();
+        for (int i = 1; i <= count; i++) {
+            collumnNames.add(rsmd.getColumnName(i));
+        }
+        return SqlResultsToJson(result, collumnNames);
+    }
+
+    public static JSONArray SqlResultsToJson(ResultSet result, List<String> collumnNames) throws SQLException {
+        var jsonArr = new JSONArray();
+        while (result.next()) {
+            var jsonRow = new JSONObject();
+            for (var colName : collumnNames) {
+                jsonRow.put(colName, result.getString(colName));
+            }
+            jsonArr.put(jsonRow);
+        }
+        return jsonArr;
     }
 }

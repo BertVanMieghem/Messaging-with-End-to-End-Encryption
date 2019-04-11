@@ -51,13 +51,15 @@ public class ClientDB {
     public int last_message_buffer_index = 0;
 
 
-    public void addUser(int id, long facebook_id, String public_key) throws SQLException {
-        PreparedStatement pstmt = conn.prepareStatement("INSERT OR REPLACE INTO local_users VALUES (?, ?, ?, ?, ?)");
-        pstmt.setInt(1, id);
-        pstmt.setLong(2, facebook_id);
-        pstmt.setString(3, public_key);
-        pstmt.setNull(4, Types.VARCHAR); // ephemeral_key_outgoing
-        pstmt.setNull(5, Types.VARCHAR); // ephemeral_key_ingoing
+    public void addUser(int id, long facebook_id, String facebook_name, String public_key) throws SQLException {
+        PreparedStatement pstmt = conn.prepareStatement("INSERT OR REPLACE INTO local_users VALUES (?, ?, ?, ?, ?, ?)");
+        var i = 0;
+        pstmt.setInt(++i, id);
+        pstmt.setLong(++i, facebook_id);
+        pstmt.setString(++i, facebook_name);
+        pstmt.setString(++i, public_key);
+        pstmt.setNull(++i, Types.VARCHAR); // ephemeral_key_outgoing
+        pstmt.setNull(++i, Types.VARCHAR); // ephemeral_key_ingoing
         pstmt.executeUpdate();
     }
 
@@ -77,11 +79,12 @@ public class ClientDB {
                 "last_handshake_buffer_index=?," +
                 "last_message_buffer_index=?" +
                 "");
-        pstmt.setLong(1, facebook_id);
-        pstmt.setString(2, private_key);
-        pstmt.setString(3, public_key);
-        pstmt.setInt(4, last_handshake_buffer_index);
-        pstmt.setInt(5, last_message_buffer_index);
+        var i = 0;
+        pstmt.setLong(++i, facebook_id);
+        pstmt.setString(++i, private_key);
+        pstmt.setString(++i, public_key);
+        pstmt.setInt(++i, last_handshake_buffer_index);
+        pstmt.setInt(++i, last_message_buffer_index);
         pstmt.executeUpdate();
 
         dispatcher.SccDispatchModelChanged();
@@ -113,34 +116,44 @@ public class ClientDB {
         this.last_message_buffer_index = last_message_buffer_index;
     }
 
-    public List<local_user> getUsers() throws SQLException, GeneralSecurityException {
+    public List<local_user> getUsers() {
 
-        Statement statement = conn.createStatement();
-        ResultSet result = statement.executeQuery("SELECT * from local_users");
+        try {
+            Statement statement = conn.createStatement();
+            ResultSet result = statement.executeQuery("SELECT * from local_users");
 
-        var aggregate = new ArrayList<local_user>();
-        while (result.next()) {
-            var row = new local_user();
-            row.id = result.getInt("id");
-            row.facebook_id = result.getLong("facebook_id");
+            var aggregate = new ArrayList<local_user>();
+            while (result.next()) {
+                var row = new local_user();
+                row.id = result.getInt("id");
+                row.facebook_id = result.getLong("facebook_id");
+                row.facebook_name = result.getString("facebook_name");
 
-            var public_key = result.getString("public_key");
-            if (public_key != null) row.public_key = SccEncryption.deserialisePublicKey(public_key);
+                var public_key = result.getString("public_key");
+                if (public_key != null) row.public_key = SccEncryption.deserialisePublicKey(public_key);
 
-            var ephemeral_key_outgoing = result.getString("ephemeral_key_outgoing");
-            if (ephemeral_key_outgoing != null) row.ephemeral_key_outgoing = SccEncryption.deserialisePublicKey(ephemeral_key_outgoing);
+                var ephemeral_key_outgoing = result.getString("ephemeral_key_outgoing");
+                if (ephemeral_key_outgoing != null)
+                    row.ephemeral_key_outgoing = SccEncryption.deserialisePublicKey(ephemeral_key_outgoing);
 
-            var ephemeral_key_ingoing = result.getString("ephemeral_key_ingoing");
-            if (ephemeral_key_ingoing != null) row.ephemeral_key_ingoing = SccEncryption.deserialisePublicKey(ephemeral_key_ingoing);
+                var ephemeral_key_ingoing = result.getString("ephemeral_key_ingoing");
+                if (ephemeral_key_ingoing != null)
+                    row.ephemeral_key_ingoing = SccEncryption.deserialisePublicKey(ephemeral_key_ingoing);
 
-            aggregate.add(row);
+                aggregate.add(row);
+            }
+            return aggregate;
+        } catch (SQLException | GeneralSecurityException e) {
+            e.printStackTrace();
+            return new ArrayList<local_user>();
+
         }
-        return aggregate;
     }
 
     class local_user {
         public int id;
         public long facebook_id;
+        public String facebook_name;
         public PublicKey public_key;
         public Key ephemeral_key_outgoing;
         public Key ephemeral_key_ingoing;
