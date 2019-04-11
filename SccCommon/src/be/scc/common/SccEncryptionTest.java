@@ -7,6 +7,8 @@ import java.beans.ExceptionListener;
 import java.beans.XMLEncoder;
 import java.io.*;
 import java.security.*;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 
 class SccEncryptionTest {
 
@@ -24,8 +26,8 @@ class SccEncryptionTest {
     void serialising() throws Exception {
         KeyPair pairOrig = SccEncryption.GenerateKeypair();
 
-        PrivateKey priv = pairOrig.getPrivate();
-        PublicKey publ = pairOrig.getPublic();
+        var priv = (RSAPrivateKey) pairOrig.getPrivate();
+        var publ = (RSAPublicKey) pairOrig.getPublic();
 
         var privStr = SccEncryption.serializeKey(priv);
         var publStr = SccEncryption.serializeKey(publ);
@@ -55,5 +57,9 @@ class SccEncryptionTest {
         byte[] cypherText = SccEncryption.Encript(key, origMessage);
         String resultText = SccEncryption.Decript(key, cypherText);
         assert (origMessage.equals(resultText));
+
+        var serialised = SccEncryption.serializeKey(key);
+        var deserialised = SccEncryption.deserialiseSymetricKey(serialised);
+        assert deserialised.equals(key);
     }
 }

@@ -48,11 +48,7 @@ class StaticHandler implements HttpHandler {
                     ClientSingleton.inst().db.keyPair = (pair);
                     ClientSingleton.inst().db.saveToDb();
 
-                    Runnable runner = new Runnable() {
-                        public void run() {
-                            ClientSingleton.inst().FromLoginToChatDialog();
-                        }
-                    };
+                    Runnable runner = () -> ClientSingleton.inst().FromLoginToChatDialog();
                     EventQueue.invokeLater(runner);
                 } catch (Exception e) {
                     e.printStackTrace();

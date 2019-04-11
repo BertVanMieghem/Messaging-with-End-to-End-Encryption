@@ -1,13 +1,13 @@
 package be.scc.client;
 
 import be.scc.common.SccEncryption;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.crypto.SecretKey;
 import java.security.*;
+import java.security.interfaces.RSAPublicKey;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 
 interface SccListener {
@@ -57,22 +57,38 @@ public class ClientDB {
     public int last_message_buffer_index = 0;
 
 
-    public void addUser(int id, long facebook_id, String facebook_name, String public_key) throws SQLException {
-        /*var usr = new local_user();
-        usr.id = id;
-        usr.facebook_id = facebook_id;
-        usr.facebook_name = facebook_name;
-        usr.public_key = SccEncryption.deserialisePublicKey(public_key);*/
+    public void addUser(int id, long facebook_id, String facebook_name, RSAPublicKey public_key) throws Exception {
+        var user = getUserWithFacebookId(facebook_id);
+        if (user == null)
+            user = new local_user();
+
+        user.id = id;
+        user.facebook_id = facebook_id;
+        user.facebook_name = facebook_name;
+        user.public_key = public_key;
 
         PreparedStatement pstmt = conn.prepareStatement("INSERT OR REPLACE INTO local_users VALUES (?, ?, ?, ?, ?, ?)");
         var i = 0;
-        pstmt.setInt(++i, id);
-        pstmt.setLong(++i, facebook_id);
-        pstmt.setString(++i, facebook_name);
-        pstmt.setString(++i, public_key);
-        pstmt.setNull(++i, Types.VARCHAR); // ephemeral_key_outgoing
-        pstmt.setNull(++i, Types.VARCHAR); // ephemeral_key_ingoing
+        pstmt.setInt(++i, user.id);
+        pstmt.setLong(++i, user.facebook_id);
+        pstmt.setString(++i, user.facebook_name);
+        pstmt.setString(++i, SccEncryption.serializeKey(user.public_key));
+        pstmt.setString(++i, SccEncryption.serializeKey(user.ephemeral_key_outgoing));
+        pstmt.setString(++i, SccEncryption.serializeKey(user.ephemeral_key_ingoing));
         pstmt.executeUpdate();
+    }
+
+    public void updateUserInDb(local_user user) throws SQLException {
+        PreparedStatement pstmt = conn.prepareStatement("REPLACE INTO local_users VALUES (?, ?, ?, ?, ?, ?)");
+        var i = 0;
+        pstmt.setInt(++i, user.id);
+        pstmt.setLong(++i, user.facebook_id);
+        pstmt.setString(++i, user.facebook_name);
+        pstmt.setString(++i, SccEncryption.serializeKey(user.public_key));
+        pstmt.setString(++i, SccEncryption.serializeKey(user.ephemeral_key_outgoing));
+        pstmt.setString(++i, SccEncryption.serializeKey(user.ephemeral_key_ingoing));
+        pstmt.executeUpdate();
+        dispatcher.SccDispatchModelChanged();
     }
 
     public void saveToDb() throws SQLException {
@@ -145,9 +161,11 @@ public class ClientDB {
         }
     }
 
-    public local_user getUserWithId(long facebook_id) throws SQLException, GeneralSecurityException {
+    public local_user getUserWithFacebookId(long facebook_id) throws Exception {
+        if (facebook_id < 0) throw new Exception("invalid facebook_id:" + facebook_id);
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery("SELECT * from local_users WHERE facebook_id=" + facebook_id);
+        if (result.isClosed()) return null;
         return getUserFromResultRow(result);
     }
 
@@ -162,14 +180,41 @@ public class ClientDB {
 
         var ephemeral_key_outgoing = result.getString("ephemeral_key_outgoing");
         if (ephemeral_key_outgoing != null)
-            row.ephemeral_key_outgoing = SccEncryption.deserialisePublicKey(ephemeral_key_outgoing);
+            row.ephemeral_key_outgoing = SccEncryption.deserialiseSymetricKey(ephemeral_key_outgoing);
 
         var ephemeral_key_ingoing = result.getString("ephemeral_key_ingoing");
         if (ephemeral_key_ingoing != null)
-            row.ephemeral_key_ingoing = SccEncryption.deserialisePublicKey(ephemeral_key_ingoing);
+            row.ephemeral_key_ingoing = SccEncryption.deserialiseSymetricKey(ephemeral_key_ingoing);
         return row;
     }
 
+    public void insertHandshake(handshake_row row) throws SQLException {
+        PreparedStatement pstmt = conn.prepareStatement("INSERT OR REPLACE INTO handshake_buffer VALUES (?, ?, ?)");
+        var i = 0;
+        pstmt.setLong(++i, row.id);
+        pstmt.setString(++i, row.message);
+        pstmt.setString(++i, row.client_can_decode);
+        pstmt.executeUpdate();
+    }
+
+
+}
+
+class handshake_row {
+    public long id;
+    public String message;
+    public String client_can_decode;
+
+    public byte[] getMessageAsBytes() {
+        return Base64.getDecoder().decode(message);
+    }
+
+    public void fillInFromJson(JSONObject row) {
+        id = row.getInt("id");
+        message = row.getString("message");
+        if (row.has("client_can_decode"))
+            client_can_decode = row.getString("client_can_decode");
+    }
 }
 
 class local_user {
@@ -177,8 +222,8 @@ class local_user {
     public long facebook_id;
     public String facebook_name;
     public PublicKey public_key;
-    public Key ephemeral_key_outgoing;
-    public Key ephemeral_key_ingoing;
+    public SecretKey ephemeral_key_outgoing;
+    public SecretKey ephemeral_key_ingoing;
 
     public String[] toStringList() {
         Object[] tmp = {id, facebook_id, facebook_name, public_key, ephemeral_key_outgoing, ephemeral_key_ingoing};

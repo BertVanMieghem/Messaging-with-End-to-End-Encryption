@@ -1,14 +1,12 @@
 package be.scc.common;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
-import java.security.cert.Certificate; // Solves a java version incompatibility error
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.*;
-import java.util.Arrays;
+import java.util.Base64;
 import javax.crypto.*;
 import javax.crypto.spec.*;
 
@@ -29,18 +27,27 @@ public class SccEncryption {
     }
 
 
-    static public String serializeKey(Key key) {
-        if (key instanceof RSAPublicKey)
-            return serializeKey((RSAPublicKey) key);
+    public static String serializeKey(PublicKey key) {
+        return serializeKey((RSAPublicKey) key);
+    }
+
+    public static String serializeKey(RSAPublicKey key) {
+        if (key == null) return null;
+        return key.getModulus().toString() + "|" + key.getPublicExponent().toString();
+    }
+
+    public static String serializeKey(PrivateKey key) {
         return serializeKey((RSAPrivateKey) key);
     }
 
-    static private String serializeKey(RSAPublicKey pk) {
-        return pk.getModulus().toString() + "|" + pk.getPublicExponent().toString();
+    public static String serializeKey(RSAPrivateKey key) {
+        if (key == null) return null;
+        return key.getModulus().toString() + "|" + key.getPrivateExponent().toString();
     }
 
-    static private String serializeKey(RSAPrivateKey pk) {
-        return pk.getModulus().toString() + "|" + pk.getPrivateExponent().toString();
+    public static String serializeKey(SecretKey key) {
+        if (key == null) return null;
+        return Base64.getEncoder().encodeToString(key.getEncoded());
     }
 
     static public RSAPublicKey deserialisePublicKey(String key) throws GeneralSecurityException {
@@ -83,12 +90,21 @@ public class SccEncryption {
 
     static private IvParameterSpec iv = new IvParameterSpec("jsldghdj;figshig".getBytes(StandardCharsets.UTF_8)); // semi random ;)
 
-    static public SecretKey GenerateSymetricKey() throws GeneralSecurityException {
+
+    static public SecretKeySpec deserialiseSymetricKey(String key) throws GeneralSecurityException {
+        SecretKeySpec spec = new SecretKeySpec(
+                Base64.getDecoder().decode(key),
+                "AES");
+        return spec;
+        //return (SecretKey) KeyGenerator.getInstance("AES").(Spec);
+    }
+
+    static public SecretKeySpec GenerateSymetricKey() throws GeneralSecurityException {
         SecureRandom secureRandom = new SecureRandom();
         int keyBitSize = 256;
         KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
         keyGenerator.init(keyBitSize, secureRandom);
-        return keyGenerator.generateKey();
+        return (SecretKeySpec) keyGenerator.generateKey();
     }
 
     static public byte[] Encript(SecretKey key, String plaintext) throws GeneralSecurityException {
