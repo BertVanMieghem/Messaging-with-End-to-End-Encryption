@@ -5,16 +5,13 @@ import be.scc.common.SccException;
 import be.scc.common.Util;
 import org.json.JSONObject;
 
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
-import java.sql.SQLException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
-import java.util.List;
 
 
 public class ClientSingleton {
@@ -29,7 +26,6 @@ public class ClientSingleton {
         loginDialog = new LoginDialog();
         chatDialog = new ChatDialog();
 
-        loginDialog.Initialisation();
     }
 
     /**
@@ -47,13 +43,18 @@ public class ClientSingleton {
     LoginDialog loginDialog;
     ChatDialog chatDialog;
 
-    public void ShowLoginDialog() {
-        loginDialog.pack();
-        loginDialog.setVisible(true);
+    public void OpenLoginOrSkip() throws IOException {
+        if (ClientSingleton.inst().db.facebook_id != 0) {
+            ClientSingleton.inst().fromLoginToChatDialog();
+        } else {
+            loginDialog.pack();
+            loginDialog.Initialise();
+            loginDialog.setVisible(true);
+        }
     }
 
-    public void FromLoginToChatDialog() {
-        loginDialog.setVisible(false);
+    public void fromLoginToChatDialog() {
+        loginDialog.dispatchEvent(new WindowEvent(loginDialog, WindowEvent.WINDOW_CLOSING));
 
         chatDialog.pack();
         chatDialog.setVisible(true);

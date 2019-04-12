@@ -1,9 +1,12 @@
 package be.scc.client;
 
+import be.scc.common.Util;
 import be.scc.common.SccEncryption;
 import org.json.JSONObject;
 
 import javax.crypto.SecretKey;
+import java.io.File;
+import java.nio.file.Path;
 import java.security.*;
 import java.security.interfaces.RSAPublicKey;
 import java.sql.*;
@@ -40,7 +43,13 @@ public class ClientDB {
     public ClientDB() {
         try {
             Class.forName("org.sqlite.JDBC");
-            conn = DriverManager.getConnection("jdbc:sqlite:SccClient.sqlite");
+            var popup = new SelectDatabase();
+            var files = Util.getFilesFromDirectory(Path.of("db"));
+            popup.Initialise(files);
+            popup.pack();
+            popup.setVisible(true);
+            var result = popup.getSelected();
+            conn = DriverManager.getConnection("jdbc:sqlite:" + result); // db/SccClient.sqlite
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);

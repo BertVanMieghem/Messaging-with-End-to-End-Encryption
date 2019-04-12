@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -179,5 +180,19 @@ public class Util {
 
     public static byte[] base64(String input) {
         return Base64.getDecoder().decode(input);
+    }
+
+    public static List<String> getFilesFromDirectory(Path path) {
+        var result = new ArrayList<String>();
+        try (Stream<Path> walk = Files.walk(path)) {
+
+            result = (ArrayList<String>) walk.filter(Files::isRegularFile)
+                    .map(x -> x.toString().replace("\\", "/")).collect(Collectors.toList());
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }
