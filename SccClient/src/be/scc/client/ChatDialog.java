@@ -6,10 +6,10 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 public class ChatDialog extends JDialog implements SccListener {
     private JPanel contentPane;
-    private JList listMessages;
     private JButton sendButton;
     private JTextField messageInput;
     private JButton btnPullPki;
@@ -17,6 +17,7 @@ public class ChatDialog extends JDialog implements SccListener {
     private JButton handshakeWithUserButton;
     private JPanel rightPanel;
     private JLabel currentUser;
+    private JScrollPane chatHistoryHolder;
 
     private long selected_facebook_id = -1;
 
@@ -95,19 +96,17 @@ public class ChatDialog extends JDialog implements SccListener {
         currentUser.setText("" + ClientSingleton.inst().db.facebook_id);
 
         // Inspired on: https://www.geeksforgeeks.org/java-swing-jtable/
-        var j = new JTable(us, local_user.columnNames);
+        var jTable = new JTable(us, local_user.columnNames);
         // Todo: Make cells non-editable: j.isCellEditable()
-        j.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent event) {
-                if (!event.getValueIsAdjusting()) {
-                    selected_facebook_id = Long.parseLong((String) j.getValueAt(j.getSelectedRow(), 1));
+        jTable.getSelectionModel().addListSelectionListener(event -> {
+            if (!event.getValueIsAdjusting()) {
+                selected_facebook_id = Long.parseLong((String) jTable.getValueAt(jTable.getSelectedRow(), 1));
 
-                    System.out.println("selected_facebook_id: " + selected_facebook_id);
-                    localModelChanged();
-                }
+                System.out.println("selected_facebook_id: " + selected_facebook_id);
+                localModelChanged();
             }
         });
-        tableHolder.setViewportView(j);
+        tableHolder.setViewportView(jTable);
 /*
         userModel.setNumRows(2);
         for (var u : users) {
@@ -131,6 +130,22 @@ public class ChatDialog extends JDialog implements SccListener {
             sendButton.setEnabled(false);
             sendButton.setToolTipText("First type some text!");
         }
+
+
+        var messages = ClientSingleton.inst().db.getMessagesForFacebookId(selected_facebook_id);
+        String[][] us = messages.stream().map(cached_message_row::toStringList).toArray(String[][]::new);
+
+        var jTable = new JTable(us, cached_message_row.columnNames);
+        // Todo: Make cells non-editable: j.isCellEditable()
+        /*jTable.getSelectionModel().addListSelectionListener(event -> {
+            if (!event.getValueIsAdjusting()) {
+                //selected_facebook_id = Long.parseLong((String) jTable.getValueAt(jTable.getSelectedRow(), 1));
+
+                System.out.println("selected_facebook_id: " + selected_facebook_id);
+                localModelChanged();
+            }
+        });*/
+        chatHistoryHolder.setViewportView(jTable);
     }
 
     {
@@ -158,8 +173,6 @@ public class ChatDialog extends JDialog implements SccListener {
         rightPanel = new JPanel();
         rightPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
         contentPane.add(rightPanel, new com.intellij.uiDesigner.core.GridConstraints(1, 2, 3, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        listMessages = new JList();
-        rightPanel.add(listMessages, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
         panel1.setEnabled(true);
@@ -173,6 +186,8 @@ public class ChatDialog extends JDialog implements SccListener {
         handshakeWithUserButton = new JButton();
         handshakeWithUserButton.setText("HandshakeWithUser");
         rightPanel.add(handshakeWithUserButton, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        chatHistoryHolder = new JScrollPane();
+        rightPanel.add(chatHistoryHolder, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
         label1.setText("Current user: ");
         contentPane.add(label1, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(212, 16), null, 0, false));

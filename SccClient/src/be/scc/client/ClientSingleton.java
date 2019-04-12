@@ -138,6 +138,13 @@ public class ClientSingleton {
                         var json = new JSONObject(payload);
                         var message_type = json.getString("message_type");
                         var content = json.getString("content");
+
+                        var cm = new cached_message_row();
+                        cm.id = h.id;
+                        cm.from_facebook_id = user.facebook_id;
+                        cm.message = payload;
+                        db.insertCachedMessage(cm);
+
                         System.out.println("message_type: " + message_type);
                         System.out.println("content: " + content);
 
@@ -151,7 +158,7 @@ public class ClientSingleton {
             } catch (GeneralSecurityException ex) {
                 h.client_can_decode = "NO";
             }
-            db.insertHandshake(h);
+            db.insertMessage(h);
         }
         db.saveToDb();
     }

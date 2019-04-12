@@ -20,20 +20,29 @@ interface SccListener {
      * Should be idempotent.
      * This function translates the model information to GUI and should not change any external state.
      */
-    void SccModelChanged();
+    void SccModelChanged() throws Exception;
 }
 
 class SccDispatcher {
     private List<SccListener> listeners = new ArrayList<SccListener>();
 
     public void addListener(SccListener toAdd) {
-        toAdd.SccModelChanged(); // Could be unhandy in some cases
+        try {
+            toAdd.SccModelChanged(); // Could be unhandy in some cases
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         listeners.add(toAdd);
     }
 
     public void SccDispatchModelChanged() {
-        for (SccListener hl : listeners)
-            hl.SccModelChanged();
+        for (SccListener hl : listeners) {
+            try {
+                hl.SccModelChanged();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
 
@@ -54,7 +63,7 @@ public class ClientDB {
             conn = DriverManager.getConnection("jdbc:sqlite:" + result); // db/SccClient.sqlite
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
+            System.exit(1);
         }
         System.out.println("Opened database successfully");
     }
@@ -225,8 +234,44 @@ public class ClientDB {
         return lst;
     }
     */
+
+    public void insertMessage(message_row row) throws SQLException {
+        PreparedStatement pstmt = conn.prepareStatement("INSERT OR REPLACE INTO message_buffer VALUES (?, ?, ?)");
+        var i = 0;
+        pstmt.setLong(++i, row.id);
+        pstmt.setString(++i, row.message);
+        pstmt.setString(++i, row.client_can_decode);
+        pstmt.executeUpdate();
+    }
+
+    public void insertCachedMessage(cached_message_row row) throws SQLException {
+        PreparedStatement pstmt = conn.prepareStatement("INSERT OR REPLACE INTO cached_messages VALUES (?, ?, ?)");
+        var i = 0;
+        pstmt.setLong(++i, row.id);
+        pstmt.setLong(++i, row.from_facebook_id);
+        pstmt.setString(++i, row.message);
+        pstmt.executeUpdate();
+    }
+
+    public List<cached_message_row> getMessagesForFacebookId(long facebook_id) {
+        var aggregate = new ArrayList<cached_message_row>();
+        try {
+            Statement statement = conn.createStatement();
+            ResultSet result = statement.executeQuery("SELECT * from cached_messages");
+
+            while (result.next()) {
+                var row = new cached_message_row();
+                row.fillInFromSqlResult(result);
+                aggregate.add(row);
+            }
+        } catch (Exception ex) {
+            System.exit(1); // fail
+        }
+        return aggregate;
+    }
 }
 
+/*
 class Tuple<X, Y> {
     public final X x;
     public final Y y;
@@ -236,7 +281,33 @@ class Tuple<X, Y> {
         this.y = y;
     }
 }
+*/
 
+/**
+ * CREATE TABLE `cached_messages` (
+ * `id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+ * `from_facebook_id`	INTEGER NOT NULL,
+ * `message`	TEXT NOT NULL
+ * );
+ */
+class cached_message_row {
+    public long id;
+    public long from_facebook_id;
+    public String message;
+
+    public void fillInFromSqlResult(ResultSet result) throws SQLException {
+        id = result.getLong("id");
+        from_facebook_id = result.getLong("from_facebook_id");
+        message = result.getString("message");
+    }
+
+    public String[] toStringList() {
+        Object[] tmp = {id, from_facebook_id, message};
+        return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
+    }
+
+    public final static String[] columnNames = {"id", "from_facebook_id", "message"};
+}
 
 class handshake_row {
     public long id;
