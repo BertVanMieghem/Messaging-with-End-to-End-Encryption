@@ -8,6 +8,8 @@ import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class ChatDialog extends JDialog implements SccListener {
     private JPanel contentPane;
@@ -51,6 +53,14 @@ public class ChatDialog extends JDialog implements SccListener {
                     e1.printStackTrace();
                 }
                 super.mouseClicked(e);
+            }
+        });
+
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.out.println("ChatDialog.windowClosing");
+                System.exit(0);
             }
         });
         localModelChanged();

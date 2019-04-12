@@ -51,9 +51,10 @@ public class FacebookLoginHandler implements HttpHandler {
                     ClientSingleton.inst().db.keyPair = (pair);
                     ClientSingleton.inst().db.saveToDb();
 
-                    ClientSingleton.inst().fromLoginToChatDialog();
-                    //Runnable runner = () -> ClientSingleton.inst().fromLoginToChatDialog();
-                    //EventQueue.invokeLater(runner);
+                    //ClientSingleton.inst().fromLoginToChatDialog();
+                    Runnable runner = () -> ClientSingleton.inst().fromLoginToChatDialog();
+                    EventQueue.invokeLater(runner);
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

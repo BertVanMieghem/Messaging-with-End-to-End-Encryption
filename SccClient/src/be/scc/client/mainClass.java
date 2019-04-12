@@ -6,6 +6,6 @@ public class mainClass {
         ClientSingleton.inst().Initilise();
         ClientSingleton.inst().OpenLoginOrSkip();
 
-        System.exit(0); // Explicitly needed to close the application
+        //System.exit(0); // Explicitly needed to close the application
     }
 }

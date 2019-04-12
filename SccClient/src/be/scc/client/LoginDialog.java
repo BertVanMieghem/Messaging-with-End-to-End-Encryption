@@ -15,6 +15,8 @@ public class LoginDialog extends JDialog {
     private JButton loginButton;
     private JButton buttonOK;
 
+    HttpServer server;
+
     public LoginDialog() {
         setContentPane(contentPane);
         setModal(true);
@@ -35,12 +37,20 @@ public class LoginDialog extends JDialog {
                 super.mouseClicked(e);
             }
         });
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.out.println("LoginDialog.windowClosing");
+                server.stop(0); // We can not run 2 login screens at the same time.
+                //System.exit(0);
+            }
+        });
     }
 
     public void Initialise() throws IOException {
         // Port should not be in this list: https://svn.nmap.org/nmap/nmap-services
         // Port number is 'Secure Chanel Chat Interface' written in bad leet
-        HttpServer server = HttpServer.create(new InetSocketAddress(5661), 0);
+        server = HttpServer.create(new InetSocketAddress(5661), 0);
         server.createContext("/", new FacebookLoginHandler());
         server.setExecutor(null); // creates a default executor
         server.start();
