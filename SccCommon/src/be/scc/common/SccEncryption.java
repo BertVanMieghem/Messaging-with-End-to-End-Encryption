@@ -119,4 +119,20 @@ public class SccEncryption {
         byte[] returned = dec.doFinal(cipherText);
         return new String(returned, StandardCharsets.UTF_8);
     }
+
+    static public byte[] Sign(PrivateKey privateKey, String data) throws Exception {
+        Signature rsasign = Signature.getInstance("SHA1withRSA");
+        rsasign.initSign(privateKey);
+        rsasign.update(data.getBytes(StandardCharsets.UTF_8));
+        byte[] signature = rsasign.sign();
+        return signature;
+    }
+
+    static public boolean VerifySign(PublicKey publicKey, String data, byte[] signature) throws Exception {
+        Signature rsacheck = Signature.getInstance("SHA1withRSA");
+        rsacheck.initVerify(publicKey);
+        rsacheck.update(data.getBytes(StandardCharsets.UTF_8));
+        boolean result = rsacheck.verify(signature);
+        return result;
+    }
 }

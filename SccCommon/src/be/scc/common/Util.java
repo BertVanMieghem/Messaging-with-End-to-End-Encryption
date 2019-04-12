@@ -169,4 +169,15 @@ public class Util {
         }
         return jsonArr;
     }
+
+    /**
+     * Same name in both ways is ok, because java is typesafe
+     */
+    public static String base64(byte[] input) {
+        return Base64.getEncoder().encodeToString(input);
+    }
+
+    public static byte[] base64(String input) {
+        return Base64.getDecoder().decode(input);
+    }
 }

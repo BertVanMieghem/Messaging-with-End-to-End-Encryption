@@ -205,10 +205,6 @@ class handshake_row {
     public String message;
     public String client_can_decode;
 
-    public byte[] getMessageAsBytes() {
-        return Base64.getDecoder().decode(message);
-    }
-
     public void fillInFromJson(JSONObject row) {
         id = row.getInt("id");
         message = row.getString("message");

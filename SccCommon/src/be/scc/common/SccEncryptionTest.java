@@ -62,4 +62,16 @@ class SccEncryptionTest {
         var deserialised = SccEncryption.deserialiseSymetricKey(serialised);
         assert deserialised.equals(key);
     }
+
+    @Test
+    void signature() throws Exception {
+        var message = "Sign me plz.";
+
+        KeyPair pair = SccEncryption.GenerateKeypair();
+
+        var sign = SccEncryption.Sign(pair.getPrivate(), message);
+
+        assert SccEncryption.VerifySign(pair.getPublic(), message, sign);
+        assert !SccEncryption.VerifySign(pair.getPublic(), "different message now" + message, sign);
+    }
 }
