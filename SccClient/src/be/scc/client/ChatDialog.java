@@ -1,15 +1,11 @@
 package be.scc.client;
 
+import org.json.JSONObject;
+
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
+import javax.swing.event.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 
 public class ChatDialog extends JDialog implements SccListener {
     private JPanel contentPane;
@@ -32,27 +28,51 @@ public class ChatDialog extends JDialog implements SccListener {
         //tableUsers.setModel(userModel);
         ClientSingleton.inst().db.dispatcher.addListener(this);
 
-        btnPullPki.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                try {
-                    ClientSingleton.inst().PullUsers();
-                    ClientSingleton.inst().PullServerEvents();
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }
-                super.mouseClicked(e);
+        btnPullPki.addActionListener(e -> {
+            try {
+                ClientSingleton.inst().PullUsers();
+                ClientSingleton.inst().PullServerEvents();
+            } catch (Exception e1) {
+                e1.printStackTrace();
             }
         });
-        handshakeWithUserButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                try {
-                    ClientSingleton.inst().handshakeWithFacebookId(selected_facebook_id);
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }
-                super.mouseClicked(e);
+        handshakeWithUserButton.addActionListener(e -> {
+            try {
+                ClientSingleton.inst().handshakeWithFacebookId(selected_facebook_id);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        });
+        sendButton.addActionListener(e -> {
+            try {
+                var text = messageInput.getText();
+
+                var json = new JSONObject();
+                json.put("message_type", "chat_message"); // Premature abstraction
+                json.put("content", text);
+                ClientSingleton.inst().sendMessageToFacebookId(selected_facebook_id, json.toString());
+
+                messageInput.setText("");
+
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        });
+        messageInput.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                update();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                update();
+            }
+
+            public void insertUpdate(DocumentEvent e) {
+                update();
+            }
+
+            public void update() {
+                localModelChanged();
             }
         });
 
@@ -99,7 +119,18 @@ public class ChatDialog extends JDialog implements SccListener {
     }
 
     private void localModelChanged() {
-        rightPanel.setEnabled(this.selected_facebook_id != -1);
+        rightPanel.setEnabled(this.selected_facebook_id != -1); // swing doesn't allow to disable a panel!
+        var text = messageInput.getText();
+        if (text != null && !text.equals("") && this.selected_facebook_id != -1) {
+            sendButton.setEnabled(true);
+            sendButton.setToolTipText("");
+        } else if (this.selected_facebook_id != -1) {
+            sendButton.setEnabled(false);
+            sendButton.setToolTipText("Select an user first!");
+        } else {
+            sendButton.setEnabled(false);
+            sendButton.setToolTipText("First type some text!");
+        }
     }
 
     {
@@ -131,8 +162,10 @@ public class ChatDialog extends JDialog implements SccListener {
         rightPanel.add(listMessages, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panel1.setEnabled(true);
         rightPanel.add(panel1, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         sendButton = new JButton();
+        sendButton.setEnabled(true);
         sendButton.setText("Send");
         panel1.add(sendButton, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         messageInput = new JTextField();

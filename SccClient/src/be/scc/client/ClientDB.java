@@ -5,12 +5,14 @@ import be.scc.common.SccEncryption;
 import org.json.JSONObject;
 
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.nio.file.Path;
 import java.security.*;
 import java.security.interfaces.RSAPublicKey;
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 interface SccListener {
@@ -206,8 +208,35 @@ public class ClientDB {
         pstmt.executeUpdate();
     }
 
-
+    public List<local_user> getUsersThatShookOurHands() {
+        var lst = getUsers().stream().filter(u -> u.ephemeral_key_ingoing != null).collect(Collectors.toList());
+        return lst;
+    }
+/*
+    public List<Tuple<Long, SecretKeySpec>> getIncomingSymetricalKeys() throws Exception {
+        Statement statement = conn.createStatement();
+        ResultSet result = statement.executeQuery("SELECT facebook_id, ephemeral_key_ingoing FROM local_users;");
+        var lst = new ArrayList<Tuple<Long, SecretKeySpec>>();
+        while (result.next()) {
+            var keyStr = result.getString("ephemeral_key_ingoing");
+            SecretKeySpec key = SccEncryption.deserialiseSymetricKey(keyStr);
+            lst.add(new Tuple<>(result.getLong("facebook_id"), key));
+        }
+        return lst;
+    }
+    */
 }
+
+class Tuple<X, Y> {
+    public final X x;
+    public final Y y;
+
+    public Tuple(X x, Y y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
 
 class handshake_row {
     public long id;
@@ -222,7 +251,14 @@ class handshake_row {
     }
 }
 
+class message_row extends handshake_row {
+
+}
+
 class local_user {
+    public local_user() {
+    }
+
     public int id;
     public long facebook_id;
     public String facebook_name;

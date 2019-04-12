@@ -41,7 +41,8 @@ public class LoginDialog extends JDialog {
             @Override
             public void windowClosing(WindowEvent e) {
                 System.out.println("LoginDialog.windowClosing");
-                server.stop(0); // We can not run 2 login screens at the same time.
+                if (server != null)
+                    server.stop(0); // We can not run 2 login screens at the same time.
                 //System.exit(0);
             }
         });

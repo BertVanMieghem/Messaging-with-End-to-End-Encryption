@@ -88,7 +88,7 @@ public class Main {
                         URI uri = httpExchange.getRequestURI();
                         var qs = Util.decodeQueryString(uri);
                         var last_message_buffer_index = Integer.parseInt(qs.get("last_message_buffer_index"));
-                        var json = DbSingleton.inst().getHandshakes(last_message_buffer_index);
+                        var json = DbSingleton.inst().getMessages(last_message_buffer_index);
                         data = json.toString().getBytes();
                         break;
                     }
