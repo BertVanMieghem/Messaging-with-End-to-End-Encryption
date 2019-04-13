@@ -9,14 +9,18 @@ import java.sql.*;
 import java.util.*;
 import java.util.stream.Stream;
 
+enum MemberStatus {
+    NOT_SET,
+    OWNER,
+    INVITE_PENDING,
+    MEMBER,
+    REMOVED
+}
+
 class ChannelMember {
     public long facebook_id;
-    /**
-     * OWNER
-     * INVITE_PENDING
-     * MEMBER
-     */
-    public String status;
+
+    public MemberStatus status = MemberStatus.NOT_SET;
 
     public JSONObject toJson() {
         var json = new JSONObject();
@@ -26,12 +30,51 @@ class ChannelMember {
     }
 }
 
+enum ChannelStatus {
+    NOT_SET,
+    //MADE_ON_THIS_COMPUTER,
+    //GOT_FROM_REMOTE,
+    ARCHIEVED,
+}
+
 class Channel {
 
-    public boolean hasUser(long facebook_id) {
+    public ChannelStatus status = ChannelStatus.NOT_SET;
+
+    public ChannelMember getMember(long facebook_id) {
+        for (var m : members) {
+            if (m.facebook_id == facebook_id)
+                return m;
+        }
+        return null;
+    }
+
+    public ChannelMember getOrCreateMember(long facebook_id) {
+        var mem = getMember(facebook_id);
+        if (mem == null) {
+            mem = new ChannelMember();
+            mem.facebook_id = facebook_id;
+            this.members.add(mem);
+        }
+        return mem;
+    }
+
+    public boolean hasMember(long facebook_id) {
         for (var m : members) {
             if (m.facebook_id == facebook_id) {
-                if (m.status != "INVITE_PENDING") ;
+                if (m.status != MemberStatus.INVITE_PENDING
+                        && m.status != MemberStatus.REMOVED)
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasOwner(long facebook_id) {
+        for (var m : members) {
+            if (m.facebook_id == facebook_id) {
+                if (m.status == MemberStatus.OWNER)
+                    return true;
             }
         }
         return false;
@@ -73,7 +116,7 @@ class Channel {
             var jm = (JSONObject) om;
             var m = new ChannelMember();
             m.facebook_id = jm.getLong("facebook_id");
-            m.status = jm.getString("status");
+            m.status = MemberStatus.valueOf(jm.getString("status"));
             ch.members.add(m);
         }
 
@@ -89,8 +132,8 @@ class Channel {
 
     public UUID uuid;
     public String name;
-    public List<ChannelMember> members;
-    public List<String> chatMessages;
+    public List<ChannelMember> members = new ArrayList<>();
+    public List<String> chatMessages = new ArrayList<>();
 }
 
 /**

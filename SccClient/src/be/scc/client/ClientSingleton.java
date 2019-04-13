@@ -12,6 +12,7 @@ import java.security.GeneralSecurityException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
+import java.util.UUID;
 
 
 public class ClientSingleton {
@@ -72,8 +73,10 @@ public class ClientSingleton {
     }
 
     public void PullServerEvents() throws Exception {
+        PullUsers();
         PullHandshakes();
         PullMessages();
+        db.rebuildChannelsFromMessageCache();
     }
 
     public void PullHandshakes() throws Exception {
@@ -96,7 +99,7 @@ public class ClientSingleton {
                 var secondPart = SccEncryption.Decript(symetricalKey, secondPartEncrypted);
 
                 var idx = secondPart.lastIndexOf("|");
-                var payload = secondPart.substring(0, idx);
+                String payload = secondPart.substring(0, idx);
                 var json = new JSONObject(payload);
                 var from_facebook_id = json.getLong("handshake_initiator_facebook_id");
                 var datetime = json.getString("datetime");
@@ -134,10 +137,10 @@ public class ClientSingleton {
                 for (var user : users) {
                     try {
                         var message = Util.base64(h.message);
-                        var payload = decryptPayloadAndVerify(message, user);
+                        String payload = decryptPayloadAndVerify(message, user);
                         var json = new JSONObject(payload);
                         var message_type = json.getString("message_type");
-                        var content = json.getString("content");
+                        var content = json.getJSONObject("content");
 
                         var cm = new cached_message_row();
                         cm.id = h.id;
@@ -205,7 +208,7 @@ public class ClientSingleton {
         db.updateUserInDb(user); // only set when webrequest succeeded
     }
 
-    public void sendMessageToFacebookId(long facebook_id, String payload) throws Exception {
+    void sendMessageToFacebookId(long facebook_id, String payload) throws Exception {
         var user = db.getUserWithFacebookId(facebook_id);
 
         var secondPart = Util.base64(signAndEncryptPayload(payload, user));
@@ -220,5 +223,33 @@ public class ClientSingleton {
         // cm.from_facebook_id = db.facebook_id;
         // cm.message = payload;
         // db.insertCachedMessage(cm);
+    }
+
+    void sendMessageToChannel(Channel ch, JSONObject json) throws Exception {
+
+        // Send a copy to each member of the channel
+        for (var member : ch.members) {
+            sendMessageToFacebookId(member.facebook_id, json.toString());
+        }
+    }
+
+    public void createNewChannel() throws Exception {
+        var json = new JSONObject();
+        json.put("message_type", "invite_to_channel");
+        var jsonContent = new JSONObject();
+        jsonContent.put("invited_facebook_id", db.facebook_id);
+
+        var ch = new Channel();
+        var mem = new ChannelMember();
+        mem.status = MemberStatus.OWNER;
+        mem.facebook_id = db.facebook_id;
+        ch.members.add(mem);
+        ch.uuid = UUID.randomUUID();
+        ch.name = "Untitled Channel (" + ch.uuid + ")";
+        jsonContent.put("channel_content", ch.toJson());
+
+        json.put("content", jsonContent);
+
+        sendMessageToFacebookId(db.facebook_id, json.toString());
     }
 }

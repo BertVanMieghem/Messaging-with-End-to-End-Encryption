@@ -3,20 +3,15 @@ package be.scc.client;
 import be.scc.common.SccException;
 import be.scc.common.Util;
 import be.scc.common.SccEncryption;
-import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.File;
 import java.nio.file.Path;
 import java.security.*;
 import java.security.interfaces.RSAPublicKey;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 
 
 public class ClientDB {
@@ -154,8 +149,8 @@ public class ClientDB {
         }
     }
 
-    public local_user getUserWithFacebookId(long facebook_id) throws Exception {
-        if (facebook_id < 0) throw new Exception("invalid facebook_id:" + facebook_id);
+    public local_user getUserWithFacebookId(long facebook_id) throws SQLException, GeneralSecurityException {
+        if (facebook_id < 0) throw new SccException("invalid facebook_id:" + facebook_id);
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery("SELECT * from local_users WHERE facebook_id=" + facebook_id);
         if (result.isClosed()) return null;
@@ -260,37 +255,80 @@ public class ClientDB {
         return aggregate;
     }
 
-    public Collection<Channel> createChannelsFromMessageCache() {
+    private Collection<Channel> buildedChannels;
+
+    public Collection<Channel> getBuildedChannels() {
+        return buildedChannels;
+    }
+
+    public void rebuildChannelsFromMessageCache() {
+        buildedChannels = buildChannelsFromMessageCache();
+    }
+
+    private Collection<Channel> buildChannelsFromMessageCache() {
         var messages = getAllCachedMessages();
 
         var channels = new HashMap<UUID, Channel>();
 
-        for (var message : messages) {
-            var json = new JSONObject(message);
+        for (cached_message_row messageRow : messages) {
+            var json = new JSONObject(messageRow.message);
             var message_type = json.getString("message_type");
             var content = json.getJSONObject("content");
 
             switch (message_type) {
 
+                // Is also used to create initial channel
                 case "invite_to_channel": {
+                    var invited_facebook_id = content.getLong("invited_facebook_id");
+                    var remoteChannel = Channel.fromJson(content.getJSONObject("channel_content"));
+                    if (messageRow.from_facebook_id == facebook_id) {
+                        channels.put(remoteChannel.uuid, remoteChannel);
+                    }
 
+                    // Assure the the member's status is INVITE_PENDING
+                    // - if initial request, the sender could already have added the invited to the channel. Else it will be fixed here
+                    // - If we were already member, we don't use the received chanel representation, but we only update our local representattion
+                    var ch = channels.get(remoteChannel.uuid);
+                    if (ch.hasOwner(messageRow.from_facebook_id)) {
+                        var mem = ch.getOrCreateMember(invited_facebook_id);
+                        if (!ch.hasOwner(invited_facebook_id)) // Ignore the owner inviting himself. This is for initial creation.
+                            mem.status = MemberStatus.INVITE_PENDING;
+                    } else
+                        System.err.println("User may not invite to channel! facebook_id:" + messageRow.from_facebook_id);
                     break;
                 }
 
                 case "remove_person_from_channel": {
+                    var removed_facebook_id = json.getLong("removed_facebook_id");
+                    var channel_uuid = UUID.fromString(json.getString("channel_uuid"));
+                    var ch = channels.get(channel_uuid);
+
+                    if (ch.hasOwner(messageRow.from_facebook_id) || messageRow.from_facebook_id == removed_facebook_id) {
+                        // If the last OWNER leaves the channel, no one can invite again.
+                        if (removed_facebook_id == facebook_id) {
+                            ch.status = ChannelStatus.ARCHIEVED;
+                        }
+                        // No one will send use messages.
+                        // ATM, we keep the stored messages, as it is difficult to remove them from event sourcing.
+                        ch.getMember(removed_facebook_id).status = MemberStatus.REMOVED;
+                    } else
+                        System.err.println("User may remove this person from the channel! facebook_id:" + messageRow.from_facebook_id + " removed_facebook_id:" + removed_facebook_id);
                     break;
                 }
                 case "accept_invite_to_channel": {
+                    var channel_uuid = UUID.fromString(json.getString("channel_uuid"));
+                    var ch = channels.get(channel_uuid);
+                    ch.getMember(messageRow.from_facebook_id).status = MemberStatus.MEMBER;
                     break;
                 }
                 case "chat_message_to_channel": {
                     var chat_message = content.getString("chat_message");
                     UUID uuid = UUID.fromString(content.getString("channel_uuid"));
                     var ch = channels.get(uuid);
-                    if (ch.hasUser(facebook_id))
+                    if (ch.hasMember(messageRow.from_facebook_id))
                         ch.chatMessages.add(chat_message);
                     else
-                        System.err.println("User not in channel! facebook_id:" + facebook_id);
+                        System.err.println("User not in channel! facebook_id:" + messageRow.from_facebook_id);
                     break;
                 }
             }
