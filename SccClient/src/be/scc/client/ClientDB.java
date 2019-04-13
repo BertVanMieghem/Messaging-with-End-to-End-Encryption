@@ -258,6 +258,8 @@ public class ClientDB {
     private Collection<Channel> buildedChannels;
 
     public Collection<Channel> getBuildedChannels() {
+        if (buildedChannels == null)
+            rebuildChannelsFromMessageCache();
         return buildedChannels;
     }
 
@@ -265,16 +267,25 @@ public class ClientDB {
         buildedChannels = buildChannelsFromMessageCache();
     }
 
+    public Channel getChannelByUuid(UUID uuid) {
+        for (var ch : buildedChannels) {
+            if (ch.uuid.equals(uuid))
+                return ch;
+        }
+        return null;
+    }
+
     private Collection<Channel> buildChannelsFromMessageCache() {
         var messages = getAllCachedMessages();
 
         var channels = new HashMap<UUID, Channel>();
 
+        System.out.println("buildChannelsFromMessageCache()");
         for (cached_message_row messageRow : messages) {
             var json = new JSONObject(messageRow.message);
             var message_type = json.getString("message_type");
             var content = json.getJSONObject("content");
-
+            System.out.println("buildChannelsFromMessageCache message_type: " + message_type);
             switch (message_type) {
 
                 // Is also used to create initial channel

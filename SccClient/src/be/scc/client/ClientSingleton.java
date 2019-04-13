@@ -77,6 +77,7 @@ public class ClientSingleton {
         PullHandshakes();
         PullMessages();
         db.rebuildChannelsFromMessageCache();
+        db.saveToDb();
     }
 
     public void PullHandshakes() throws Exception {
@@ -226,7 +227,8 @@ public class ClientSingleton {
     }
 
     void sendMessageToChannel(Channel ch, JSONObject json) throws Exception {
-
+        assert json.get("message_type") != null;
+        assert json.get("content") != null;
         // Send a copy to each member of the channel
         for (var member : ch.members) {
             sendMessageToFacebookId(member.facebook_id, json.toString());
