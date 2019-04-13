@@ -217,7 +217,7 @@ class local_user {
     public local_user() {
     }
 
-    public int id;
+    public long id;
     public long facebook_id;
     public String facebook_name;
     public PublicKey public_key;

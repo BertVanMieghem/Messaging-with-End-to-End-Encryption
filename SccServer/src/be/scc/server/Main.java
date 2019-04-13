@@ -60,7 +60,7 @@ public class Main {
                         var id = DbSingleton.inst().addHandshake(message);
                         JSONObject jsonRet = new JSONObject();
                         jsonRet.put("message", path + " done");
-                        jsonRet.put("handshake_id", id);
+                        //jsonRet.put("handshake_id", id);
                         data = jsonRet.toString().getBytes();
                         break;
                     }
@@ -80,7 +80,7 @@ public class Main {
                         var id = DbSingleton.inst().addMessage(message);
                         JSONObject jsonRet = new JSONObject();
                         jsonRet.put("message", path + " done");
-                        jsonRet.put("message_id", id);
+                        //jsonRet.put("message_id", id);
                         data = jsonRet.toString().getBytes();
                         break;
                     }

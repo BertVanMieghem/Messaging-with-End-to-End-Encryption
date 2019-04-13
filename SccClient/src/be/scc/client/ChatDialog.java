@@ -15,7 +15,6 @@ public class ChatDialog extends JDialog implements SccListener {
     private JTextField messageInput;
     private JButton btnPullFromServer;
     private JScrollPane tableHolder;
-    private JButton handshakeWithUserButton;
     private JPanel rightPanel;
     private JLabel currentUser;
     private JScrollPane chatHistoryHolder;
@@ -28,27 +27,18 @@ public class ChatDialog extends JDialog implements SccListener {
     private JButton btnAcceptInvite;
     private JTextField txtChannelName;
     private JButton renameChannelButton;
+    private JCheckBox autoPullCheckBox;
 
-    private long selected_facebook_id = -1;
 
     public ChatDialog() {
         setContentPane(contentPane);
         setModal(true);
 
-        //userModel = (DefaultTableModel) tableUsers.getModel();
-        //tableUsers.setModel(userModel);
         ClientSingleton.inst().db.dispatcher.addListener(this);
 
         btnPullFromServer.addActionListener(e -> {
             try {
                 ClientSingleton.inst().PullServerEvents();
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-        });
-        handshakeWithUserButton.addActionListener(e -> {
-            try {
-                ClientSingleton.inst().handshakeWithFacebookId(selected_facebook_id);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -117,6 +107,10 @@ public class ChatDialog extends JDialog implements SccListener {
         userDropdown.addActionListener(e -> {
             localModelChanged();
         });
+        isAutoPulling = !autoPullCheckBox.isSelected();
+        autoPullCheckBox.addActionListener(e -> {
+            localModelChanged();
+        });
         messageInput.getDocument().addDocumentListener(new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {
                 update();
@@ -150,6 +144,19 @@ public class ChatDialog extends JDialog implements SccListener {
     }
 
 
+    boolean isAutoPulling;
+
+    ActionListener autoPollingAction = evt -> {
+        //System.out.println("autoPollingAction");
+        try {
+            ClientSingleton.inst().PullServerEvents();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    };
+    private Timer autoPullCheckedTimer = new Timer(500, autoPollingAction);
+
+
     @Override
     public void SccModelChanged() {
 
@@ -161,16 +168,7 @@ public class ChatDialog extends JDialog implements SccListener {
 
             // Inspired on: https://www.geeksforgeeks.org/java-swing-jtable/
             var jTable = new JTable(us, local_user.columnNames);
-            jTable.getColumnModel().getColumn(0).setMaxWidth(16);
-            // Todo: Make cells non-editable: j.isCellEditable()
-            jTable.getSelectionModel().addListSelectionListener(event -> {
-                if (!event.getValueIsAdjusting()) {
-                    selected_facebook_id = Long.parseLong((String) jTable.getValueAt(jTable.getSelectedRow(), 1));
-
-                    System.out.println("selected_facebook_id: " + selected_facebook_id);
-                    localModelChanged();
-                }
-            });
+            jTable.getColumnModel().getColumn(0).setMaxWidth(18);
             tableHolder.setViewportView(jTable);
         }
 
@@ -186,7 +184,8 @@ public class ChatDialog extends JDialog implements SccListener {
 
                     var options = getUserOptions();
                     userDropdown.removeAllItems();
-                    options.forEach(opt -> userDropdown.addItem(opt)); // this triggeres a change in the dropdown that we explicitly need to disable.
+                    // The following triggeres a change in the dropdown that we explicitly need to disable.
+                    options.forEach(opt -> userDropdown.addItem(opt));
 
                     System.out.println("selectedChannel: " + getSelectedChanel().name);
                     localModelChanged();
@@ -202,7 +201,7 @@ public class ChatDialog extends JDialog implements SccListener {
             String[][] us = messages.stream().map(cached_message_row::toStringList).toArray(String[][]::new);
 
             var jTable = new JTable(us, cached_message_row.columnNames);
-            jTable.getColumnModel().getColumn(0).setMaxWidth(16);
+            jTable.getColumnModel().getColumn(0).setMaxWidth(18);
             jTable.getColumnModel().getColumn(1).setMaxWidth(125);
             jTable.getColumnModel().getColumn(1).setPreferredWidth(125);
             chatHistoryHolder.setViewportView(jTable);
@@ -252,12 +251,6 @@ public class ChatDialog extends JDialog implements SccListener {
         final JLabel label2 = new JLabel();
         label2.setText("messages for event sourcing");
         contentPane.add(label2, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        currentUser = new JLabel();
-        currentUser.setText("Label");
-        contentPane.add(currentUser, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(211, 16), null, 0, false));
-        handshakeWithUserButton = new JButton();
-        handshakeWithUserButton.setText("HandshakeWithUser");
-        contentPane.add(handshakeWithUserButton, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label3 = new JLabel();
         label3.setText("channels");
         contentPane.add(label3, new com.intellij.uiDesigner.core.GridConstraints(0, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -298,6 +291,13 @@ public class ChatDialog extends JDialog implements SccListener {
         renameChannelButton = new JButton();
         renameChannelButton.setText("Rename Channel");
         panel3.add(renameChannelButton, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        autoPullCheckBox = new JCheckBox();
+        autoPullCheckBox.setSelected(true);
+        autoPullCheckBox.setText("auto pull");
+        contentPane.add(autoPullCheckBox, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        currentUser = new JLabel();
+        currentUser.setText("Label");
+        contentPane.add(currentUser, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(211, 16), null, 0, false));
     }
 
     /**
@@ -338,15 +338,29 @@ public class ChatDialog extends JDialog implements SccListener {
     }
 
     private void localModelChanged() {
-        rightPanel.setEnabled(this.selected_facebook_id != -1); // swing doesn't allow to disable a panel!
+
+        var newChecked = autoPullCheckBox.isSelected();
+        if (newChecked != isAutoPulling) {
+            isAutoPulling = newChecked;
+            if (newChecked)
+                autoPullCheckedTimer.start();
+            else
+                autoPullCheckedTimer.stop();
+        }
+
 
         boolean sendButtonEnable = false;
+
+        // swing doesn't allow to disable a panel :(
         if (selectedChannelUuid != null) {
             var selectedChannel = getSelectedChanel();
 
             String[][] us = selectedChannel.chatMessages.stream().map(ChatMessage::toStringList).toArray(String[][]::new);
             var jTable = new JTable(us, ChatMessage.columnNames);
             channelChatMessagesPane.setViewportView(jTable);
+
+            JScrollBar vertical = channelChatMessagesPane.getVerticalScrollBar();
+            vertical.setValue(vertical.getMaximum());
 
             var memberInChannel = selectedChannel.getMember(ClientSingleton.inst().db.facebook_id);
             btnAcceptInvite.setEnabled(memberInChannel.status == MemberStatus.INVITE_PENDING);

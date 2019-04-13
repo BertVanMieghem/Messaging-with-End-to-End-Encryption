@@ -82,8 +82,8 @@ public class ClientSingleton {
     }
 
     public void PullHandshakes() throws Exception {
-        var last_handshake_buffer_index = ClientSingleton.inst().db.last_handshake_buffer_index;
-        URL url = new URL("http://localhost:5665/get_handshake_buffer?last_handshake_buffer_index=" + last_handshake_buffer_index);
+        URL url = new URL("http://localhost:5665/get_handshake_buffer?last_handshake_buffer_index="
+                + ClientSingleton.inst().db.last_handshake_buffer_index);
 
         var jsonObj = Util.SyncJsonRequest(url);
         for (Object row : jsonObj.getJSONArray("handshake_buffer")) {
@@ -120,13 +120,14 @@ public class ClientSingleton {
                 h.client_can_decode = "NO";
             }
             db.insertHandshake(h);
+            ClientSingleton.inst().db.last_handshake_buffer_index = h.id;
         }
         db.saveToDb();
     }
 
     public void PullMessages() throws Exception {
-        var last_message_buffer_index = ClientSingleton.inst().db.last_message_buffer_index;
-        URL url = new URL("http://localhost:5665/get_message_buffer?last_message_buffer_index=" + last_message_buffer_index);
+        URL url = new URL("http://localhost:5665/get_message_buffer?last_message_buffer_index="
+                + ClientSingleton.inst().db.last_message_buffer_index);
 
         var jsonObj = Util.SyncJsonRequest(url);
         for (Object row : jsonObj.getJSONArray("message_buffer")) {
@@ -164,6 +165,7 @@ public class ClientSingleton {
                 h.client_can_decode = "NO";
             }
             db.insertMessage(h);
+            ClientSingleton.inst().db.last_message_buffer_index = h.id;
         }
         db.saveToDb();
     }

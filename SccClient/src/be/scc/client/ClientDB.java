@@ -44,8 +44,8 @@ public class ClientDB {
     // Don't forget to save to database when changing these properties:
     public long facebook_id;
     public KeyPair keyPair;
-    public int last_handshake_buffer_index = 0;
-    public int last_message_buffer_index = 0;
+    public long last_handshake_buffer_index = 0;
+    public long last_message_buffer_index = 0;
 
 
     public void addUser(int id, long facebook_id, String facebook_name, RSAPublicKey public_key) throws Exception {
@@ -60,7 +60,7 @@ public class ClientDB {
 
         PreparedStatement pstmt = conn.prepareStatement("INSERT OR REPLACE INTO local_users VALUES (?, ?, ?, ?, ?, ?)");
         var i = 0;
-        pstmt.setInt(++i, user.id);
+        pstmt.setLong(++i, user.id);
         pstmt.setLong(++i, user.facebook_id);
         pstmt.setString(++i, user.facebook_name);
         pstmt.setString(++i, SccEncryption.serializeKey(user.public_key));
@@ -72,7 +72,7 @@ public class ClientDB {
     public void updateUserInDb(local_user user) throws SQLException {
         PreparedStatement pstmt = conn.prepareStatement("REPLACE INTO local_users VALUES (?, ?, ?, ?, ?, ?)");
         var i = 0;
-        pstmt.setInt(++i, user.id);
+        pstmt.setLong(++i, user.id);
         pstmt.setLong(++i, user.facebook_id);
         pstmt.setString(++i, user.facebook_name);
         pstmt.setString(++i, SccEncryption.serializeKey(user.public_key));
@@ -102,8 +102,8 @@ public class ClientDB {
         pstmt.setLong(++i, facebook_id);
         pstmt.setString(++i, private_key);
         pstmt.setString(++i, public_key);
-        pstmt.setInt(++i, last_handshake_buffer_index);
-        pstmt.setInt(++i, last_message_buffer_index);
+        pstmt.setLong(++i, last_handshake_buffer_index);
+        pstmt.setLong(++i, last_message_buffer_index);
         pstmt.executeUpdate();
 
         dispatcher.SccDispatchModelChanged();
@@ -114,7 +114,7 @@ public class ClientDB {
         ResultSet result = statement.executeQuery("SELECT * from single_row");
         if (result.isClosed()) {
             Statement statement2 = conn.createStatement();
-            statement.execute("INSERT INTO single_row VALUES (0, NULL, NULL, 0, 0)");
+            statement2.execute("INSERT INTO single_row VALUES (0, NULL, NULL, 0, 0)");
             saveToDb();
             return;
         }
@@ -126,8 +126,8 @@ public class ClientDB {
         if (public_key != null && private_key != null)
             pair = new KeyPair(SccEncryption.deserialisePublicKey(public_key), SccEncryption.deserialisePrivateKey(private_key));
 
-        var last_handshake_buffer_index = result.getInt("last_handshake_buffer_index");
-        var last_message_buffer_index = result.getInt("last_message_buffer_index");
+        var last_handshake_buffer_index = result.getLong("last_handshake_buffer_index");
+        var last_message_buffer_index = result.getLong("last_message_buffer_index");
 
         this.facebook_id = facebook_id;
         this.keyPair = pair;
@@ -283,7 +283,6 @@ public class ClientDB {
 
         var channels = new HashMap<UUID, Channel>();
 
-        System.out.println("buildChannelsFromMessageCache()");
         for (cached_message_row messageRow : messages) {
             String message_type;
             JSONObject content;
@@ -292,7 +291,6 @@ public class ClientDB {
                 message_type = json.getString("message_type");
                 content = json.getJSONObject("content");
             }
-            System.out.println("buildChannelsFromMessageCache message_type: " + message_type);
             switch (message_type) {
 
                 // Is also used to create initial channel
@@ -355,7 +353,7 @@ public class ClientDB {
                         var cm = new ChatMessage();
                         cm.message = chat_message;
                         cm.from_facebook_id = messageRow.from_facebook_id;
-                        cm.date = ZonedDateTime.now(ZoneOffset.UTC);
+                        cm.date = ZonedDateTime.now(ZoneOffset.UTC); // TODO: Makes no sense, date should be stored in cached_messages
                         ch.chatMessages.add(cm);
                     } else
                         System.err.println("User not in channel! facebook_id:" + messageRow.from_facebook_id);
