@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import javax.crypto.SecretKey;
 import java.security.PublicKey;
 import java.sql.*;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -35,6 +36,38 @@ enum ChannelStatus {
     //MADE_ON_THIS_COMPUTER,
     //GOT_FROM_REMOTE,
     ARCHIEVED,
+}
+
+class ChatMessage {
+    public String message;
+    public ZonedDateTime date;
+    public long from_facebook_id;
+    private boolean isTrusted = true;
+
+    public JSONObject toJson() {
+        var json = new JSONObject();
+        json.put("message", message);
+        json.put("date", date.toString());
+        json.put("from_facebook_id", from_facebook_id);
+        return json;
+    }
+
+    public static ChatMessage fromJson(JSONObject json) {
+        var cm = new ChatMessage();
+        cm.message = json.getString("message");
+        cm.date = ZonedDateTime.parse(json.getString("date"));
+        cm.from_facebook_id = json.getLong("from_facebook_id");
+        cm.isTrusted = false;
+        return cm;
+    }
+
+
+    public String[] toStringList() {
+        Object[] tmp = {message, date, from_facebook_id};
+        return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
+    }
+
+    public final static String[] columnNames = {"message", "date", "from_facebook_id"};
 }
 
 class Channel {
@@ -94,7 +127,7 @@ class Channel {
 
         var chatMessages = new JSONArray();
         for (var cm : this.chatMessages) {
-            chatMessages.put(cm);
+            chatMessages.put(cm.toJson());
         }
         json.put("chatMessages", chatMessages);
 
@@ -123,8 +156,9 @@ class Channel {
         ch.chatMessages = new ArrayList<>();
         var chatMessages = json.getJSONArray("chatMessages");
         for (var ocm : chatMessages) {
-            var message = (String) ocm;
-            ch.chatMessages.add(message);
+            var jcm = (JSONObject) ocm;
+            var cm = ChatMessage.fromJson(jcm);
+            ch.chatMessages.add(cm);
         }
 
         return ch;
@@ -133,7 +167,7 @@ class Channel {
     public UUID uuid;
     public String name;
     public List<ChannelMember> members = new ArrayList<>();
-    public List<String> chatMessages = new ArrayList<>();
+    public List<ChatMessage> chatMessages = new ArrayList<>();
 }
 
 /**

@@ -2,6 +2,8 @@ package be.scc.client;
 
 import org.json.JSONObject;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -30,8 +32,20 @@ class DbObjectsTest {
         ch.members.add(mPending);
 
         ch.chatMessages = new ArrayList<>();
-        ch.chatMessages.add("First message");
-        ch.chatMessages.add("Second message");
+        {
+            var cm = new ChatMessage();
+            cm.message = "First message";
+            cm.date = ZonedDateTime.parse("2019-04-13T15:28:13.265487200Z");
+            cm.from_facebook_id = mOwner.facebook_id;
+            ch.chatMessages.add(cm);
+        }
+        {
+            var cm = new ChatMessage();
+            cm.message = "Second message";
+            cm.date = ZonedDateTime.now(ZoneOffset.UTC);
+            cm.from_facebook_id = mMemeber.facebook_id;
+            ch.chatMessages.add(cm);
+        }
 
         assert ch.hasOwner(654354351);
         assert ch.hasMember(654354351);

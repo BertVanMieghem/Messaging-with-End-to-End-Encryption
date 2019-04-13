@@ -65,7 +65,7 @@ class SccEncryptionTest {
 
     @Test
     void signature() throws Exception {
-        var message = "Sign me plz.";
+        var message = "Sign me plz.".repeat(1000);
 
         KeyPair pair = SccEncryption.GenerateKeypair();
 

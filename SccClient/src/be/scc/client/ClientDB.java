@@ -10,6 +10,8 @@ import java.nio.file.Path;
 import java.security.*;
 import java.security.interfaces.RSAPublicKey;
 import java.sql.*;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,11 +32,11 @@ public class ClientDB {
             var result = popup.getSelected();
             if (result == null || result.equals("")) throw new SccException("No db path was selected!");
             conn = DriverManager.getConnection("jdbc:sqlite:" + result); // db/SccClient.sqlite
+            System.out.println("Opened database successfully: " + result);
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(1);
         }
-        System.out.println("Opened database successfully");
     }
 
     public SccDispatcher dispatcher = new SccDispatcher();
@@ -335,13 +337,27 @@ public class ClientDB {
                     ch.getMember(messageRow.from_facebook_id).status = MemberStatus.MEMBER;
                     break;
                 }
+                case "rename_channel": {
+                    var new_channel_name = content.getString("new_channel_name");
+                    var channel_uuid = UUID.fromString(content.getString("channel_uuid"));
+                    var ch = channels.get(channel_uuid);
+                    if (ch.hasOwner(messageRow.from_facebook_id)) {
+                        ch.name = new_channel_name;
+                    } else
+                        System.err.println("User may not rename this channel! facebook_id:" + messageRow.from_facebook_id);
+                    break;
+                }
                 case "chat_message_to_channel": {
                     var chat_message = content.getString("chat_message");
                     UUID uuid = UUID.fromString(content.getString("channel_uuid"));
                     var ch = channels.get(uuid);
-                    if (ch.hasMember(messageRow.from_facebook_id))
-                        ch.chatMessages.add(chat_message);
-                    else
+                    if (ch.hasMember(messageRow.from_facebook_id)) {
+                        var cm = new ChatMessage();
+                        cm.message = chat_message;
+                        cm.from_facebook_id = messageRow.from_facebook_id;
+                        cm.date = ZonedDateTime.now(ZoneOffset.UTC);
+                        ch.chatMessages.add(cm);
+                    } else
                         System.err.println("User not in channel! facebook_id:" + messageRow.from_facebook_id);
                     break;
                 }

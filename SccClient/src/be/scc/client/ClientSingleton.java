@@ -11,6 +11,7 @@ import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -235,6 +236,15 @@ public class ClientSingleton {
         PullServerEvents();
     }
 
+    void sendMessageToChannelMembers(Channel ch, JSONObject json) throws Exception {
+        // Send a copy to each member of the channel
+        for (var member : ch.members) {
+            if (ch.hasMember(member.facebook_id)) // chat messages are only sent to joined members
+                sendMessageToFacebookId(member.facebook_id, json);
+        }
+        PullServerEvents();
+    }
+
     public void createNewChannel() throws Exception {
         var json = new JSONObject();
         json.put("message_type", "invite_to_channel");
@@ -266,6 +276,9 @@ public class ClientSingleton {
         mem.status = MemberStatus.INVITE_PENDING;
         mem.facebook_id = invited_facebook_id;
         ch.members.add(mem);
+        // We don't show the history of the chat conversation.
+        // It would be difficult to trust anyway.
+        ch.chatMessages = new ArrayList<>();
         jsonContent.put("channel_content", ch.toJson());
 
         json.put("content", jsonContent);
@@ -291,6 +304,17 @@ public class ClientSingleton {
         var jsonContent = new JSONObject();
         jsonContent.put("channel_uuid", ch.uuid);
         // The accepting user is the owne that sends this message
+        json.put("content", jsonContent);
+
+        sendMessageToChannel(ch, json);
+    }
+
+    public void renameChannel(Channel ch, String new_channel_name) throws Exception {
+        var json = new JSONObject();
+        json.put("message_type", "rename_channel");
+        var jsonContent = new JSONObject();
+        jsonContent.put("channel_uuid", ch.uuid);
+        jsonContent.put("new_channel_name", new_channel_name);
         json.put("content", jsonContent);
 
         sendMessageToChannel(ch, json);
