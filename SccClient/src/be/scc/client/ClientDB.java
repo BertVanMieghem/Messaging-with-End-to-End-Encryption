@@ -28,6 +28,7 @@ public class ClientDB {
             popup.pack();
             popup.setVisible(true);
             var result = popup.getSelected();
+            if (result == null || result.equals("")) throw new SccException("No db path was selected!");
             conn = DriverManager.getConnection("jdbc:sqlite:" + result); // db/SccClient.sqlite
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -282,9 +283,13 @@ public class ClientDB {
 
         System.out.println("buildChannelsFromMessageCache()");
         for (cached_message_row messageRow : messages) {
-            var json = new JSONObject(messageRow.message);
-            var message_type = json.getString("message_type");
-            var content = json.getJSONObject("content");
+            String message_type;
+            JSONObject content;
+            {
+                var json = new JSONObject(messageRow.message); // Scope block the json to be accesed lateron.
+                message_type = json.getString("message_type");
+                content = json.getJSONObject("content");
+            }
             System.out.println("buildChannelsFromMessageCache message_type: " + message_type);
             switch (message_type) {
 
@@ -292,13 +297,11 @@ public class ClientDB {
                 case "invite_to_channel": {
                     var invited_facebook_id = content.getLong("invited_facebook_id");
                     var remoteChannel = Channel.fromJson(content.getJSONObject("channel_content"));
-                    if (messageRow.from_facebook_id == facebook_id) {
-                        channels.put(remoteChannel.uuid, remoteChannel);
-                    }
+                    channels.putIfAbsent(remoteChannel.uuid, remoteChannel);
 
                     // Assure the the member's status is INVITE_PENDING
                     // - if initial request, the sender could already have added the invited to the channel. Else it will be fixed here
-                    // - If we were already member, we don't use the received chanel representation, but we only update our local representattion
+                    // - If we were already member, we don't use the received channel representation, but we only update our local representattion
                     var ch = channels.get(remoteChannel.uuid);
                     if (ch.hasOwner(messageRow.from_facebook_id)) {
                         var mem = ch.getOrCreateMember(invited_facebook_id);
@@ -310,8 +313,8 @@ public class ClientDB {
                 }
 
                 case "remove_person_from_channel": {
-                    var removed_facebook_id = json.getLong("removed_facebook_id");
-                    var channel_uuid = UUID.fromString(json.getString("channel_uuid"));
+                    var removed_facebook_id = content.getLong("removed_facebook_id");
+                    var channel_uuid = UUID.fromString(content.getString("channel_uuid"));
                     var ch = channels.get(channel_uuid);
 
                     if (ch.hasOwner(messageRow.from_facebook_id) || messageRow.from_facebook_id == removed_facebook_id) {
@@ -327,7 +330,7 @@ public class ClientDB {
                     break;
                 }
                 case "accept_invite_to_channel": {
-                    var channel_uuid = UUID.fromString(json.getString("channel_uuid"));
+                    var channel_uuid = UUID.fromString(content.getString("channel_uuid"));
                     var ch = channels.get(channel_uuid);
                     ch.getMember(messageRow.from_facebook_id).status = MemberStatus.MEMBER;
                     break;

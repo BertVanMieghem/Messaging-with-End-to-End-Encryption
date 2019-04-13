@@ -209,30 +209,30 @@ public class ClientSingleton {
         db.updateUserInDb(user); // only set when webrequest succeeded
     }
 
-    void sendMessageToFacebookId(long facebook_id, String payload) throws Exception {
+    void sendMessageToFacebookId(long facebook_id, JSONObject jsonPayload) throws Exception {
+        assert jsonPayload.get("message_type") != null;
+        assert jsonPayload.get("content") != null;
+        var payload = jsonPayload.toString();
+
         var user = db.getUserWithFacebookId(facebook_id);
+        if (user.ephemeral_key_outgoing == null) {
+            handshakeWithFacebookId(facebook_id);
+            user = db.getUserWithFacebookId(facebook_id);
+        }
 
         var secondPart = Util.base64(signAndEncryptPayload(payload, user));
         var params = new HashMap<String, String>();
         params.put("message", secondPart);
         var result = Util.SyncRequestPost(new URL("http://localhost:5665/add_message"), params);
         System.out.println(result);
-
-        // Let's just sent the message to the client self and refresh.
-        // var cm = new cached_message_row();
-        // //cm.id = ??
-        // cm.from_facebook_id = db.facebook_id;
-        // cm.message = payload;
-        // db.insertCachedMessage(cm);
     }
 
     void sendMessageToChannel(Channel ch, JSONObject json) throws Exception {
-        assert json.get("message_type") != null;
-        assert json.get("content") != null;
         // Send a copy to each member of the channel
         for (var member : ch.members) {
-            sendMessageToFacebookId(member.facebook_id, json.toString());
+            sendMessageToFacebookId(member.facebook_id, json);
         }
+        PullServerEvents();
     }
 
     public void createNewChannel() throws Exception {
@@ -252,6 +252,47 @@ public class ClientSingleton {
 
         json.put("content", jsonContent);
 
-        sendMessageToFacebookId(db.facebook_id, json.toString());
+        sendMessageToFacebookId(db.facebook_id, json);
+        PullServerEvents();
+    }
+
+    public void inviteUserToChannel(Channel ch, long invited_facebook_id) throws Exception {
+        var json = new JSONObject();
+        json.put("message_type", "invite_to_channel");
+        var jsonContent = new JSONObject();
+        jsonContent.put("invited_facebook_id", invited_facebook_id);
+
+        var mem = new ChannelMember();
+        mem.status = MemberStatus.INVITE_PENDING;
+        mem.facebook_id = invited_facebook_id;
+        ch.members.add(mem);
+        jsonContent.put("channel_content", ch.toJson());
+
+        json.put("content", jsonContent);
+
+        sendMessageToChannel(ch, json);
+    }
+
+    public void removeUserToChannel(Channel ch, long removed_facebook_id) throws Exception {
+        var json = new JSONObject();
+        json.put("message_type", "remove_person_from_channel");
+        var jsonContent = new JSONObject();
+        jsonContent.put("removed_facebook_id", removed_facebook_id);
+        jsonContent.put("channel_uuid", ch.uuid);
+
+        json.put("content", jsonContent);
+
+        sendMessageToChannel(ch, json);
+    }
+
+    public void acceptInvite(Channel ch) throws Exception {
+        var json = new JSONObject();
+        json.put("message_type", "accept_invite_to_channel");
+        var jsonContent = new JSONObject();
+        jsonContent.put("channel_uuid", ch.uuid);
+        // The accepting user is the owne that sends this message
+        json.put("content", jsonContent);
+
+        sendMessageToChannel(ch, json);
     }
 }

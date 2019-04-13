@@ -25,6 +25,7 @@ public class ChatDialog extends JDialog implements SccListener {
     private JButton btnRemoveUser;
     private JButton createChanelButton;
     private JScrollPane channelChatMessagesPane;
+    private JButton btnAcceptInvite;
 
     private long selected_facebook_id = -1;
 
@@ -73,11 +74,38 @@ public class ChatDialog extends JDialog implements SccListener {
         createChanelButton.addActionListener(e -> {
             try {
                 ClientSingleton.inst().createNewChannel();
-                ClientSingleton.inst().PullServerEvents();
-
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
+        });
+
+        btnInviteUser.addActionListener(e -> {
+            try {
+                var userOption = getSelectedUserFromDropdown();
+                ClientSingleton.inst().inviteUserToChannel(getSelectedChanel(), userOption.facebook_id);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        });
+
+        btnRemoveUser.addActionListener(e -> {
+            try {
+                var userOption = getSelectedUserFromDropdown();
+                ClientSingleton.inst().removeUserToChannel(getSelectedChanel(), userOption.facebook_id);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        });
+
+        btnAcceptInvite.addActionListener(e -> {
+            try {
+                ClientSingleton.inst().acceptInvite(getSelectedChanel());
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        });
+        userDropdown.addActionListener(e -> {
+            localModelChanged();
         });
         messageInput.getDocument().addDocumentListener(new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {
@@ -107,15 +135,20 @@ public class ChatDialog extends JDialog implements SccListener {
         localModelChanged();
     }
 
+    private UserOption getSelectedUserFromDropdown() {
+        return (UserOption) userDropdown.getSelectedItem();
+    }
+
+
     @Override
     public void SccModelChanged() {
-
-        var users = ClientSingleton.inst().db.getUsers();
-        String[][] us = users.stream().map(local_user::toStringList).toArray(String[][]::new);
 
         currentUser.setText("" + ClientSingleton.inst().db.facebook_id);
 
         {
+            var users = ClientSingleton.inst().db.getUsers();
+            String[][] us = users.stream().map(local_user::toStringList).toArray(String[][]::new);
+
             // Inspired on: https://www.geeksforgeeks.org/java-swing-jtable/
             var jTable = new JTable(us, local_user.columnNames);
             jTable.getColumnModel().getColumn(0).setMaxWidth(16);
@@ -141,6 +174,10 @@ public class ChatDialog extends JDialog implements SccListener {
                 if (!event.getValueIsAdjusting()) {
                     selectedChannelUuid = jlist.getSelectedValue().uuid;
 
+                    var options = getUserOptions();
+                    userDropdown.removeAllItems();
+                    options.forEach(opt -> userDropdown.addItem(opt)); // this triggeres a change in the dropdown that we explicitly need to disable.
+
                     System.out.println("selectedChannel: " + getSelectedChanel().name);
                     localModelChanged();
                 }
@@ -148,6 +185,17 @@ public class ChatDialog extends JDialog implements SccListener {
 
             channelsPane.setViewportView(new JScrollPane(jlist));
             jlist.setCellRenderer(new ChannelRenderer());
+        }
+
+        {
+            var messages = ClientSingleton.inst().db.getAllCachedMessages();
+            String[][] us = messages.stream().map(cached_message_row::toStringList).toArray(String[][]::new);
+
+            var jTable = new JTable(us, cached_message_row.columnNames);
+            jTable.getColumnModel().getColumn(0).setMaxWidth(16);
+            jTable.getColumnModel().getColumn(1).setMaxWidth(125);
+            jTable.getColumnModel().getColumn(1).setPreferredWidth(125);
+            chatHistoryHolder.setViewportView(jTable);
         }
 
         localModelChanged();
@@ -229,6 +277,9 @@ public class ChatDialog extends JDialog implements SccListener {
         panel2.add(sendButton, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         messageInput = new JTextField();
         panel2.add(messageInput, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(148, 30), null, 0, false));
+        btnAcceptInvite = new JButton();
+        btnAcceptInvite.setText("Membership pending, Join?");
+        contentPane.add(btnAcceptInvite, new com.intellij.uiDesigner.core.GridConstraints(1, 4, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
@@ -270,35 +321,36 @@ public class ChatDialog extends JDialog implements SccListener {
 
     private void localModelChanged() {
         rightPanel.setEnabled(this.selected_facebook_id != -1); // swing doesn't allow to disable a panel!
-        var text = messageInput.getText();
-        if (text != null && !text.equals("") && selectedChannelUuid != null) {
+
+
+        boolean sendButtonEnable = false;
+        if (selectedChannelUuid != null) {
+            var selectedChannel = getSelectedChanel();
+
+
+            var jTable = new JTable(selectedChannel.chatMessages.stream().map(m -> new String[]{m}).toArray(String[][]::new), new String[]{"message"});
+            channelChatMessagesPane.setViewportView(jTable);
+
+            var memberInChannel = selectedChannel.getMember(ClientSingleton.inst().db.facebook_id);
+            btnAcceptInvite.setEnabled(memberInChannel.status == MemberStatus.INVITE_PENDING);
+            if (selectedChannel.hasMember(memberInChannel.facebook_id))
+                sendButtonEnable = true;
+
+            var selectedUser = getSelectedUserFromDropdown();
+            btnInviteUser.setEnabled(memberInChannel.status == MemberStatus.OWNER && selectedUser != null && selectedChannel.getMember(selectedUser.facebook_id) == null);
+
+            btnRemoveUser.setEnabled(selectedUser != null && (memberInChannel.status == MemberStatus.OWNER || selectedUser.facebook_id == ClientSingleton.inst().db.facebook_id));
+        }
+
+        var inputText = messageInput.getText();
+        if (inputText == null || inputText.equals("")) sendButtonEnable = false;
+
+        if (sendButtonEnable) {
             sendButton.setEnabled(true);
             sendButton.setToolTipText("");
         } else {
             sendButton.setEnabled(false);
-            sendButton.setToolTipText("Select a channel type some text!");
-        }
-
-
-        {
-            var messages = ClientSingleton.inst().db.getAllCachedMessages();
-            String[][] us = messages.stream().map(cached_message_row::toStringList).toArray(String[][]::new);
-
-            var jTable = new JTable(us, cached_message_row.columnNames);
-            jTable.getColumnModel().getColumn(0).setMaxWidth(16);
-            jTable.getColumnModel().getColumn(1).setMaxWidth(125);
-            jTable.getColumnModel().getColumn(1).setPreferredWidth(125);
-            chatHistoryHolder.setViewportView(jTable);
-        }
-
-        if (selectedChannelUuid != null) {
-            var selectedChannel = getSelectedChanel();
-
-            var options = getUserOptions();
-            options.forEach(opt -> userDropdown.addItem(opt));
-
-            var jTable = new JTable(selectedChannel.chatMessages.stream().map(m -> new String[]{m}).toArray(String[][]::new), new String[]{"message"});
-            channelChatMessagesPane.setViewportView(jTable);
+            sendButton.setToolTipText("Select a channel -AND- Type some text -AND- Be accepted in this channel");
         }
     }
 
