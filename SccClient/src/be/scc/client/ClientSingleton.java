@@ -213,5 +213,12 @@ public class ClientSingleton {
         params.put("message", secondPart);
         var result = Util.SyncRequestPost(new URL("http://localhost:5665/add_message"), params);
         System.out.println(result);
+
+        // Let's just sent the message to the client self and refresh.
+        // var cm = new cached_message_row();
+        // //cm.id = ??
+        // cm.from_facebook_id = db.facebook_id;
+        // cm.message = payload;
+        // db.insertCachedMessage(cm);
     }
 }

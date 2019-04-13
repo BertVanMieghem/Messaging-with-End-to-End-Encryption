@@ -1,7 +1,9 @@
 package be.scc.client;
 
+import be.scc.common.SccException;
 import be.scc.common.Util;
 import be.scc.common.SccEncryption;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.crypto.SecretKey;
@@ -15,36 +17,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-interface SccListener {
-    /**
-     * Should be idempotent.
-     * This function translates the model information to GUI and should not change any external state.
-     */
-    void SccModelChanged() throws Exception;
-}
 
-class SccDispatcher {
-    private List<SccListener> listeners = new ArrayList<SccListener>();
-
-    public void addListener(SccListener toAdd) {
-        try {
-            toAdd.SccModelChanged(); // Could be unhandy in some cases
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        listeners.add(toAdd);
-    }
-
-    public void SccDispatchModelChanged() {
-        for (SccListener hl : listeners) {
-            try {
-                hl.SccModelChanged();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-}
 
 public class ClientDB {
 
@@ -257,6 +230,23 @@ public class ClientDB {
         var aggregate = new ArrayList<cached_message_row>();
         try {
             Statement statement = conn.createStatement();
+            ResultSet result = statement.executeQuery("SELECT * from cached_messages WHERE from_facebook_id=" + facebook_id);
+
+            while (result.next()) {
+                var row = new cached_message_row();
+                row.fillInFromSqlResult(result);
+                aggregate.add(row);
+            }
+        } catch (Exception ex) {
+            System.exit(1); // fail
+        }
+        return aggregate;
+    }
+
+    public List<cached_message_row> getAllCachedMessages() {
+        var aggregate = new ArrayList<cached_message_row>();
+        try {
+            Statement statement = conn.createStatement();
             ResultSet result = statement.executeQuery("SELECT * from cached_messages");
 
             while (result.next()) {
@@ -268,6 +258,45 @@ public class ClientDB {
             System.exit(1); // fail
         }
         return aggregate;
+    }
+
+    public Collection<Channel> createChannelsFromMessageCache() {
+        var messages = getAllCachedMessages();
+
+        var channels = new HashMap<UUID, Channel>();
+
+        for (var message : messages) {
+            var json = new JSONObject(message);
+            var message_type = json.getString("message_type");
+            var content = json.getJSONObject("content");
+
+            switch (message_type) {
+
+                case "invite_to_channel": {
+
+                    break;
+                }
+
+                case "remove_person_from_channel": {
+                    break;
+                }
+                case "accept_invite_to_channel": {
+                    break;
+                }
+                case "chat_message_to_channel": {
+                    var chat_message = content.getString("chat_message");
+                    UUID uuid = UUID.fromString(content.getString("channel_uuid"));
+                    var ch = channels.get(uuid);
+                    if (ch.hasUser(facebook_id))
+                        ch.chatMessages.add(chat_message);
+                    else
+                        System.err.println("User not in channel! facebook_id:" + facebook_id);
+                    break;
+                }
+            }
+        }
+
+        return channels.values();
     }
 }
 
@@ -282,65 +311,3 @@ class Tuple<X, Y> {
     }
 }
 */
-
-/**
- * CREATE TABLE `cached_messages` (
- * `id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
- * `from_facebook_id`	INTEGER NOT NULL,
- * `message`	TEXT NOT NULL
- * );
- */
-class cached_message_row {
-    public long id;
-    public long from_facebook_id;
-    public String message;
-
-    public void fillInFromSqlResult(ResultSet result) throws SQLException {
-        id = result.getLong("id");
-        from_facebook_id = result.getLong("from_facebook_id");
-        message = result.getString("message");
-    }
-
-    public String[] toStringList() {
-        Object[] tmp = {id, from_facebook_id, message};
-        return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
-    }
-
-    public final static String[] columnNames = {"id", "from_facebook_id", "message"};
-}
-
-class handshake_row {
-    public long id;
-    public String message;
-    public String client_can_decode;
-
-    public void fillInFromJson(JSONObject row) {
-        id = row.getInt("id");
-        message = row.getString("message");
-        if (row.has("client_can_decode"))
-            client_can_decode = row.getString("client_can_decode");
-    }
-}
-
-class message_row extends handshake_row {
-
-}
-
-class local_user {
-    public local_user() {
-    }
-
-    public int id;
-    public long facebook_id;
-    public String facebook_name;
-    public PublicKey public_key;
-    public SecretKey ephemeral_key_outgoing;
-    public SecretKey ephemeral_key_ingoing;
-
-    public String[] toStringList() {
-        Object[] tmp = {id, facebook_id, facebook_name, public_key, ephemeral_key_outgoing, ephemeral_key_ingoing};
-        return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
-    }
-
-    public final static String[] columnNames = {"id", "facebook_id", "facebook_name", "public_key", "ephemeral_key_outgoing", "ephemeral_key_ingoing"};
-}
