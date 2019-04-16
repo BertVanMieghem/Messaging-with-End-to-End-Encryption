@@ -168,6 +168,20 @@ public class ClientDB {
         }
     }
 
+
+    public List<String> GetIncomingEphemeralIds() throws SQLException {
+        Statement statement = conn.createStatement();
+        ResultSet result = statement.executeQuery("SELECT ephemeral_id_ingoing FROM local_users WHERE ephemeral_id_ingoing IS NOT NULL");
+        var strlist = new ArrayList<String>();
+        if (result.isClosed()) return strlist;
+        while (result.next()) {
+            var temp = result.getString("ephemeral_id_ingoing");
+            strlist.add(temp);
+        }
+        return strlist;
+    }
+//SELECT ephemeral_id_outgoing FROM local_users WHERE ephemeral_id_outgoing IS NOT NULL
+
     public local_user getUserWithFacebookId(long facebook_id) throws SQLException, GeneralSecurityException {
         if (facebook_id < 0) throw new SccException("invalid facebook_id:" + facebook_id);
         Statement statement = conn.createStatement();

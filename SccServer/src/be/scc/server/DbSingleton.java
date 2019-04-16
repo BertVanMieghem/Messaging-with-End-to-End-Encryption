@@ -3,10 +3,12 @@ package be.scc.server;
 import be.scc.common.SccEncryption;
 import be.scc.common.Util;
 import org.json.*;
+import org.sqlite.util.StringUtils;
 
 import java.security.PublicKey;
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 class DbSingleton {
     private static DbSingleton single_instance = null;
@@ -85,7 +87,8 @@ class DbSingleton {
     public JSONObject getMessages(int last_message_buffer_index, String[] ephemeral_ids) throws SQLException {
         // TODO use ephemeral ids
         Statement statement = conn.createStatement();
-        ResultSet result = statement.executeQuery("SELECT * FROM message_buffer WHERE id>" + last_message_buffer_index);
+        var temp = StringUtils.join((Arrays.asList(ephemeral_ids).stream().map(e -> "\"" + e + "\"").collect(Collectors.toList())), ", ");
+        ResultSet result = statement.executeQuery("SELECT * FROM message_buffer WHERE id>" + last_message_buffer_index + " AND target_ephemeral_id IN (" + temp + ")");
 
         var jsonArr = Util.SqlResultsToJson(result); //, List.of("id", "message"));
 

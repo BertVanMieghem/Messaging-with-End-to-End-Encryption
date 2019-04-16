@@ -129,16 +129,12 @@ public class ClientSingleton {
         db.saveToDb();
     }
 
-    public List<String> GetIncomingEphemeralIds() {
-        return new ArrayList<>();
-    }
-
     public void PullMessages() throws Exception {
         URL url = new URL("http://localhost:5665/get_message_buffer?last_message_buffer_index="
                 + ClientSingleton.inst().db.last_message_buffer_index);
 
         var params = new HashMap<String, String>();
-        params.put("ephemeral_ids", StringUtils.join(GetIncomingEphemeralIds(), "|"));
+        params.put("ephemeral_ids", StringUtils.join(db.GetIncomingEphemeralIds(), "|"));
         var jsonObj = new JSONObject(Util.SyncRequestPost(url, params));
         for (Object row : jsonObj.getJSONArray("message_buffer")) {
             var obj = (JSONObject) row;
