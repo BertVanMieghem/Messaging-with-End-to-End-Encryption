@@ -58,7 +58,7 @@ public class ClientDB {
         user.facebook_name = facebook_name;
         user.public_key = public_key;
 
-        PreparedStatement pstmt = conn.prepareStatement("INSERT OR REPLACE INTO local_users VALUES (?, ?, ?, ?, ?, ?)");
+        PreparedStatement pstmt = conn.prepareStatement("INSERT OR REPLACE INTO local_users VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         var i = 0;
         pstmt.setLong(++i, user.id);
         pstmt.setLong(++i, user.facebook_id);
@@ -66,11 +66,13 @@ public class ClientDB {
         pstmt.setString(++i, SccEncryption.serializeKey(user.public_key));
         pstmt.setString(++i, SccEncryption.serializeKey(user.ephemeral_key_outgoing));
         pstmt.setString(++i, SccEncryption.serializeKey(user.ephemeral_key_ingoing));
+        pstmt.setString(++i, user.ephemeral_id_outgoing.toString());
+        pstmt.setString(++i, user.ephemeral_id_ingoing.toString());
         pstmt.executeUpdate();
     }
 
     public void updateUserInDb(local_user user) throws SQLException {
-        PreparedStatement pstmt = conn.prepareStatement("REPLACE INTO local_users VALUES (?, ?, ?, ?, ?, ?)");
+        PreparedStatement pstmt = conn.prepareStatement("REPLACE INTO local_users VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         var i = 0;
         pstmt.setLong(++i, user.id);
         pstmt.setLong(++i, user.facebook_id);
@@ -78,6 +80,8 @@ public class ClientDB {
         pstmt.setString(++i, SccEncryption.serializeKey(user.public_key));
         pstmt.setString(++i, SccEncryption.serializeKey(user.ephemeral_key_outgoing));
         pstmt.setString(++i, SccEncryption.serializeKey(user.ephemeral_key_ingoing));
+        pstmt.setString(++i, user.ephemeral_id_outgoing.toString());
+        pstmt.setString(++i, user.ephemeral_id_ingoing.toString());
         pstmt.executeUpdate();
         dispatcher.SccDispatchModelChanged();
     }
@@ -176,6 +180,12 @@ public class ClientDB {
         var ephemeral_key_ingoing = result.getString("ephemeral_key_ingoing");
         if (ephemeral_key_ingoing != null)
             row.ephemeral_key_ingoing = SccEncryption.deserialiseSymetricKey(ephemeral_key_ingoing);
+
+        var ephemeral_id_outgoing = result.getString("ephemeral_id_outgoing");
+        if (ephemeral_id_outgoing != null) row.ephemeral_id_outgoing = UUID.fromString(ephemeral_id_outgoing);
+
+        var ephemeral_id_ingoing = result.getString("ephemeral_id_ingoing");
+        if (ephemeral_id_ingoing != null) row.ephemeral_id_ingoing = UUID.fromString(ephemeral_id_ingoing);
         return row;
     }
 

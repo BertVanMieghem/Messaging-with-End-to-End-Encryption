@@ -8,6 +8,7 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.UUID;
 
 import org.json.*;
 
@@ -57,7 +58,7 @@ public class Main {
                         var bodyParams = Util.getBodyParams(httpExchange);
                         var message = bodyParams.get("message").get(0);
 
-                        var id = DbSingleton.inst().addHandshake(message);
+                        DbSingleton.inst().addHandshake(message);
                         JSONObject jsonRet = new JSONObject();
                         jsonRet.put("message", path + " done");
                         //jsonRet.put("handshake_id", id);
@@ -76,8 +77,9 @@ public class Main {
                     case "/add_message": {
                         var bodyParams = Util.getBodyParams(httpExchange);
                         var message = bodyParams.get("message").get(0);
+                        var target_ephemeral_id = bodyParams.get("target_ephemeral_id").get(0);
 
-                        var id = DbSingleton.inst().addMessage(message);
+                        DbSingleton.inst().addMessage(message, UUID.fromString(target_ephemeral_id));
                         JSONObject jsonRet = new JSONObject();
                         jsonRet.put("message", path + " done");
                         //jsonRet.put("message_id", id);
@@ -88,7 +90,9 @@ public class Main {
                         URI uri = httpExchange.getRequestURI();
                         var qs = Util.decodeQueryString(uri);
                         var last_message_buffer_index = Integer.parseInt(qs.get("last_message_buffer_index"));
-                        var json = DbSingleton.inst().getMessages(last_message_buffer_index);
+                        var temp = qs.get("ephemeral_ids");
+                        String[] ephemeral_ids = temp.split("\\|");
+                        var json = DbSingleton.inst().getMessages(last_message_buffer_index, ephemeral_ids);
                         data = json.toString().getBytes();
                         break;
                     }

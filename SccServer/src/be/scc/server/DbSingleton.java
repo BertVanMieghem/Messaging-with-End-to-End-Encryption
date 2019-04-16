@@ -57,11 +57,10 @@ class DbSingleton {
     }
 
 
-    public int addHandshake(String message) throws SQLException {
+    public void addHandshake(String message) throws SQLException {
         PreparedStatement pstmt = conn.prepareStatement("INSERT INTO handshake_buffer VALUES (NULL, ?)");
         pstmt.setString(1, message);
         pstmt.executeUpdate();
-        return 1; // TODO
     }
 
     public JSONObject getHandshakes(int last_handshake_buffer_index) throws SQLException {
@@ -76,14 +75,15 @@ class DbSingleton {
     }
 
 
-    public int addMessage(String message) throws SQLException {
-        PreparedStatement pstmt = conn.prepareStatement("INSERT INTO message_buffer VALUES (NULL, ?)");
+    public void addMessage(String message, UUID target_ephemeral_id) throws SQLException {
+        PreparedStatement pstmt = conn.prepareStatement("INSERT INTO message_buffer VALUES (NULL, ?, ?)");
         pstmt.setString(1, message);
+        pstmt.setString(2, target_ephemeral_id.toString());
         pstmt.executeUpdate();
-        return 1; // TODO
     }
 
-    public JSONObject getMessages(int last_message_buffer_index) throws SQLException {
+    public JSONObject getMessages(int last_message_buffer_index, String[] ephemeral_ids) throws SQLException {
+        // TODO use ephemeral ids
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery("SELECT * FROM message_buffer WHERE id>" + last_message_buffer_index);
 

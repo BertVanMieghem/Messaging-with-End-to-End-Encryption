@@ -4,6 +4,7 @@ import be.scc.common.SccEncryption;
 import be.scc.common.SccException;
 import be.scc.common.Util;
 import org.json.JSONObject;
+import org.sqlite.util.StringUtils;
 
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -113,7 +115,9 @@ public class ClientSingleton {
                     throw new SccException("Signature from handshake was not valid!");
 
                 from_user.ephemeral_key_ingoing = symetricalKey;
+                from_user.ephemeral_id_ingoing = UUID.fromString(json.getString("ephemeral_id"));
                 db.updateUserInDb(from_user);
+
 
                 h.client_can_decode = "YES";
             } catch (GeneralSecurityException ex) {
@@ -125,11 +129,17 @@ public class ClientSingleton {
         db.saveToDb();
     }
 
+    public List<String> GetIncomingEphemeralIds() {
+        return new ArrayList<>();
+    }
+
     public void PullMessages() throws Exception {
         URL url = new URL("http://localhost:5665/get_message_buffer?last_message_buffer_index="
                 + ClientSingleton.inst().db.last_message_buffer_index);
 
-        var jsonObj = Util.SyncJsonRequest(url);
+        var params = new HashMap<String, String>();
+        params.put("ephemeral_ids", StringUtils.join(GetIncomingEphemeralIds(), "|"));
+        var jsonObj = new JSONObject(Util.SyncRequestPost(url, params));
         for (Object row : jsonObj.getJSONArray("message_buffer")) {
             var obj = (JSONObject) row;
             var h = new message_row();
@@ -196,10 +206,13 @@ public class ClientSingleton {
     public void handshakeWithFacebookId(long facebook_id) throws Exception {
         var user = db.getUserWithFacebookId(facebook_id);
         user.ephemeral_key_outgoing = SccEncryption.GenerateSymetricKey();
+        user.ephemeral_id_outgoing = UUID.randomUUID();
+
         var key = SccEncryption.serializeKey(user.ephemeral_key_outgoing);
         var encryptesSymetricalKey = Util.base64(SccEncryption.Encript(user.public_key, key));
         var json = new JSONObject();
         json.put("handshake_initiator_facebook_id", db.facebook_id);
+        json.put("ephemeral_id", user.ephemeral_id_outgoing);
         json.put("datetime", ZonedDateTime.now(ZoneOffset.UTC));
         var payload = json.toString();
         var secondPart = Util.base64(signAndEncryptPayload(payload, user));
@@ -226,6 +239,7 @@ public class ClientSingleton {
         var secondPart = Util.base64(signAndEncryptPayload(payload, user));
         var params = new HashMap<String, String>();
         params.put("message", secondPart);
+        params.put("target_ephemeral_id", user.ephemeral_id_outgoing.toString());
         var result = Util.SyncRequestPost(new URL("http://localhost:5665/add_message"), params);
         System.out.println(result);
     }

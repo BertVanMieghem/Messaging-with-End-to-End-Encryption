@@ -223,11 +223,14 @@ class local_user {
     public PublicKey public_key;
     public SecretKey ephemeral_key_outgoing;
     public SecretKey ephemeral_key_ingoing;
+    public UUID ephemeral_id_outgoing;
+    public UUID ephemeral_id_ingoing;
 
     public String[] toStringList() {
-        Object[] tmp = {id, facebook_id, facebook_name, public_key, ephemeral_key_outgoing, ephemeral_key_ingoing};
+        Object[] tmp = {id, facebook_id, facebook_name, public_key, ephemeral_key_outgoing, ephemeral_key_ingoing, ephemeral_id_outgoing, ephemeral_id_ingoing};
         return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
     }
 
-    public final static String[] columnNames = {"id", "facebook_id", "facebook_name", "public_key", "ephemeral_key_outgoing", "ephemeral_key_ingoing"};
+    public final static String[] columnNames = {"id", "facebook_id", "facebook_name", "public_key", "ephemeral_key_outgoing", "ephemeral_key_ingoing",
+            "ephemeral_id_outgoing", "ephemeral_id_ingoing"};
 }
