@@ -90,7 +90,8 @@ public class Main {
                         URI uri = httpExchange.getRequestURI();
                         var qs = Util.decodeQueryString(uri);
                         var last_message_buffer_index = Integer.parseInt(qs.get("last_message_buffer_index"));
-                        var temp = qs.get("ephemeral_ids");
+                        var bodyParams = Util.getBodyParams(httpExchange);
+                        var temp = bodyParams.get("ephemeral_ids").get(0);
                         String[] ephemeral_ids = temp.split("\\|");
                         var json = DbSingleton.inst().getMessages(last_message_buffer_index, ephemeral_ids);
                         data = json.toString().getBytes();

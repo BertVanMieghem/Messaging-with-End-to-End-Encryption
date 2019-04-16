@@ -66,8 +66,14 @@ public class ClientDB {
         pstmt.setString(++i, SccEncryption.serializeKey(user.public_key));
         pstmt.setString(++i, SccEncryption.serializeKey(user.ephemeral_key_outgoing));
         pstmt.setString(++i, SccEncryption.serializeKey(user.ephemeral_key_ingoing));
-        pstmt.setString(++i, user.ephemeral_id_outgoing.toString());
-        pstmt.setString(++i, user.ephemeral_id_ingoing.toString());
+        String user_ephemeral_id_outgoing = null;
+        if (user.ephemeral_id_outgoing != null)
+            user_ephemeral_id_outgoing = user.ephemeral_id_outgoing.toString();
+        String user_ephemeral_id_ingoing = null;
+        if (user.ephemeral_id_ingoing != null)
+            user_ephemeral_id_ingoing = user.ephemeral_id_ingoing.toString();
+        pstmt.setString(++i, user_ephemeral_id_outgoing);
+        pstmt.setString(++i, user_ephemeral_id_ingoing);
         pstmt.executeUpdate();
     }
 
@@ -80,8 +86,14 @@ public class ClientDB {
         pstmt.setString(++i, SccEncryption.serializeKey(user.public_key));
         pstmt.setString(++i, SccEncryption.serializeKey(user.ephemeral_key_outgoing));
         pstmt.setString(++i, SccEncryption.serializeKey(user.ephemeral_key_ingoing));
-        pstmt.setString(++i, user.ephemeral_id_outgoing.toString());
-        pstmt.setString(++i, user.ephemeral_id_ingoing.toString());
+        String user_ephemeral_id_outgoing = null;
+        if (user.ephemeral_id_outgoing != null)
+            user_ephemeral_id_outgoing = user.ephemeral_id_outgoing.toString();
+        String user_ephemeral_id_ingoing = null;
+        if (user.ephemeral_id_ingoing != null)
+            user_ephemeral_id_ingoing = user.ephemeral_id_ingoing.toString();
+        pstmt.setString(++i, user_ephemeral_id_outgoing);
+        pstmt.setString(++i, user_ephemeral_id_ingoing);
         pstmt.executeUpdate();
         dispatcher.SccDispatchModelChanged();
     }
