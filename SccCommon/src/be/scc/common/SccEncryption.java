@@ -20,7 +20,7 @@ public class SccEncryption {
      * ~7ms for keysize 512
      * Key length based on: https://www.keylength.com/en/compare/
      */
-    public static KeyPair GenerateKeypair() throws NoSuchAlgorithmException {
+    public static KeyPair generateKeypair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048);
         KeyPair pair = keyGen.generateKeyPair();
@@ -67,7 +67,7 @@ public class SccEncryption {
         return (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(Spec);
     }
 
-    static public byte[] Encript(PublicKey publicKey, String plaintext)
+    static public byte[] encrypt(PublicKey publicKey, String plaintext)
             throws GeneralSecurityException {
 
         Cipher enc = Cipher.getInstance("RSA");
@@ -78,7 +78,7 @@ public class SccEncryption {
         return cipherText;
     }
 
-    static public String Decript(PrivateKey privateKey, byte[] cipherText) throws GeneralSecurityException {
+    static public String decrypt(PrivateKey privateKey, byte[] cipherText) throws GeneralSecurityException {
 
         Cipher dec = Cipher.getInstance("RSA");
 
@@ -97,7 +97,7 @@ public class SccEncryption {
         //return (SecretKey) KeyGenerator.getInstance("AES").(Spec);
     }
 
-    static public SecretKeySpec GenerateSymetricKey() throws GeneralSecurityException {
+    static public SecretKeySpec generateSymetricKey() throws GeneralSecurityException {
         SecureRandom secureRandom = new SecureRandom();
         int keyBitSize = 256;
         KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
@@ -105,20 +105,20 @@ public class SccEncryption {
         return (SecretKeySpec) keyGenerator.generateKey();
     }
 
-    static public byte[] Encript(SecretKey key, String plaintext) throws GeneralSecurityException {
+    static public byte[] encrypt(SecretKey key, String plaintext) throws GeneralSecurityException {
         Cipher enc = Cipher.getInstance("AES/CBC/PKCS5PADDING");
         enc.init(Cipher.ENCRYPT_MODE, key, iv);
         return enc.doFinal(plaintext.getBytes(StandardCharsets.UTF_8));
     }
 
-    static public String Decript(SecretKey key, byte[] cipherText) throws GeneralSecurityException {
+    static public String decrypt(SecretKey key, byte[] cipherText) throws GeneralSecurityException {
         Cipher dec = Cipher.getInstance("AES/CBC/PKCS5PADDING");
         dec.init(Cipher.DECRYPT_MODE, key, iv);
         byte[] returned = dec.doFinal(cipherText);
         return new String(returned, StandardCharsets.UTF_8);
     }
 
-    static public byte[] Sign(PrivateKey privateKey, String data) throws Exception {
+    static public byte[] sign(PrivateKey privateKey, String data) throws Exception {
         Signature rsasign = Signature.getInstance("SHA1withRSA");
         rsasign.initSign(privateKey);
         rsasign.update(data.getBytes(StandardCharsets.UTF_8));
@@ -126,7 +126,7 @@ public class SccEncryption {
         return signature;
     }
 
-    static public boolean VerifySign(PublicKey publicKey, String data, byte[] signature) throws Exception {
+    static public boolean verifySign(PublicKey publicKey, String data, byte[] signature) throws Exception {
         Signature rsacheck = Signature.getInstance("SHA1withRSA");
         rsacheck.initVerify(publicKey);
         rsacheck.update(data.getBytes(StandardCharsets.UTF_8));

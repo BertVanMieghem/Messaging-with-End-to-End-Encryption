@@ -29,7 +29,7 @@ public class ClientSingleton {
     private ClientSingleton() {
     }
 
-    public void Initialise() throws Exception {
+    public void initialise() throws Exception {
         db.loadFromDb();
         loginDialog = new LoginDialog();
         chatDialog = new ChatDialog();
@@ -48,12 +48,12 @@ public class ClientSingleton {
 
 
 
-    public void OpenLoginOrSkip() throws IOException {
+    public void openLoginOrSkip() throws IOException {
         if (ClientSingleton.inst().db.facebook_id != 0) {
             ClientSingleton.inst().fromLoginToChatDialog();
         } else {
             loginDialog.pack();
-            loginDialog.Initialise();
+            loginDialog.initialise();
             loginDialog.setVisible(true);
         }
     }
@@ -65,10 +65,10 @@ public class ClientSingleton {
         chatDialog.setVisible(true);
     }
 
-    public void PullUsers() throws Exception {
+    public void pullUsers() throws Exception {
         URL url = new URL("http://localhost:5665/get_users");
 
-        var jsonObj = Util.SyncJsonRequest(url);
+        var jsonObj = Util.syncJsonRequest(url);
         for (Object row : jsonObj.getJSONArray("users")) {
             var obj = (JSONObject) row;
             db.addUser(obj.getInt("id"), obj.getLong("facebook_id"), obj.getString("facebook_name"), SccEncryption.deserialisePublicKey(obj.getString("public_key")));
@@ -76,19 +76,19 @@ public class ClientSingleton {
         db.saveToDb();
     }
 
-    public void PullServerEvents() throws Exception {
-        PullUsers();
-        PullHandshakes();
-        PullMessages();
+    public void pullServerEvents() throws Exception {
+        pullUsers();
+        pullHandshakes();
+        pullMessages();
         db.rebuildChannelsFromMessageCache();
         db.saveToDb();
     }
 
-    public void PullHandshakes() throws Exception {
+    public void pullHandshakes() throws Exception {
         URL url = new URL("http://localhost:5665/get_handshake_buffer?last_handshake_buffer_index="
                 + ClientSingleton.inst().db.last_handshake_buffer_index);
 
-        var jsonObj = Util.SyncJsonRequest(url);
+        var jsonObj = Util.syncJsonRequest(url);
         for (Object row : jsonObj.getJSONArray("handshake_buffer")) {
             var obj = (JSONObject) row;
             var h = new Handshake_row();
@@ -97,11 +97,11 @@ public class ClientSingleton {
                 var parts = h.message.split("\\|");
                 var encryptesSymetricalKeyString = parts[0];
                 var encryptesSymetricalKey = Util.base64(encryptesSymetricalKeyString);
-                var symetricalKeySerialised = SccEncryption.Decript(db.keyPair.getPrivate(), encryptesSymetricalKey);
+                var symetricalKeySerialised = SccEncryption.decrypt(db.keyPair.getPrivate(), encryptesSymetricalKey);
                 var symetricalKey = SccEncryption.deserialiseSymetricKey(symetricalKeySerialised);
 
                 byte[] secondPartEncrypted = Util.base64(parts[1]);
-                var secondPart = SccEncryption.Decript(symetricalKey, secondPartEncrypted);
+                var secondPart = SccEncryption.decrypt(symetricalKey, secondPartEncrypted);
 
                 var idx = secondPart.lastIndexOf("|");
                 String payload = secondPart.substring(0, idx);
@@ -111,7 +111,7 @@ public class ClientSingleton {
                 var sig = Util.base64(secondPart.substring(idx + 1));
 
                 var from_user = db.getUserWithFacebookId(from_facebook_id);
-                if (!SccEncryption.VerifySign(from_user.public_key, payload, sig))
+                if (!SccEncryption.verifySign(from_user.public_key, payload, sig))
                     throw new SccException("Signature from handshake was not valid!");
 
                 from_user.ephemeral_key_ingoing = symetricalKey;
@@ -129,13 +129,13 @@ public class ClientSingleton {
         db.saveToDb();
     }
 
-    public void PullMessages() throws Exception {
+    public void pullMessages() throws Exception {
         URL url = new URL("http://localhost:5665/get_message_buffer?last_message_buffer_index="
                 + ClientSingleton.inst().db.last_message_buffer_index);
 
         var params = new HashMap<String, String>();
-        params.put("ephemeral_ids", StringUtils.join(db.GetIncomingEphemeralIds(), "|"));
-        var jsonObj = new JSONObject(Util.SyncRequestPost(url, params));
+        params.put("ephemeral_ids", StringUtils.join(db.getIncomingEphemeralIds(), "|"));
+        var jsonObj = new JSONObject(Util.syncRequestPost(url, params));
         for (Object row : jsonObj.getJSONArray("message_buffer")) {
             var obj = (JSONObject) row;
             var h = new Message_row();
@@ -180,32 +180,32 @@ public class ClientSingleton {
      * Can not be used when decripting handshake, becouse we don't know what user to verify with then.
      */
     private String decryptPayloadAndVerify(byte[] secondPartEncrypted, Local_user user) throws Exception {
-        var secondPart = SccEncryption.Decript(user.ephemeral_key_ingoing, secondPartEncrypted);
+        var secondPart = SccEncryption.decrypt(user.ephemeral_key_ingoing, secondPartEncrypted);
 
         var idx = secondPart.lastIndexOf("|");
         var payload = secondPart.substring(0, idx);
 
         var sig = Util.base64(secondPart.substring(idx + 1));
 
-        if (!SccEncryption.VerifySign(user.public_key, payload, sig))
+        if (!SccEncryption.verifySign(user.public_key, payload, sig))
             throw new SccException("Signature from handshake was not valid!");
         return payload;
     }
 
     private byte[] signAndEncryptPayload(String payload, Local_user user) throws Exception {
-        var sig = SccEncryption.Sign(db.keyPair.getPrivate(), payload);
+        var sig = SccEncryption.sign(db.keyPair.getPrivate(), payload);
         var sigStr = Util.base64(sig);
         var secondPartPlainText = payload + "|" + sigStr;
-        return (SccEncryption.Encript(user.ephemeral_key_outgoing, secondPartPlainText));
+        return (SccEncryption.encrypt(user.ephemeral_key_outgoing, secondPartPlainText));
     }
 
     public void handshakeWithFacebookId(long facebook_id) throws Exception {
         var user = db.getUserWithFacebookId(facebook_id);
-        user.ephemeral_key_outgoing = SccEncryption.GenerateSymetricKey();
+        user.ephemeral_key_outgoing = SccEncryption.generateSymetricKey();
         user.ephemeral_id_outgoing = UUID.randomUUID();
 
         var key = SccEncryption.serializeKey(user.ephemeral_key_outgoing);
-        var encryptesSymetricalKey = Util.base64(SccEncryption.Encript(user.public_key, key));
+        var encryptesSymetricalKey = Util.base64(SccEncryption.encrypt(user.public_key, key));
         var json = new JSONObject();
         json.put("handshake_initiator_facebook_id", db.facebook_id);
         json.put("ephemeral_id", user.ephemeral_id_outgoing);
@@ -217,7 +217,7 @@ public class ClientSingleton {
         var params = new HashMap<String, String>();
         params.put("message", message);
 
-        //var result = Util.SyncRequestPost(new URL("http://localhost:5665/add_handshake"), params);
+        //var result = Util.syncRequestPost(new URL("http://localhost:5665/add_handshake"), params);
         db.updateUserInDb(user); // only set when webrequest succeeded
     }
 
@@ -236,7 +236,7 @@ public class ClientSingleton {
         var params = new HashMap<String, String>();
         params.put("message", secondPart);
         params.put("target_ephemeral_id", user.ephemeral_id_outgoing.toString());
-        var result = Util.SyncRequestPost(new URL("http://localhost:5665/add_message"), params);
+        var result = Util.syncRequestPost(new URL("http://localhost:5665/add_message"), params);
         System.out.println(result);
     }
 
@@ -245,7 +245,7 @@ public class ClientSingleton {
         for (var member : ch.members) {
             sendMessageToFacebookId(member.facebook_id, json);
         }
-        PullServerEvents();
+        pullServerEvents();
     }
 
     public void sendMessageToChannelMembers(Channel ch, JSONObject json) throws Exception {
@@ -254,7 +254,7 @@ public class ClientSingleton {
             if (ch.hasMember(member.facebook_id)) // chat messages are only sent to joined members
                 sendMessageToFacebookId(member.facebook_id, json);
         }
-        PullServerEvents();
+        pullServerEvents();
     }
 
     public void createNewChannel() throws Exception {
@@ -275,7 +275,7 @@ public class ClientSingleton {
         json.put("content", jsonContent);
 
         sendMessageToFacebookId(db.facebook_id, json);
-        PullServerEvents();
+        pullServerEvents();
     }
 
     public void inviteUserToChannel(Channel ch, long invited_facebook_id) throws Exception {

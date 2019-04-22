@@ -64,7 +64,7 @@ public class Util {
         return decodePostParams(bodyStr);
     }
 
-    public static String SyncRequestPost(URL url, Map<String, String> postParameters) throws IOException {
+    public static String syncRequestPost(URL url, Map<String, String> postParameters) throws IOException {
         // https://www.baeldung.com/java-http-request
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
@@ -79,13 +79,13 @@ public class Util {
         return new String(in.readAllBytes(), StandardCharsets.UTF_8);
     }
 
-    public static JSONObject SyncJsonRequest(URL url) throws IOException {
-        var ret = SyncRequest(url);
+    public static JSONObject syncJsonRequest(URL url) throws IOException {
+        var ret = syncRequest(url);
         JSONObject obj = new JSONObject(ret);
         return obj;
     }
 
-    public static String SyncRequest(URL url) throws IOException {
+    public static String syncRequest(URL url) throws IOException {
         // https://www.baeldung.com/java-http-request
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET"); // Is default
@@ -95,7 +95,7 @@ public class Util {
     }
 
     // https://howtodoinjava.com/java/io/java-read-file-to-string-examples/
-    public static String ReadFileLineByLine(String filePath) {
+    public static String readFileLineByLine(String filePath) {
         StringBuilder contentBuilder = new StringBuilder();
         try (Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8)) {
             stream.forEach(s -> contentBuilder.append(s).append("\n"));
@@ -149,17 +149,17 @@ public class Util {
      * Will guess the column names out of the ResultSet
      * Sligtly less secure, but more flexible
      */
-    public static JSONArray SqlResultsToJson(ResultSet result) throws SQLException {
+    public static JSONArray sqlResultsToJson(ResultSet result) throws SQLException {
         ResultSetMetaData rsmd = result.getMetaData();
         var collumnNames = new ArrayList<String>();
         var count = rsmd.getColumnCount();
         for (int i = 1; i <= count; i++) {
             collumnNames.add(rsmd.getColumnName(i));
         }
-        return SqlResultsToJson(result, collumnNames);
+        return sqlResultsToJson(result, collumnNames);
     }
 
-    public static JSONArray SqlResultsToJson(ResultSet result, List<String> collumnNames) throws SQLException {
+    public static JSONArray sqlResultsToJson(ResultSet result, List<String> collumnNames) throws SQLException {
         var jsonArr = new JSONArray();
         while (result.next()) {
             var jsonRow = new JSONObject();

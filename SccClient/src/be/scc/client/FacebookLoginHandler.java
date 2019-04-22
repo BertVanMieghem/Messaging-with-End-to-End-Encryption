@@ -25,7 +25,7 @@ public class FacebookLoginHandler implements HttpHandler {
         byte[] data;
         switch (path) {
             case "/login.html":
-                data = Util.ReadFileLineByLine("res" + path).getBytes();
+                data = Util.readFileLineByLine("res" + path).getBytes();
                 break;
 
             case "/callback":
@@ -36,14 +36,14 @@ public class FacebookLoginHandler implements HttpHandler {
                 data = "callback accepted".getBytes();
 
                 try {
-                    KeyPair pair = SccEncryption.GenerateKeypair();
+                    KeyPair pair = SccEncryption.generateKeypair();
 
                     URL url = new URL("http://localhost:5665/register_user");
                     var params = new HashMap<String, String>();
                     params.put("access_token", access_token);
                     params.put("public_key", SccEncryption.serializeKey(pair.getPublic()));
 
-                    String ret = Util.SyncRequestPost(url, params);
+                    String ret = Util.syncRequestPost(url, params);
                     JSONObject obj = new JSONObject(ret);
                     var facebook_id = obj.getLong("facebook_id");
 

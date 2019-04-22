@@ -35,7 +35,7 @@ public class ChatDialog extends JDialog implements SccListener {
     private ActionListener autoPollingAction = evt -> {
         //System.out.println("autoPollingAction");
         try {
-            ClientSingleton.inst().PullServerEvents();
+            ClientSingleton.inst().pullServerEvents();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -50,7 +50,7 @@ public class ChatDialog extends JDialog implements SccListener {
 
         btnPullFromServer.addActionListener(e -> {
             try {
-                ClientSingleton.inst().PullServerEvents();
+                ClientSingleton.inst().pullServerEvents();
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -158,7 +158,7 @@ public class ChatDialog extends JDialog implements SccListener {
 
 
     @Override
-    public void SccModelChanged() {
+    public void sccModelChanged() {
 
         currentUser.setText("" + ClientSingleton.inst().db.facebook_id);
 

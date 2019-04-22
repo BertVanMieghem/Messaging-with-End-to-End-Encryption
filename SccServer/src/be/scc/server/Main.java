@@ -34,7 +34,7 @@ public class Main {
                         var public_key = bodyParams.get("public_key").get(0);
 
                         URL url = new URL("https://graph.facebook.com/v3.2/me?access_token=" + access_token + "&method=get&pretty=0&sdk=joey&suppress_http_code=1");
-                        var obj = Util.SyncJsonRequest(url);
+                        var obj = Util.syncJsonRequest(url);
                         long facebook_id = Long.parseLong(obj.getString("id"));
                         String facebook_name = obj.getString("name");
 

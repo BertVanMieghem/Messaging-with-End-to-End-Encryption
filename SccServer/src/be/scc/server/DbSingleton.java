@@ -51,7 +51,7 @@ class DbSingleton {
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery("SELECT * from users");
         //var collumnNames = List.of("id", "facebook_id", "public_key");
-        var jsonArr = Util.SqlResultsToJson(result); // Information on the server is not considered private
+        var jsonArr = Util.sqlResultsToJson(result); // Information on the server is not considered private
 
         var rootJson = new JSONObject();
         rootJson.put("users", jsonArr);
@@ -69,7 +69,7 @@ class DbSingleton {
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery("SELECT * FROM handshake_buffer WHERE id>" + last_handshake_buffer_index);
 
-        var jsonArr = Util.SqlResultsToJson(result); //, List.of("id", "message"));
+        var jsonArr = Util.sqlResultsToJson(result); //, List.of("id", "message"));
 
         var rootJson = new JSONObject();
         rootJson.put("handshake_buffer", jsonArr);
@@ -89,7 +89,7 @@ class DbSingleton {
         var temp = StringUtils.join((Arrays.asList(ephemeral_ids).stream().map(e -> "\"" + e + "\"").collect(Collectors.toList())), ", ");
         ResultSet result = statement.executeQuery("SELECT * FROM message_buffer WHERE id>" + last_message_buffer_index + " AND target_ephemeral_id IN (" + temp + ")");
 
-        var jsonArr = Util.SqlResultsToJson(result); //, List.of("id", "message"));
+        var jsonArr = Util.sqlResultsToJson(result); //, List.of("id", "message"));
 
         var rootJson = new JSONObject();
         rootJson.put("message_buffer", jsonArr);

@@ -8,7 +8,7 @@ interface SccListener {
      * Should be idempotent.
      * This function translates the model information to GUI and should not change any external state.
      */
-    void SccModelChanged() throws Exception;
+    void sccModelChanged() throws Exception;
 }
 
 class SccDispatcher {
@@ -16,17 +16,17 @@ class SccDispatcher {
 
     public void addListener(SccListener toAdd) {
         try {
-            toAdd.SccModelChanged(); // Could be unhandy in some cases
+            toAdd.sccModelChanged(); // Could be unhandy in some cases
         } catch (Exception e) {
             e.printStackTrace();
         }
         listeners.add(toAdd);
     }
 
-    public void SccDispatchModelChanged() {
+    public void sccDispatchModelChanged() {
         for (SccListener hl : listeners) {
             try {
-                hl.SccModelChanged();
+                hl.sccModelChanged();
             } catch (Exception e) {
                 e.printStackTrace();
             }

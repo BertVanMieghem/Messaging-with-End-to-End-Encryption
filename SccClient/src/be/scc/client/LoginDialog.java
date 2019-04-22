@@ -47,7 +47,7 @@ public class LoginDialog extends JDialog {
         });
     }
 
-    public void Initialise() throws IOException {
+    public void initialise() throws IOException {
         // Port should not be in this list: https://svn.nmap.org/nmap/nmap-services
         // Port number is 'Secure Chanel Chat Interface' written in bad leet
         server = HttpServer.create(new InetSocketAddress(5661), 0);

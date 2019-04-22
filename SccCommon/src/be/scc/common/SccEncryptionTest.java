@@ -11,17 +11,17 @@ class SccEncryptionTest {
 
     @Test
     void makeKeyEncryptDecrypt() throws Exception {
-        KeyPair pair = SccEncryption.GenerateKeypair();
+        KeyPair pair = SccEncryption.generateKeypair();
 
         String origMessage = "Hello test!";
-        byte[] cypherText = SccEncryption.Encript(pair.getPublic(), origMessage);
-        String resultText = SccEncryption.Decript(pair.getPrivate(), cypherText);
+        byte[] cypherText = SccEncryption.encrypt(pair.getPublic(), origMessage);
+        String resultText = SccEncryption.decrypt(pair.getPrivate(), cypherText);
         assert (origMessage.equals(resultText));
     }
 
     @Test
     void serialising() throws Exception {
-        KeyPair pairOrig = SccEncryption.GenerateKeypair();
+        KeyPair pairOrig = SccEncryption.generateKeypair();
 
         var priv = (RSAPrivateKey) pairOrig.getPrivate();
         var publ = (RSAPublicKey) pairOrig.getPublic();
@@ -33,26 +33,26 @@ class SccEncryptionTest {
 
         {
             String origMessage = "Hello test!";
-            byte[] cypherText = SccEncryption.Encript(pair.getPublic(), origMessage);
-            String resultText = SccEncryption.Decript(pairOrig.getPrivate(), cypherText);
+            byte[] cypherText = SccEncryption.encrypt(pair.getPublic(), origMessage);
+            String resultText = SccEncryption.decrypt(pairOrig.getPrivate(), cypherText);
             assert (origMessage.equals(resultText));
         }
 
         {
             String origMessage = "Hello test!";
-            byte[] cypherText = SccEncryption.Encript(pair.getPublic(), origMessage);
-            String resultText = SccEncryption.Decript(pair.getPrivate(), cypherText);
+            byte[] cypherText = SccEncryption.encrypt(pair.getPublic(), origMessage);
+            String resultText = SccEncryption.decrypt(pair.getPrivate(), cypherText);
             assert (origMessage.equals(resultText));
         }
     }
 
     @Test
     void symetric() throws Exception {
-        SecretKey key = SccEncryption.GenerateSymetricKey();
+        SecretKey key = SccEncryption.generateSymetricKey();
 
         String origMessage = "Hello test!";
-        byte[] cypherText = SccEncryption.Encript(key, origMessage);
-        String resultText = SccEncryption.Decript(key, cypherText);
+        byte[] cypherText = SccEncryption.encrypt(key, origMessage);
+        String resultText = SccEncryption.decrypt(key, cypherText);
         assert (origMessage.equals(resultText));
 
         var serialised = SccEncryption.serializeKey(key);
@@ -62,13 +62,13 @@ class SccEncryptionTest {
 
     @Test
     void signature() throws Exception {
-        var message = "Sign me plz.".repeat(1000);
+        var message = "sign me plz.".repeat(1000);
 
-        KeyPair pair = SccEncryption.GenerateKeypair();
+        KeyPair pair = SccEncryption.generateKeypair();
 
-        var sign = SccEncryption.Sign(pair.getPrivate(), message);
+        var sign = SccEncryption.sign(pair.getPrivate(), message);
 
-        assert SccEncryption.VerifySign(pair.getPublic(), message, sign);
-        assert !SccEncryption.VerifySign(pair.getPublic(), "different message now" + message, sign);
+        assert SccEncryption.verifySign(pair.getPublic(), message, sign);
+        assert !SccEncryption.verifySign(pair.getPublic(), "different message now" + message, sign);
     }
 }

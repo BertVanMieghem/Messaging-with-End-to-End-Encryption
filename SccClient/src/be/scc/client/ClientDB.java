@@ -96,7 +96,7 @@ public class ClientDB {
         pstmt.setString(++i, user_ephemeral_id_outgoing);
         pstmt.setString(++i, user_ephemeral_id_ingoing);
         pstmt.executeUpdate();
-        dispatcher.SccDispatchModelChanged();
+        dispatcher.sccDispatchModelChanged();
     }
 
     public void saveToDb() throws SQLException {
@@ -123,7 +123,7 @@ public class ClientDB {
         pstmt.setLong(++i, last_message_buffer_index);
         pstmt.executeUpdate();
 
-        dispatcher.SccDispatchModelChanged();
+        dispatcher.sccDispatchModelChanged();
     }
 
     public void loadFromDb() throws SQLException, GeneralSecurityException {
@@ -170,7 +170,7 @@ public class ClientDB {
     }
 
 
-    public List<String> GetIncomingEphemeralIds() throws SQLException {
+    public List<String> getIncomingEphemeralIds() throws SQLException {
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery("SELECT ephemeral_id_ingoing FROM local_users WHERE ephemeral_id_ingoing IS NOT NULL");
         var strlist = new ArrayList<String>();
