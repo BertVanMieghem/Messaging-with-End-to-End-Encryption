@@ -1,8 +1,6 @@
 package be.scc.client;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.util.List;
@@ -10,13 +8,13 @@ import java.util.List;
 public class SelectDatabase extends JDialog {
     private JPanel contentPane;
     private JScrollPane scrollPane;
+    private String selected;
 
     public SelectDatabase() {
         setContentPane(contentPane);
         setModal(true);
     }
 
-    private String selected;
 
     public String getSelected() {
         return selected;

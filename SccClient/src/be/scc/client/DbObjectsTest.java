@@ -1,7 +1,7 @@
 package be.scc.client;
 
 import org.json.JSONObject;
-
+import org.junit.jupiter.api.Test;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.UUID;
 
 class DbObjectsTest {
 
-    @org.junit.jupiter.api.Test
+    @Test
     void channel() {
         var ch = new Channel();
         ch.name = "test channel name";

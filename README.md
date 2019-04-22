@@ -5,4 +5,4 @@ OAuth: Login with facebook opens a browser window. The browser window contacts t
 
 This projects relies on Java 11
 
-Architecture: https://drive.google.com/file/d/1ZfC62bAAgFyKmoRkQeLnelKT9XZj_1hp/view?usp=sharing
+Architecture: <https://drive.google.com/file/d/1ZfC62bAAgFyKmoRkQeLnelKT9XZj_1hp/view?usp=sharing>

@@ -1,12 +1,7 @@
 package be.scc.common;
 
-import java.io.*;
-import java.math.BigInteger;
 import java.security.*;
 import java.security.spec.*;
-import java.security.interfaces.*;
-import java.time.Duration;
-import java.time.Instant;
 import javax.crypto.*;
 import javax.crypto.spec.*;
 import javax.crypto.interfaces.*;
@@ -113,7 +108,7 @@ public class SccDiffieHellman {
         //} catch (ShortBufferException e) {
         //    System.out.println(e.getMessage());
         //}        // provide output buffer of required size
-        bobLen = bobKeyAgree.generateSecret(bobSharedSecret, 0);
+        //bobLen = bobKeyAgree.generateSecret(bobSharedSecret, 0);
         System.out.println("Alice secret: " + Util.toHexString(aliceSharedSecret));
         System.out.println("Bob   secret: " + Util.toHexString(bobSharedSecret));
         if (!java.util.Arrays.equals(aliceSharedSecret, bobSharedSecret))

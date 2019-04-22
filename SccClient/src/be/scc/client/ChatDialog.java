@@ -28,7 +28,19 @@ public class ChatDialog extends JDialog implements SccListener {
     private JTextField txtChannelName;
     private JButton renameChannelButton;
     private JCheckBox autoPullCheckBox;
+    private UUID selectedChannelUuid = null;
+    private boolean isAutoPulling;
 
+
+    private ActionListener autoPollingAction = evt -> {
+        //System.out.println("autoPollingAction");
+        try {
+            ClientSingleton.inst().PullServerEvents();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    };
+    private Timer autoPullCheckedTimer = new Timer(500, autoPollingAction);
 
     public ChatDialog() {
         setContentPane(contentPane);
@@ -144,18 +156,6 @@ public class ChatDialog extends JDialog implements SccListener {
     }
 
 
-    boolean isAutoPulling;
-
-    ActionListener autoPollingAction = evt -> {
-        //System.out.println("autoPollingAction");
-        try {
-            ClientSingleton.inst().PullServerEvents();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    };
-    private Timer autoPullCheckedTimer = new Timer(500, autoPollingAction);
-
 
     @Override
     public void SccModelChanged() {
@@ -164,10 +164,10 @@ public class ChatDialog extends JDialog implements SccListener {
 
         {
             var users = ClientSingleton.inst().db.getUsers();
-            String[][] us = users.stream().map(local_user::toStringList).toArray(String[][]::new);
+            String[][] us = users.stream().map(Local_user::toStringList).toArray(String[][]::new);
 
             // Inspired on: https://www.geeksforgeeks.org/java-swing-jtable/
-            var jTable = new JTable(us, local_user.columnNames);
+            var jTable = new JTable(us, Local_user.columnNames);
             jTable.getColumnModel().getColumn(0).setMaxWidth(18);
             tableHolder.setViewportView(jTable);
         }
@@ -198,9 +198,9 @@ public class ChatDialog extends JDialog implements SccListener {
 
         {
             var messages = ClientSingleton.inst().db.getAllCachedMessages();
-            String[][] us = messages.stream().map(cached_message_row::toStringList).toArray(String[][]::new);
+            String[][] us = messages.stream().map(Cached_message_row::toStringList).toArray(String[][]::new);
 
-            var jTable = new JTable(us, cached_message_row.columnNames);
+            var jTable = new JTable(us, Cached_message_row.columnNames);
             jTable.getColumnModel().getColumn(0).setMaxWidth(18);
             jTable.getColumnModel().getColumn(1).setMaxWidth(125);
             jTable.getColumnModel().getColumn(1).setPreferredWidth(125);
@@ -210,9 +210,8 @@ public class ChatDialog extends JDialog implements SccListener {
         localModelChanged();
     }
 
-    UUID selectedChannelUuid = null;
 
-    Channel getSelectedChanel() {
+    private Channel getSelectedChanel() {
         return ClientSingleton.inst().db.getChannelByUuid(selectedChannelUuid);
     }
 

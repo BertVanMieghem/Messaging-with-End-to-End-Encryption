@@ -11,6 +11,7 @@ import javax.crypto.*;
 import javax.crypto.spec.*;
 
 public class SccEncryption {
+    static private IvParameterSpec iv = new IvParameterSpec("jsldghdj;figshig".getBytes(StandardCharsets.UTF_8)); // semi random ;)
 
     /**
      * This takes
@@ -19,7 +20,7 @@ public class SccEncryption {
      * ~7ms for keysize 512
      * Key length based on: https://www.keylength.com/en/compare/
      */
-    static public KeyPair GenerateKeypair() throws NoSuchAlgorithmException {
+    public static KeyPair GenerateKeypair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048);
         KeyPair pair = keyGen.generateKeyPair();
@@ -87,9 +88,6 @@ public class SccEncryption {
         String plainText = new String(returned, StandardCharsets.UTF_8);
         return plainText;
     }
-
-    static private IvParameterSpec iv = new IvParameterSpec("jsldghdj;figshig".getBytes(StandardCharsets.UTF_8)); // semi random ;)
-
 
     static public SecretKeySpec deserialiseSymetricKey(String key) throws GeneralSecurityException {
         SecretKeySpec spec = new SecretKeySpec(

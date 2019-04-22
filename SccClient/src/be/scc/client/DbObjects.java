@@ -43,6 +43,8 @@ class ChatMessage {
     public ZonedDateTime date;
     public long from_facebook_id;
     private boolean isTrusted = true;
+    public final static String[] columnNames = {"message", "date", "from_facebook_id"};
+
 
     public JSONObject toJson() {
         var json = new JSONObject();
@@ -67,11 +69,14 @@ class ChatMessage {
         return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
     }
 
-    public final static String[] columnNames = {"message", "date", "from_facebook_id"};
 }
 
 class Channel {
 
+    public UUID uuid;
+    public String name;
+    public List<ChannelMember> members = new ArrayList<>();
+    public List<ChatMessage> chatMessages = new ArrayList<>();
     public ChannelStatus status = ChannelStatus.NOT_SET;
 
     public ChannelMember getMember(long facebook_id) {
@@ -94,21 +99,17 @@ class Channel {
 
     public boolean hasMember(long facebook_id) {
         for (var m : members) {
-            if (m.facebook_id == facebook_id) {
-                if (m.status != MemberStatus.INVITE_PENDING
-                        && m.status != MemberStatus.REMOVED)
-                    return true;
-            }
+            if ((m.facebook_id == facebook_id) &&
+                    (m.status != MemberStatus.INVITE_PENDING && m.status != MemberStatus.REMOVED))
+                        return true;
         }
         return false;
     }
 
     public boolean hasOwner(long facebook_id) {
         for (var m : members) {
-            if (m.facebook_id == facebook_id) {
-                if (m.status == MemberStatus.OWNER)
-                    return true;
-            }
+            if ((m.facebook_id == facebook_id) && (m.status == MemberStatus.OWNER))
+                return true;
         }
         return false;
     }
@@ -163,11 +164,6 @@ class Channel {
 
         return ch;
     }
-
-    public UUID uuid;
-    public String name;
-    public List<ChannelMember> members = new ArrayList<>();
-    public List<ChatMessage> chatMessages = new ArrayList<>();
 }
 
 /**
@@ -177,10 +173,11 @@ class Channel {
  * `message`	TEXT NOT NULL
  * );
  */
-class cached_message_row {
+class Cached_message_row {
     public long id;
     public long from_facebook_id;
     public String message;
+    public final static String[] columnNames = {"id", "from_facebook_id", "message"};
 
     public void fillInFromSqlResult(ResultSet result) throws SQLException {
         id = result.getLong("id");
@@ -193,10 +190,9 @@ class cached_message_row {
         return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
     }
 
-    public final static String[] columnNames = {"id", "from_facebook_id", "message"};
 }
 
-class handshake_row {
+class Handshake_row {
     public long id;
     public String message;
     public String client_can_decode;
@@ -209,13 +205,11 @@ class handshake_row {
     }
 }
 
-class message_row extends handshake_row {
+class Message_row extends Handshake_row {
 
 }
 
-class local_user {
-    public local_user() {
-    }
+class Local_user {
 
     public long id;
     public long facebook_id;
@@ -225,12 +219,11 @@ class local_user {
     public SecretKey ephemeral_key_ingoing;
     public UUID ephemeral_id_outgoing;
     public UUID ephemeral_id_ingoing;
+    public final static String[] columnNames = {"id", "facebook_id", "facebook_name", "public_key", "ephemeral_key_outgoing", "ephemeral_key_ingoing",
+            "ephemeral_id_outgoing", "ephemeral_id_ingoing"};
 
     public String[] toStringList() {
         Object[] tmp = {id, facebook_id, facebook_name, public_key, ephemeral_key_outgoing, ephemeral_key_ingoing, ephemeral_id_outgoing, ephemeral_id_ingoing};
         return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
     }
-
-    public final static String[] columnNames = {"id", "facebook_id", "facebook_name", "public_key", "ephemeral_key_outgoing", "ephemeral_key_ingoing",
-            "ephemeral_id_outgoing", "ephemeral_id_ingoing"};
 }

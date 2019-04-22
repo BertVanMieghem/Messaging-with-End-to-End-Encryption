@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 class DbSingleton {
     private static DbSingleton single_instance = null;
 
-    Connection conn = null;
+    private Connection conn = null;
 
     // private constructor restricted to this class itself
     private DbSingleton() {
@@ -85,7 +85,6 @@ class DbSingleton {
     }
 
     public JSONObject getMessages(int last_message_buffer_index, String[] ephemeral_ids) throws SQLException {
-        // TODO use ephemeral ids
         Statement statement = conn.createStatement();
         var temp = StringUtils.join((Arrays.asList(ephemeral_ids).stream().map(e -> "\"" + e + "\"").collect(Collectors.toList())), ", ");
         ResultSet result = statement.executeQuery("SELECT * FROM message_buffer WHERE id>" + last_message_buffer_index + " AND target_ephemeral_id IN (" + temp + ")");

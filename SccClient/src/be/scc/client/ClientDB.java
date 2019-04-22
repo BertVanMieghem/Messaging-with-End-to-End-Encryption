@@ -3,7 +3,6 @@ package be.scc.client;
 import be.scc.common.SccException;
 import be.scc.common.Util;
 import be.scc.common.SccEncryption;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.file.Path;
@@ -18,7 +17,15 @@ import java.util.stream.Collectors;
 
 public class ClientDB {
 
-    Connection conn = null;
+    private Connection conn = null;
+    private Collection<Channel> buildedChannels;
+    // Don't forget to save to database when changing these properties:
+    public long facebook_id;
+    public KeyPair keyPair;
+    public long last_handshake_buffer_index = 0;
+    public long last_message_buffer_index = 0;
+    public SccDispatcher dispatcher = new SccDispatcher();
+
 
     // private constructor restricted to this class itself
     public ClientDB() {
@@ -39,19 +46,13 @@ public class ClientDB {
         }
     }
 
-    public SccDispatcher dispatcher = new SccDispatcher();
 
-    // Don't forget to save to database when changing these properties:
-    public long facebook_id;
-    public KeyPair keyPair;
-    public long last_handshake_buffer_index = 0;
-    public long last_message_buffer_index = 0;
 
 
     public void addUser(int id, long facebook_id, String facebook_name, RSAPublicKey public_key) throws Exception {
         var user = getUserWithFacebookId(facebook_id);
         if (user == null)
-            user = new local_user();
+            user = new Local_user();
 
         user.id = id;
         user.facebook_id = facebook_id;
@@ -77,7 +78,7 @@ public class ClientDB {
         pstmt.executeUpdate();
     }
 
-    public void updateUserInDb(local_user user) throws SQLException {
+    public void updateUserInDb(Local_user user) throws SQLException {
         PreparedStatement pstmt = conn.prepareStatement("REPLACE INTO local_users VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         var i = 0;
         pstmt.setLong(++i, user.id);
@@ -151,20 +152,20 @@ public class ClientDB {
         this.last_message_buffer_index = last_message_buffer_index;
     }
 
-    public List<local_user> getUsers() {
+    public List<Local_user> getUsers() {
 
         try {
             Statement statement = conn.createStatement();
             ResultSet result = statement.executeQuery("SELECT * from local_users");
 
-            var aggregate = new ArrayList<local_user>();
+            var aggregate = new ArrayList<Local_user>();
             while (result.next()) {
                 aggregate.add(getUserFromResultRow(result));
             }
             return aggregate;
         } catch (SQLException | GeneralSecurityException e) {
             e.printStackTrace();
-            return new ArrayList<local_user>();
+            return new ArrayList<Local_user>();
         }
     }
 
@@ -182,7 +183,7 @@ public class ClientDB {
     }
 //SELECT ephemeral_id_outgoing FROM local_users WHERE ephemeral_id_outgoing IS NOT NULL
 
-    public local_user getUserWithFacebookId(long facebook_id) throws SQLException, GeneralSecurityException {
+    public Local_user getUserWithFacebookId(long facebook_id) throws SQLException, GeneralSecurityException {
         if (facebook_id < 0) throw new SccException("invalid facebook_id:" + facebook_id);
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery("SELECT * from local_users WHERE facebook_id=" + facebook_id);
@@ -190,8 +191,8 @@ public class ClientDB {
         return getUserFromResultRow(result);
     }
 
-    public local_user getUserFromResultRow(ResultSet result) throws SQLException, GeneralSecurityException {
-        var row = new local_user();
+    public Local_user getUserFromResultRow(ResultSet result) throws SQLException, GeneralSecurityException {
+        var row = new Local_user();
         row.id = result.getInt("id");
         row.facebook_id = result.getLong("facebook_id");
         row.facebook_name = result.getString("facebook_name");
@@ -215,7 +216,7 @@ public class ClientDB {
         return row;
     }
 
-    public void insertHandshake(handshake_row row) throws SQLException {
+    public void insertHandshake(Handshake_row row) throws SQLException {
         PreparedStatement pstmt = conn.prepareStatement("INSERT OR REPLACE INTO handshake_buffer VALUES (?, ?, ?)");
         var i = 0;
         pstmt.setLong(++i, row.id);
@@ -224,7 +225,7 @@ public class ClientDB {
         pstmt.executeUpdate();
     }
 
-    public List<local_user> getUsersThatShookOurHands() {
+    public List<Local_user> getUsersThatShookOurHands() {
         var lst = getUsers().stream().filter(u -> u.ephemeral_key_ingoing != null).collect(Collectors.toList());
         return lst;
     }
@@ -242,7 +243,7 @@ public class ClientDB {
     }
     */
 
-    public void insertMessage(message_row row) throws SQLException {
+    public void insertMessage(Message_row row) throws SQLException {
         PreparedStatement pstmt = conn.prepareStatement("INSERT OR REPLACE INTO message_buffer VALUES (?, ?, ?)");
         var i = 0;
         pstmt.setLong(++i, row.id);
@@ -251,7 +252,7 @@ public class ClientDB {
         pstmt.executeUpdate();
     }
 
-    public void insertCachedMessage(cached_message_row row) throws SQLException {
+    public void insertCachedMessage(Cached_message_row row) throws SQLException {
         PreparedStatement pstmt = conn.prepareStatement("INSERT OR REPLACE INTO cached_messages VALUES (?, ?, ?)");
         var i = 0;
         pstmt.setLong(++i, row.id);
@@ -260,14 +261,14 @@ public class ClientDB {
         pstmt.executeUpdate();
     }
 
-    public List<cached_message_row> getMessagesForFacebookId(long facebook_id) {
-        var aggregate = new ArrayList<cached_message_row>();
+    public List<Cached_message_row> getMessagesForFacebookId(long facebook_id) {
+        var aggregate = new ArrayList<Cached_message_row>();
         try {
             Statement statement = conn.createStatement();
             ResultSet result = statement.executeQuery("SELECT * from cached_messages WHERE from_facebook_id=" + facebook_id);
 
             while (result.next()) {
-                var row = new cached_message_row();
+                var row = new Cached_message_row();
                 row.fillInFromSqlResult(result);
                 aggregate.add(row);
             }
@@ -277,14 +278,14 @@ public class ClientDB {
         return aggregate;
     }
 
-    public List<cached_message_row> getAllCachedMessages() {
-        var aggregate = new ArrayList<cached_message_row>();
+    public List<Cached_message_row> getAllCachedMessages() {
+        var aggregate = new ArrayList<Cached_message_row>();
         try {
             Statement statement = conn.createStatement();
             ResultSet result = statement.executeQuery("SELECT * from cached_messages");
 
             while (result.next()) {
-                var row = new cached_message_row();
+                var row = new Cached_message_row();
                 row.fillInFromSqlResult(result);
                 aggregate.add(row);
             }
@@ -293,8 +294,6 @@ public class ClientDB {
         }
         return aggregate;
     }
-
-    private Collection<Channel> buildedChannels;
 
     public Collection<Channel> getBuildedChannels() {
         if (buildedChannels == null)
@@ -319,7 +318,7 @@ public class ClientDB {
 
         var channels = new HashMap<UUID, Channel>();
 
-        for (cached_message_row messageRow : messages) {
+        for (Cached_message_row messageRow : messages) {
             String message_type;
             JSONObject content;
             {
@@ -395,6 +394,8 @@ public class ClientDB {
                         System.err.println("User not in channel! facebook_id:" + messageRow.from_facebook_id);
                     break;
                 }
+                default:
+                    System.err.println("[buildChannelsFromMessageCache] Switch cases exhausted");
             }
         }
 

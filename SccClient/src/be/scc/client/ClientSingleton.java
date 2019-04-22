@@ -14,18 +14,22 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 
 public class ClientSingleton {
+
+    public LoginDialog loginDialog;
+    public ChatDialog chatDialog;
+    public ClientDB db = new ClientDB();
+
     private static ClientSingleton single_instance = null;
 
     // private constructor restricted to this class itself
     private ClientSingleton() {
     }
 
-    public void Initilise() throws Exception {
+    public void Initialise() throws Exception {
         db.loadFromDb();
         loginDialog = new LoginDialog();
         chatDialog = new ChatDialog();
@@ -42,10 +46,7 @@ public class ClientSingleton {
         return single_instance;
     }
 
-    public ClientDB db = new ClientDB();
 
-    LoginDialog loginDialog;
-    ChatDialog chatDialog;
 
     public void OpenLoginOrSkip() throws IOException {
         if (ClientSingleton.inst().db.facebook_id != 0) {
@@ -90,7 +91,7 @@ public class ClientSingleton {
         var jsonObj = Util.SyncJsonRequest(url);
         for (Object row : jsonObj.getJSONArray("handshake_buffer")) {
             var obj = (JSONObject) row;
-            var h = new handshake_row();
+            var h = new Handshake_row();
             h.fillInFromJson(obj);
             try {
                 var parts = h.message.split("\\|");
@@ -106,7 +107,6 @@ public class ClientSingleton {
                 String payload = secondPart.substring(0, idx);
                 var json = new JSONObject(payload);
                 var from_facebook_id = json.getLong("handshake_initiator_facebook_id");
-                var datetime = json.getString("datetime");
 
                 var sig = Util.base64(secondPart.substring(idx + 1));
 
@@ -138,7 +138,7 @@ public class ClientSingleton {
         var jsonObj = new JSONObject(Util.SyncRequestPost(url, params));
         for (Object row : jsonObj.getJSONArray("message_buffer")) {
             var obj = (JSONObject) row;
-            var h = new message_row();
+            var h = new Message_row();
             h.fillInFromJson(obj);
             try {
 
@@ -151,7 +151,7 @@ public class ClientSingleton {
                         var message_type = json.getString("message_type");
                         var content = json.getJSONObject("content");
 
-                        var cm = new cached_message_row();
+                        var cm = new Cached_message_row();
                         cm.id = h.id;
                         cm.from_facebook_id = user.facebook_id;
                         cm.message = payload;
@@ -179,7 +179,7 @@ public class ClientSingleton {
     /**
      * Can not be used when decripting handshake, becouse we don't know what user to verify with then.
      */
-    private String decryptPayloadAndVerify(byte[] secondPartEncrypted, local_user user) throws Exception {
+    private String decryptPayloadAndVerify(byte[] secondPartEncrypted, Local_user user) throws Exception {
         var secondPart = SccEncryption.Decript(user.ephemeral_key_ingoing, secondPartEncrypted);
 
         var idx = secondPart.lastIndexOf("|");
@@ -192,7 +192,7 @@ public class ClientSingleton {
         return payload;
     }
 
-    private byte[] signAndEncryptPayload(String payload, local_user user) throws Exception {
+    private byte[] signAndEncryptPayload(String payload, Local_user user) throws Exception {
         var sig = SccEncryption.Sign(db.keyPair.getPrivate(), payload);
         var sigStr = Util.base64(sig);
         var secondPartPlainText = payload + "|" + sigStr;
@@ -217,11 +217,11 @@ public class ClientSingleton {
         var params = new HashMap<String, String>();
         params.put("message", message);
 
-        var result = Util.SyncRequestPost(new URL("http://localhost:5665/add_handshake"), params);
+        //var result = Util.SyncRequestPost(new URL("http://localhost:5665/add_handshake"), params);
         db.updateUserInDb(user); // only set when webrequest succeeded
     }
 
-    void sendMessageToFacebookId(long facebook_id, JSONObject jsonPayload) throws Exception {
+    public void sendMessageToFacebookId(long facebook_id, JSONObject jsonPayload) throws Exception {
         assert jsonPayload.get("message_type") != null;
         assert jsonPayload.get("content") != null;
         var payload = jsonPayload.toString();
@@ -240,7 +240,7 @@ public class ClientSingleton {
         System.out.println(result);
     }
 
-    void sendMessageToChannel(Channel ch, JSONObject json) throws Exception {
+    public void sendMessageToChannel(Channel ch, JSONObject json) throws Exception {
         // Send a copy to each member of the channel
         for (var member : ch.members) {
             sendMessageToFacebookId(member.facebook_id, json);
@@ -248,7 +248,7 @@ public class ClientSingleton {
         PullServerEvents();
     }
 
-    void sendMessageToChannelMembers(Channel ch, JSONObject json) throws Exception {
+    public void sendMessageToChannelMembers(Channel ch, JSONObject json) throws Exception {
         // Send a copy to each member of the channel
         for (var member : ch.members) {
             if (ch.hasMember(member.facebook_id)) // chat messages are only sent to joined members

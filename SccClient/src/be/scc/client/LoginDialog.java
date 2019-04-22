@@ -8,14 +8,13 @@ import java.awt.event.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 public class LoginDialog extends JDialog {
     private JPanel contentPane;
     private JButton loginButton;
     private JButton buttonOK;
 
-    HttpServer server;
+    private HttpServer server;
 
     public LoginDialog() {
         setContentPane(contentPane);

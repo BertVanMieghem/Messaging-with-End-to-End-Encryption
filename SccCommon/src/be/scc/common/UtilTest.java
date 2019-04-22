@@ -1,5 +1,6 @@
 package be.scc.common;
 
+import org.junit.jupiter.api.Test;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -8,8 +9,8 @@ import java.util.Map;
 
 class UtilTest {
 
-    @org.junit.jupiter.api.Test
-    void splitQuery() throws URISyntaxException, UnsupportedEncodingException {
+    @Test
+    public void splitQuery() throws URISyntaxException, UnsupportedEncodingException {
         URI uri = new URI("http://localhost:5661/login.html?testKey=testValue");
 
         Map<String, String> map = Util.decodeQueryString(uri);
@@ -17,8 +18,8 @@ class UtilTest {
         assert (map.get("testKey").equals("testValue"));
     }
 
-    @org.junit.jupiter.api.Test
-    void postBody() {
+    @Test
+    public void postBody() {
 
         var postParameters = new HashMap<String, String>();
         postParameters.put("testKey", "testValue");

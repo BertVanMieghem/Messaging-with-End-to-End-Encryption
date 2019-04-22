@@ -3,9 +3,6 @@ package be.scc.common;
 import org.junit.jupiter.api.Test;
 
 import javax.crypto.SecretKey;
-import java.beans.ExceptionListener;
-import java.beans.XMLEncoder;
-import java.io.*;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
