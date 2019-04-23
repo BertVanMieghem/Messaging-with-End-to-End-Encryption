@@ -6,6 +6,8 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -28,6 +30,7 @@ public class ChatDialog extends JDialog implements SccListener {
     private JTextField txtChannelName;
     private JButton renameChannelButton;
     private JCheckBox autoPullCheckBox;
+    private JButton sendFileButton;
     private UUID selectedChannelUuid = null;
     private boolean isAutoPulling;
 
@@ -72,6 +75,34 @@ public class ChatDialog extends JDialog implements SccListener {
 
             } catch (Exception e1) {
                 e1.printStackTrace();
+            }
+        });
+
+        sendFileButton.addActionListener(e -> {
+            try {
+                JFileChooser chooser = new JFileChooser();
+                int choice = chooser.showOpenDialog(ChatDialog.this);
+                if (choice != JFileChooser.APPROVE_OPTION) return;
+                File chosenFile = chooser.getSelectedFile();
+
+                System.out.println("chosen file: " + chosenFile.toString());
+
+                var fileContents = Files.readAllLines(chosenFile.toPath());
+                System.out.println("content: " + fileContents);
+                System.out.println("content(0): " + fileContents.get(0));
+
+                var ch = getSelectedChanel();
+
+                var json = new JSONObject();
+                json.put("message_type", "chat_message_to_channel");
+                var jsonContent = new JSONObject();
+                jsonContent.put("chat_message", fileContents.get(0));
+                jsonContent.put("channel_uuid", ch.uuid);
+                json.put("content", jsonContent);
+                ClientSingleton.inst().sendMessageToChannelMembers(ch, json);
+
+            } catch (Exception el) {
+                el.printStackTrace();
             }
         });
 
@@ -154,7 +185,6 @@ public class ChatDialog extends JDialog implements SccListener {
     private UserOption getSelectedUserFromDropdown() {
         return (UserOption) userDropdown.getSelectedItem();
     }
-
 
 
     @Override
@@ -270,7 +300,7 @@ public class ChatDialog extends JDialog implements SccListener {
         btnRemoveUser.setText("Remove");
         panel1.add(btnRemoveUser, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
-        panel2.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panel2.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
         panel2.setEnabled(true);
         contentPane.add(panel2, new com.intellij.uiDesigner.core.GridConstraints(4, 4, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         sendButton = new JButton();
@@ -279,6 +309,10 @@ public class ChatDialog extends JDialog implements SccListener {
         panel2.add(sendButton, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         messageInput = new JTextField();
         panel2.add(messageInput, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(148, 30), null, 0, false));
+        sendFileButton = new JButton();
+        sendFileButton.setEnabled(true);
+        sendFileButton.setText("Send file");
+        panel2.add(sendFileButton, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         btnAcceptInvite = new JButton();
         btnAcceptInvite.setText("Membership pending, Join?");
         contentPane.add(btnAcceptInvite, new com.intellij.uiDesigner.core.GridConstraints(1, 4, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
