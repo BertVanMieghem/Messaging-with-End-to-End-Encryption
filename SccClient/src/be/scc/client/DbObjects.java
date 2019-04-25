@@ -39,7 +39,7 @@ enum ChannelStatus {
     ARCHIEVED,
 }
 
-class ChatMessage {
+class ChatMessage { // superclass
     public String message;
     public ZonedDateTime date;
     public long from_facebook_id;
@@ -74,10 +74,11 @@ class ChatMessage {
 
 class FileMessage {
     public Object file;
+    public String fileName;
     public ZonedDateTime date;
     public long from_facebook_id;
     private boolean isTrusted = true;
-    public final static String[] columnNames = {"file", "date", "from_facebook_id"};
+    public final static String[] columnNames = {"fileName", "date", "from_facebook_id"};
 
 
     public JSONObject toJson() {

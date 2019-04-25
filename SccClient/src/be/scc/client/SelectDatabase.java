@@ -20,7 +20,7 @@ public class SelectDatabase extends JDialog {
         return selected;
     }
 
-    public void Initialise(List<String> databases) {
+    public void initialise(List<String> databases) {
 
         // This could be simplified: The data is a list, but we use a table.
         var options = databases.stream().map(o -> new String[]{o}).toArray(String[][]::new);

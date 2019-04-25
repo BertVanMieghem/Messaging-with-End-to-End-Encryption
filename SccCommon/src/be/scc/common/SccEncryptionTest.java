@@ -7,7 +7,7 @@ import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
-class SccEncryptionTest {
+public class SccEncryptionTest {
 
     @Test
     void makeKeyEncryptDecrypt() throws Exception {

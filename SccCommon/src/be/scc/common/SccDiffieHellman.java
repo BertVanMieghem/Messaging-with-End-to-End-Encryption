@@ -104,7 +104,7 @@ public class SccDiffieHellman {
         byte[] aliceSharedSecret = aliceKeyAgree.generateSecret();
         int aliceLen = aliceSharedSecret.length;
         byte[] bobSharedSecret = new byte[aliceLen];
-        int bobLen;
+        //int bobLen;
         //} catch (ShortBufferException e) {
         //    System.out.println(e.getMessage());
         //}        // provide output buffer of required size
