@@ -237,7 +237,7 @@ public class ClientSingleton {
         params.put("message", secondPart);
         params.put("target_ephemeral_id", user.ephemeral_id_outgoing.toString());
         var result = Util.syncRequestPost(new URL("http://localhost:5665/add_message"), params);
-        System.out.println(result);
+        System.out.println("[sendMessageToFacebookId]" + result);
     }
 
     public void sendMessageToChannel(Channel ch, JSONObject json) throws Exception {
@@ -256,6 +256,36 @@ public class ClientSingleton {
         }
         pullServerEvents();
     }
+
+    // File Transfer
+    public void sendFileToFacebookId(long facebook_id, JSONObject jsonPayload) throws Exception {
+        assert jsonPayload.get("message_type") != null;
+        assert jsonPayload.get("content") != null;
+        var payload = jsonPayload.toString();
+
+        var user = db.getUserWithFacebookId(facebook_id);
+        if (user.ephemeral_key_outgoing == null) {
+            handshakeWithFacebookId(facebook_id);
+            user = db.getUserWithFacebookId(facebook_id);
+        }
+
+        var secondPart = Util.base64(signAndEncryptPayload(payload, user));
+        var params = new HashMap<String, String>();
+        params.put("file", secondPart);
+        params.put("target_ephemeral_id", user.ephemeral_id_outgoing.toString());
+        var result = Util.syncRequestPost(new URL("http://localhost:5665/add_file"), params);
+        System.out.println("[sendFileToFacebookId]" + result);
+    }
+
+    public void sendFileToChannelMembers(Channel ch, JSONObject json) throws Exception {
+        // Send a copy to each member of the channel
+        for (var member : ch.members) {
+            if (ch.hasMember(member.facebook_id)) // chat messages are only sent to joined members
+                sendFileToFacebookId(member.facebook_id, json);
+        }
+        pullServerEvents();
+    }
+
 
     public void createNewChannel() throws Exception {
         var json = new JSONObject();

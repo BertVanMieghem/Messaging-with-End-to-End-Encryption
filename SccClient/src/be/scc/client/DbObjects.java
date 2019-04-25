@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.crypto.SecretKey;
+import java.io.File;
 import java.security.PublicKey;
 import java.sql.*;
 import java.time.ZonedDateTime;
@@ -71,12 +72,45 @@ class ChatMessage {
 
 }
 
+class FileMessage {
+    public Object file;
+    public ZonedDateTime date;
+    public long from_facebook_id;
+    private boolean isTrusted = true;
+    public final static String[] columnNames = {"file", "date", "from_facebook_id"};
+
+
+    public JSONObject toJson() {
+        var json = new JSONObject();
+        json.put("file", file);
+        json.put("date", date.toString());
+        json.put("from_facebook_id", from_facebook_id);
+        return json;
+    }
+
+    public static FileMessage fromJson(JSONObject json) {
+        var fm = new FileMessage();
+        fm.file = json.get("file");
+        fm.date = ZonedDateTime.parse(json.getString("date"));
+        fm.from_facebook_id = json.getLong("from_facebook_id");
+        fm.isTrusted = false;
+        return fm;
+    }
+
+
+    public String[] toStringList() {
+        Object[] tmp = {file, date, from_facebook_id};
+        return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
+    }
+}
+
 class Channel {
 
     public UUID uuid;
     public String name;
     public List<ChannelMember> members = new ArrayList<>();
     public List<ChatMessage> chatMessages = new ArrayList<>();
+    public List<FileMessage> fileMessages = new ArrayList<>();
     public ChannelStatus status = ChannelStatus.NOT_SET;
 
     public ChannelMember getMember(long facebook_id) {

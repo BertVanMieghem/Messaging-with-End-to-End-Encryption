@@ -7,6 +7,7 @@ import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -87,6 +88,25 @@ public class ChatDialog extends JDialog implements SccListener {
 
                 System.out.println("chosen file: " + chosenFile.toString());
 
+                FileInputStream fileInputStream = new FileInputStream(chosenFile);
+                byte[] dataByte = new byte[(int) chosenFile.length()];
+                fileInputStream.read(dataByte);
+
+                var ch = getSelectedChanel();
+
+                var json = new JSONObject();
+                json.put("message_type", "file_message_to_channel");
+                var jsonContent = new JSONObject();
+                jsonContent.put("file_message", dataByte);
+                jsonContent.put("channel_uuid", ch.uuid);
+                json.put("content", jsonContent);
+
+                System.out.println("json: " + json.toString());
+                ClientSingleton.inst().sendFileToChannelMembers(ch, json);
+
+
+                /*
+                // send txt file as chat message
                 var fileContents = Files.readAllLines(chosenFile.toPath());
                 System.out.println("content: " + fileContents);
                 System.out.println("content(0): " + fileContents.get(0));
@@ -100,7 +120,7 @@ public class ChatDialog extends JDialog implements SccListener {
                 jsonContent.put("channel_uuid", ch.uuid);
                 json.put("content", jsonContent);
                 ClientSingleton.inst().sendMessageToChannelMembers(ch, json);
-
+                */
             } catch (Exception el) {
                 el.printStackTrace();
             }

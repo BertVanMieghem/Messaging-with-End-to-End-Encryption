@@ -381,15 +381,33 @@ public class ClientDB {
                     break;
                 }
                 case "chat_message_to_channel": {
-                    var chat_message = content.getString("chat_message");
+                    try {
+                        var chat_message = content.getString("chat_message");
+                        UUID uuid = UUID.fromString(content.getString("channel_uuid"));
+                        var ch = channels.get(uuid);
+                        if (ch.hasMember(messageRow.from_facebook_id)) {
+                            var cm = new ChatMessage();
+                            cm.message = chat_message;
+                            cm.from_facebook_id = messageRow.from_facebook_id;
+                            cm.date = ZonedDateTime.now(ZoneOffset.UTC); // TODO: Makes no sense, date should be stored in cached_messages
+                            ch.chatMessages.add(cm);
+                        } else
+                            System.err.println("User not in channel! facebook_id:" + messageRow.from_facebook_id);
+                        break;
+                    } catch(Exception e) {
+                        System.err.println(e.getClass().getName() + ": " + e.getMessage());
+                    }
+                }
+                case "file_message_to_channel": {
+                    var file_message = content.get("file_message");
                     UUID uuid = UUID.fromString(content.getString("channel_uuid"));
                     var ch = channels.get(uuid);
                     if (ch.hasMember(messageRow.from_facebook_id)) {
-                        var cm = new ChatMessage();
-                        cm.message = chat_message;
-                        cm.from_facebook_id = messageRow.from_facebook_id;
-                        cm.date = ZonedDateTime.now(ZoneOffset.UTC); // TODO: Makes no sense, date should be stored in cached_messages
-                        ch.chatMessages.add(cm);
+                        var fm = new FileMessage();
+                        fm.file = file_message;
+                        fm.from_facebook_id = messageRow.from_facebook_id;
+                        fm.date = ZonedDateTime.now(ZoneOffset.UTC);
+                        ch.fileMessages.add(fm);
                     } else
                         System.err.println("User not in channel! facebook_id:" + messageRow.from_facebook_id);
                     break;

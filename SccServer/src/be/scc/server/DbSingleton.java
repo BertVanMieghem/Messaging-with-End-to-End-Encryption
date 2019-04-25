@@ -84,6 +84,15 @@ class DbSingleton {
         pstmt.executeUpdate();
     }
 
+    public void addFile(String file, UUID target_ephemeral_id) throws SQLException {
+        PreparedStatement pstmt = conn.prepareStatement("INSERT INTO message_buffer VALUES (NULL, ?, ?)");
+        pstmt.setString(1, file);
+        pstmt.setString(2, target_ephemeral_id.toString());
+        pstmt.executeUpdate();
+        System.out.println("[addFile] file: " + file);
+    }
+
+
     public JSONObject getMessages(int last_message_buffer_index, String[] ephemeral_ids) throws SQLException {
         Statement statement = conn.createStatement();
         var temp = StringUtils.join((Arrays.asList(ephemeral_ids).stream().map(e -> "\"" + e + "\"").collect(Collectors.toList())), ", ");
