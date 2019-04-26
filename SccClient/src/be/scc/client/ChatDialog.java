@@ -5,10 +5,10 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -88,8 +88,13 @@ public class ChatDialog extends JDialog implements SccListener {
                 int choice = chooser.showOpenDialog(ChatDialog.this);
                 if (choice != JFileChooser.APPROVE_OPTION) return;
                 File chosenFile = chooser.getSelectedFile();
+                String fileName = chosenFile.getName();
+                String extension = "";
 
-                System.out.println("chosen file: " + chosenFile.toString());
+                int i = fileName.lastIndexOf('.');
+                if (i > 0)
+                    extension = fileName.substring(i);
+
 
                 FileInputStream fileInputStream = new FileInputStream(chosenFile);
                 byte[] dataByte = new byte[(int) chosenFile.length()];
@@ -101,46 +106,16 @@ public class ChatDialog extends JDialog implements SccListener {
                 json.put("message_type", "file_message_to_channel");
                 var jsonContent = new JSONObject();
                 jsonContent.put("file_message", Util.base64(dataByte));
-                jsonContent.put("file_name", chosenFile);
+                jsonContent.put("file_name", chosenFile.getName());
+                jsonContent.put("file_extension", extension);
                 jsonContent.put("channel_uuid", ch.uuid);
                 json.put("content", jsonContent);
 
-                System.out.println("json: " + json.toString());
                 ClientSingleton.inst().sendFileToChannelMembers(ch, json);
+                System.out.println("Sent file '" + chosenFile.getName() + "' to channel");
 
-
-                /*
-                // send txt file as chat message
-                var fileContents = Files.readAllLines(chosenFile.toPath());
-                System.out.println("content: " + fileContents);
-                System.out.println("content(0): " + fileContents.get(0));
-
-                var ch = getSelectedChanel();
-
-                var json = new JSONObject();
-                json.put("message_type", "chat_message_to_channel");
-                var jsonContent = new JSONObject();
-                jsonContent.put("chat_message", fileContents.get(0));
-                jsonContent.put("channel_uuid", ch.uuid);
-                json.put("content", jsonContent);
-                ClientSingleton.inst().sendMessageToChannelMembers(ch, json);
-                */
             } catch (Exception el) {
                 el.printStackTrace();
-            }
-        });
-
-        channelFileMessagesPane.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                System.out.println("[][] mouse clicked");
-                JScrollPane target = (JScrollPane) e.getSource();
-                System.out.println("target: " + target);
-
-                var selectedChannel = getSelectedChanel();
-                String[][] fm = selectedChannel.fileMessages.stream().map(FileMessage::toStringList).toArray(String[][]::new);
-                //System.out.println("[][]row: " + row);
-                System.out.println("[][]file: " + fm);
             }
         });
 
@@ -438,11 +413,19 @@ public class ChatDialog extends JDialog implements SccListener {
             vertical.setValue(vertical.getMaximum());
 
             // file messages
-            String[][] fm = selectedChannel.fileMessages.stream().map(FileMessage::toStringList).toArray(String[][]::new);
-            var jTableFiles = new JTable(fm, FileMessage.columnNames);
-            channelFileMessagesPane.setViewportView(jTableFiles); // itemRenderer
-            jTableFiles.getColumnModel().getColumn(0).setCellRenderer(new FileRenderer());
+            var fm = selectedChannel.fileMessages;
+            var listModel = new DefaultListModel<FileMessage>();
+            listModel.addAll(fm);
+            var jList = new JList<>(listModel);
+            jList.getSelectionModel().addListSelectionListener(e -> {
+                if (!e.getValueIsAdjusting()) {
+                    var file = jList.getSelectedValue();
+                    saveFileToHardDrive(file);
+                }
+            });
 
+            channelFileMessagesPane.setViewportView(new JScrollPane(jList));
+            jList.setCellRenderer(new FileRenderer());
 
             JScrollBar scrollFiles = channelFileMessagesPane.getVerticalScrollBar();
             scrollFiles.setValue(scrollFiles.getMaximum());
@@ -472,6 +455,42 @@ public class ChatDialog extends JDialog implements SccListener {
             sendButton.setEnabled(false);
             sendButton.setToolTipText("Select a channel -AND- Type some text -AND- Be accepted in this channel");
         }
+    }
+
+    public void saveFileToHardDrive(FileMessage file) {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setCurrentDirectory(new File("./"));
+
+        int i = file.fileName.lastIndexOf('.');
+        chooser.setSelectedFile(new File(file.fileName.substring(0, i)));
+
+        String extensionNoDot = file.fileName.substring(i + 1);
+        chooser.setFileFilter((new FileNameExtensionFilter(extensionNoDot + " file", extensionNoDot)));
+        int actionDialog = chooser.showSaveDialog(this);
+
+        if (actionDialog == JFileChooser.APPROVE_OPTION) {
+            File tempPath = new File(chooser.getSelectedFile() + file.extension);
+            try {
+                writeFileAsBytes(tempPath.toString(), file.file);
+                System.out.println("Saved file '" + file.fileName + "'to hard drive");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    public static void writeFileAsBytes(String fullPath, String base64EncodedString) throws IOException {
+        OutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(fullPath));
+        byte[] bytes = Util.base64(base64EncodedString);
+        InputStream inputStream = new ByteArrayInputStream(bytes);
+        int token = -1;
+
+        while ((token = inputStream.read()) != -1) {
+            bufferedOutputStream.write(token);
+        }
+        bufferedOutputStream.flush();
+        bufferedOutputStream.close();
+        inputStream.close();
     }
 
 }

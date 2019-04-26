@@ -398,14 +398,16 @@ public class ClientDB {
                     break;
                 }
                 case "file_message_to_channel": {
-                    var file_message = content.get("file_message");
+                    var file_message = content.get("file_message").toString();
                     var file_name = content.get("file_name").toString();
+                    var extension = content.get("file_extension").toString();
                     UUID uuid = UUID.fromString(content.getString("channel_uuid"));
                     var ch = channels.get(uuid);
                     if (ch.hasMember(messageRow.from_facebook_id)) {
                         var fm = new FileMessage();
                         fm.file = file_message;
                         fm.fileName = file_name;
+                        fm.extension = extension;
                         fm.from_facebook_id = messageRow.from_facebook_id;
                         fm.date = ZonedDateTime.now(ZoneOffset.UTC);
                         ch.fileMessages.add(fm);

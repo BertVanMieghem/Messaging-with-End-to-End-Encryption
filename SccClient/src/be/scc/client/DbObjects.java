@@ -73,8 +73,9 @@ class ChatMessage { // superclass
 }
 
 class FileMessage {
-    public Object file;
+    public String file;
     public String fileName;
+    public String extension;
     public ZonedDateTime date;
     public long from_facebook_id;
     private boolean isTrusted = true;
@@ -91,7 +92,7 @@ class FileMessage {
 
     public static FileMessage fromJson(JSONObject json) {
         var fm = new FileMessage();
-        fm.file = json.get("file");
+        fm.file = json.getString("file");
         fm.date = ZonedDateTime.parse(json.getString("date"));
         fm.from_facebook_id = json.getLong("from_facebook_id");
         fm.isTrusted = false;

@@ -206,7 +206,7 @@
         </constraints>
         <properties>
           <enabled value="true"/>
-          <text value="Send file"/>
+          <text value="Send file..."/>
         </properties>
       </component>
       <scrollpane id="f1f1e" binding="channelsPane">
