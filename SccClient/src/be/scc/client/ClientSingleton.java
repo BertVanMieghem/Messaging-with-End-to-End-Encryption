@@ -85,6 +85,8 @@ public class ClientSingleton {
     }
 
     public void pullHandshakes() throws Exception {
+        if (db.keyPair == null)
+            return;
         URL url = new URL("http://localhost:5665/get_handshake_buffer?last_handshake_buffer_index="
                 + ClientSingleton.inst().db.last_handshake_buffer_index);
 
