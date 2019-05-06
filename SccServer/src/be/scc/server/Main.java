@@ -49,7 +49,10 @@ public class Main {
                     }
                     case "/get_users": {
                         // Todo: user needs session token before accesing this
-                        var users = DbSingleton.inst().getAllUsers();
+                        URI uri = httpExchange.getRequestURI();
+                        var qs = Util.decodeQueryString(uri);
+                        var last_user_index = Integer.parseInt(qs.get("last_user_index"));
+                        var users = DbSingleton.inst().getAllUsers(last_user_index);
                         data = users.toString().getBytes();
                         break;
                     }

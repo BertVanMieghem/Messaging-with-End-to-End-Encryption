@@ -47,9 +47,9 @@ class DbSingleton {
         pstmt.executeUpdate();
     }
 
-    public JSONObject getAllUsers() throws SQLException {
+    public JSONObject getAllUsers(int last_user_index) throws SQLException {
         Statement statement = conn.createStatement();
-        ResultSet result = statement.executeQuery("SELECT * from users");
+        ResultSet result = statement.executeQuery("SELECT * from users WHERE id>"+last_user_index);
         //var collumnNames = List.of("id", "facebook_id", "public_key");
         var jsonArr = Util.sqlResultsToJson(result); // Information on the server is not considered private
 

@@ -47,7 +47,12 @@ public class ClientDB {
     }
 
 
+    public int getLargestUserId() throws SQLException {
+        Statement statement = conn.createStatement();
+        ResultSet result = statement.executeQuery("select MAX(id) from local_users;");
+        return result.getInt(1);
 
+    }
 
     public void addUser(int id, long facebook_id, String facebook_name, RSAPublicKey public_key) throws Exception {
         var user = getUserWithFacebookId(facebook_id);
@@ -76,6 +81,8 @@ public class ClientDB {
         pstmt.setString(++i, user_ephemeral_id_outgoing);
         pstmt.setString(++i, user_ephemeral_id_ingoing);
         pstmt.executeUpdate();
+
+        dispatcher.sccDispatchModelChanged();
     }
 
     public void updateUserInDb(Local_user user) throws SQLException {
@@ -222,6 +229,8 @@ public class ClientDB {
         pstmt.setString(++i, row.message);
         pstmt.setString(++i, row.client_can_decode);
         pstmt.executeUpdate();
+
+        dispatcher.sccDispatchModelChanged();
     }
 
     public List<Local_user> getUsersThatShookOurHands() {
@@ -249,6 +258,8 @@ public class ClientDB {
         pstmt.setString(++i, row.message);
         pstmt.setString(++i, row.client_can_decode);
         pstmt.executeUpdate();
+
+        dispatcher.sccDispatchModelChanged();
     }
 
     public void insertCachedMessage(Cached_message_row row) throws SQLException {
@@ -258,6 +269,8 @@ public class ClientDB {
         pstmt.setLong(++i, row.from_facebook_id);
         pstmt.setString(++i, row.message);
         pstmt.executeUpdate();
+
+        dispatcher.sccDispatchModelChanged();
     }
 
     public List<Cached_message_row> getMessagesForFacebookId(long facebook_id) {

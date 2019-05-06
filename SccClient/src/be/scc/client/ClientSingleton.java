@@ -32,7 +32,6 @@ public class ClientSingleton {
     public void initialise() throws Exception {
         db.loadFromDb();
         loginDialog = new LoginDialog();
-        chatDialog = new ChatDialog();
 
     }
 
@@ -61,12 +60,14 @@ public class ClientSingleton {
     public void fromLoginToChatDialog() {
         loginDialog.dispatchEvent(new WindowEvent(loginDialog, WindowEvent.WINDOW_CLOSING));
 
+        chatDialog = new ChatDialog();
         chatDialog.pack();
         chatDialog.setVisible(true);
     }
 
     public void pullUsers() throws Exception {
-        URL url = new URL("http://localhost:5665/get_users");
+        var last_user_index = db.getLargestUserId();
+        URL url = new URL("http://localhost:5665/get_users?last_user_index="+last_user_index);
 
         var jsonObj = Util.syncJsonRequest(url);
         for (Object row : jsonObj.getJSONArray("users")) {
@@ -219,7 +220,7 @@ public class ClientSingleton {
         var params = new HashMap<String, String>();
         params.put("message", message);
 
-        //var result = Util.syncRequestPost(new URL("http://localhost:5665/add_handshake"), params);
+        Util.syncRequestPost(new URL("http://localhost:5665/add_handshake"), params);
         db.updateUserInDb(user); // only set when webrequest succeeded
     }
 
