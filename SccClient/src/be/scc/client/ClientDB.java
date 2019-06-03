@@ -108,6 +108,34 @@ public class ClientDB {
         dispatcher.sccDispatchModelChanged();
     }
 
+    public void insertFacebookFriends(List<FacebookFriendRow> friends) throws SQLException {
+        for (var friend : friends) {
+            PreparedStatement pstmt = conn.prepareStatement("REPLACE INTO facebook_friends VALUES (?, ?)");
+            var i = 0;
+            pstmt.setLong(++i, friend.facebook_id_long);
+            pstmt.setString(++i, friend.facebook_name);
+            pstmt.executeUpdate();
+        }
+        dispatcher.sccDispatchModelChanged();
+    }
+
+    public List<FacebookFriendRow> getFacebookFriends() {
+
+        try {
+            Statement statement = conn.createStatement();
+            ResultSet result = statement.executeQuery("SELECT * from facebook_friends");
+
+            var aggregate = new ArrayList<FacebookFriendRow>();
+            while (result.next()) {
+                aggregate.add(FacebookFriendRow.parse(result));
+            }
+            return aggregate;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
     public void saveToDb() throws SQLException {
         String private_key = null;
         String public_key = null;
@@ -178,7 +206,7 @@ public class ClientDB {
             return aggregate;
         } catch (SQLException | GeneralSecurityException e) {
             e.printStackTrace();
-            return new ArrayList<Local_user>();
+            return new ArrayList<>();
         }
     }
 
@@ -199,7 +227,7 @@ public class ClientDB {
     public Local_user getUserWithFacebookId(FacebookId facebook_id) throws SQLException, GeneralSecurityException {
         if (facebook_id == null) throw new SccException("facebook_id is null!");
         Statement statement = conn.createStatement();
-        ResultSet result = statement.executeQuery("SELECT * from local_users WHERE facebook_id=\"" + facebook_id+"\"");
+        ResultSet result = statement.executeQuery("SELECT * from local_users WHERE facebook_id=\"" + facebook_id + "\"");
         if (result.isClosed()) return null;
         return getUserFromResultRow(result);
     }

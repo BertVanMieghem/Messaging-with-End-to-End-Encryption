@@ -8,9 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.crypto.SecretKey;
-import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.sql.*;
 import java.time.ZonedDateTime;
@@ -332,5 +330,25 @@ class Local_user {
     public String[] toStringList() {
         Object[] tmp = {id, facebook_id, facebook_name, public_key, ephemeral_key_outgoing, ephemeral_key_ingoing, ephemeral_id_outgoing, ephemeral_id_ingoing};
         return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
+    }
+}
+
+class FacebookFriendRow {
+    public long facebook_id_long;
+    public String facebook_name;
+
+
+    public static FacebookFriendRow parse(ResultSet result) throws SQLException {
+        var row = new FacebookFriendRow();
+        row.facebook_id_long = result.getLong("facebook_id_long");
+        row.facebook_name = result.getString("facebook_name");
+        return row;
+    }
+
+    public static FacebookFriendRow parse(JSONObject json) {
+        var row = new FacebookFriendRow();
+        row.facebook_id_long = json.getLong("id");
+        row.facebook_name = json.getString("name");
+        return row;
     }
 }
