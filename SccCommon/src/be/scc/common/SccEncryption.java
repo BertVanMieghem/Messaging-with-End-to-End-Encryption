@@ -6,9 +6,11 @@ import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.*;
+import java.util.Arrays;
 import java.util.Base64;
 import javax.crypto.*;
 import javax.crypto.spec.*;
+
 
 public class SccEncryption {
     static private IvParameterSpec iv = new IvParameterSpec("jsldghdj;figshig".getBytes(StandardCharsets.UTF_8)); // semi random ;)
@@ -132,5 +134,38 @@ public class SccEncryption {
         rsacheck.update(data.getBytes(StandardCharsets.UTF_8));
         boolean result = rsacheck.verify(signature);
         return result;
+    }
+
+
+    static public SccHash Hash(byte[] toBeHashed) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] digest = md.digest(toBeHashed);
+        return new SccHash(digest);
+    }
+}
+
+class SccHash {
+    public SccHash(byte[] bytes) {
+        this.bytes = bytes;
+    }
+
+    public final byte[] bytes;
+
+    @Override
+    public String toString() {
+        return Util.base64(bytes);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SccHash sccHash = (SccHash) o;
+        return Arrays.equals(bytes, sccHash.bytes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(bytes);
     }
 }

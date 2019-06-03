@@ -71,4 +71,17 @@ public class SccEncryptionTest {
         assert SccEncryption.verifySign(pair.getPublic(), message, sign);
         assert !SccEncryption.verifySign(pair.getPublic(), "different message now" + message, sign);
     }
+
+    @Test
+    void hash() throws Exception {
+        var message1 = "Hash me.".repeat(1000);
+        var message3 = "Jow.";
+
+        SccHash hash1 = SccEncryption.Hash(message1.getBytes());
+        SccHash hash2 = SccEncryption.Hash(message1.getBytes()); // Doubled
+        SccHash hash3 = SccEncryption.Hash(message3.getBytes());
+
+        assert hash1.equals(hash2);
+        assert !hash1.equals(hash3);
+    }
 }

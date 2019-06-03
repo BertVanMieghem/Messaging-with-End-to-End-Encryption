@@ -45,9 +45,9 @@ public class FacebookLoginHandler implements HttpHandler {
 
                     String ret = Util.syncRequestPost(url, params);
                     JSONObject obj = new JSONObject(ret);
-                    var facebook_id = obj.getLong("facebook_id");
+                    var facebook_id = new FacebookId(obj.getLong("facebook_id"));
 
-                    ClientSingleton.inst().db.facebook_id = (facebook_id);
+                    ClientSingleton.inst().db.facebook_id = facebook_id;
                     ClientSingleton.inst().db.keyPair = (pair);
                     ClientSingleton.inst().db.saveToDb();
 

@@ -345,7 +345,7 @@ public class ChatDialog extends JDialog implements SccListener {
     }
 
     class UserOption {
-        public long facebook_id;
+        public FacebookId facebook_id;
         public String name;
         public MemberStatus memberStatus = MemberStatus.NOT_SET;
 

@@ -20,7 +20,7 @@ enum MemberStatus {
 }
 
 class ChannelMember {
-    public long facebook_id;
+    public FacebookId facebook_id;
 
     public MemberStatus status = MemberStatus.NOT_SET;
 
@@ -36,7 +36,7 @@ class ChannelMember {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChannelMember that = (ChannelMember) o;
-        return facebook_id == that.facebook_id &&
+        return Objects.equals(facebook_id, that.facebook_id) &&
                 status == that.status;
     }
 
@@ -56,7 +56,7 @@ enum ChannelStatus {
 class ChatMessage { // superclass
     public String message;
     public ZonedDateTime date;
-    public long from_facebook_id;
+    public FacebookId from_facebook_id;
     private boolean isTrusted = true;
     public final static String[] columnNames = {"message", "date", "from_facebook_id"};
 
@@ -73,7 +73,7 @@ class ChatMessage { // superclass
         var cm = new ChatMessage();
         cm.message = json.getString("message");
         cm.date = ZonedDateTime.parse(json.getString("date"));
-        cm.from_facebook_id = json.getLong("from_facebook_id");
+        cm.from_facebook_id = new FacebookId(json.getLong("from_facebook_id"));
         cm.isTrusted = false;
         return cm;
     }
@@ -89,10 +89,10 @@ class ChatMessage { // superclass
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChatMessage that = (ChatMessage) o;
-        return from_facebook_id == that.from_facebook_id &&
-                isTrusted == that.isTrusted &&
+        return isTrusted == that.isTrusted &&
                 Objects.equals(message, that.message) &&
-                Objects.equals(date, that.date);
+                Objects.equals(date, that.date) &&
+                Objects.equals(from_facebook_id, that.from_facebook_id);
     }
 
     @Override
@@ -106,7 +106,7 @@ class FileMessage {
     public String fileName;
     public String extension;
     public ZonedDateTime date;
-    public long from_facebook_id;
+    public FacebookId from_facebook_id;
     private boolean isTrusted = true;
     public final static String[] columnNames = {"fileName", "date", "from_facebook_id"};
 
@@ -123,7 +123,7 @@ class FileMessage {
         var fm = new FileMessage();
         fm.file = json.getString("file");
         fm.date = ZonedDateTime.parse(json.getString("date"));
-        fm.from_facebook_id = json.getLong("from_facebook_id");
+        fm.from_facebook_id = new FacebookId(json.getLong("from_facebook_id"));
         fm.isTrusted = false;
         return fm;
     }
@@ -139,12 +139,12 @@ class FileMessage {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FileMessage that = (FileMessage) o;
-        return from_facebook_id == that.from_facebook_id &&
-                isTrusted == that.isTrusted &&
+        return isTrusted == that.isTrusted &&
                 Objects.equals(file, that.file) &&
                 Objects.equals(fileName, that.fileName) &&
                 Objects.equals(extension, that.extension) &&
-                Objects.equals(date, that.date);
+                Objects.equals(date, that.date) &&
+                Objects.equals(from_facebook_id, that.from_facebook_id);
     }
 
     @Override
@@ -162,15 +162,15 @@ class Channel {
     public List<FileMessage> fileMessages = new ArrayList<>();
     public ChannelStatus status = ChannelStatus.NOT_SET;
 
-    public ChannelMember getMember(long facebook_id) {
+    public ChannelMember getMember(FacebookId facebook_id) {
         for (var m : members) {
-            if (m.facebook_id == facebook_id)
+            if (m.facebook_id.equals(facebook_id))
                 return m;
         }
         return null;
     }
 
-    public ChannelMember getOrCreateMember(long facebook_id) {
+    public ChannelMember getOrCreateMember(FacebookId facebook_id) {
         var mem = getMember(facebook_id);
         if (mem == null) {
             mem = new ChannelMember();
@@ -180,18 +180,18 @@ class Channel {
         return mem;
     }
 
-    public boolean hasMember(long facebook_id) {
+    public boolean hasMember(FacebookId facebook_id) {
         for (var m : members) {
-            if ((m.facebook_id == facebook_id) &&
+            if (m.facebook_id.equals(facebook_id) &&
                     (m.status != MemberStatus.INVITE_PENDING && m.status != MemberStatus.REMOVED))
-                        return true;
+                return true;
         }
         return false;
     }
 
-    public boolean hasOwner(long facebook_id) {
+    public boolean hasOwner(FacebookId facebook_id) {
         for (var m : members) {
-            if ((m.facebook_id == facebook_id) && (m.status == MemberStatus.OWNER))
+            if ((m.facebook_id.equals(facebook_id)) && (m.status == MemberStatus.OWNER))
                 return true;
         }
         return false;
@@ -232,7 +232,7 @@ class Channel {
         for (Object om : members) {
             var jm = (JSONObject) om;
             var m = new ChannelMember();
-            m.facebook_id = jm.getLong("facebook_id");
+            m.facebook_id = new FacebookId(jm.getLong("facebook_id"));
             m.status = MemberStatus.valueOf(jm.getString("status"));
             ch.members.add(m);
         }
@@ -276,13 +276,13 @@ class Channel {
  */
 class Cached_message_row {
     public long id;
-    public long from_facebook_id;
+    public FacebookId from_facebook_id;
     public String message;
     public final static String[] columnNames = {"id", "from_facebook_id", "message"};
 
     public void fillInFromSqlResult(ResultSet result) throws SQLException {
         id = result.getLong("id");
-        from_facebook_id = result.getLong("from_facebook_id");
+        from_facebook_id = new FacebookId(result.getLong("from_facebook_id"));
         message = result.getString("message");
     }
 
@@ -313,7 +313,7 @@ class Message_row extends Handshake_row {
 class Local_user {
 
     public long id;
-    public long facebook_id;
+    public FacebookId facebook_id;
     public String facebook_name;
     public PublicKey public_key;
     public SecretKey ephemeral_key_outgoing;
@@ -326,5 +326,32 @@ class Local_user {
     public String[] toStringList() {
         Object[] tmp = {id, facebook_id, facebook_name, public_key, ephemeral_key_outgoing, ephemeral_key_ingoing, ephemeral_id_outgoing, ephemeral_id_ingoing};
         return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
+    }
+}
+
+class FacebookId {
+    public FacebookId(long facebook_id) {
+        assert facebook_id > 0;
+        this.facebook_id = facebook_id;
+    }
+
+    private long facebook_id;
+
+    @Override
+    public String toString() {
+        return "" + facebook_id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FacebookId that = (FacebookId) o;
+        return facebook_id == that.facebook_id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(facebook_id);
     }
 }

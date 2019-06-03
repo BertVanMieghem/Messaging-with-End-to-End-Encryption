@@ -46,9 +46,8 @@ public class ClientSingleton {
     }
 
 
-
     public void openLoginOrSkip() throws IOException {
-        if (ClientSingleton.inst().db.facebook_id != 0) {
+        if (ClientSingleton.inst().db.facebook_id != null) {
             ClientSingleton.inst().fromLoginToChatDialog();
         } else {
             loginDialog.pack();
@@ -72,7 +71,10 @@ public class ClientSingleton {
         var jsonObj = Util.syncJsonRequest(url);
         for (Object row : jsonObj.getJSONArray("users")) {
             var obj = (JSONObject) row;
-            db.addUser(obj.getInt("id"), obj.getLong("facebook_id"), obj.getString("facebook_name"), SccEncryption.deserialisePublicKey(obj.getString("public_key")));
+            db.addUser(obj.getInt("id"),
+                    new FacebookId(obj.getLong("facebook_id")),
+                    obj.getString("facebook_name"),
+                    SccEncryption.deserialisePublicKey(obj.getString("public_key")));
         }
         db.saveToDb();
     }
@@ -109,7 +111,7 @@ public class ClientSingleton {
                 var idx = secondPart.lastIndexOf("|");
                 String payload = secondPart.substring(0, idx);
                 var json = new JSONObject(payload);
-                var from_facebook_id = json.getLong("handshake_initiator_facebook_id");
+                var from_facebook_id = new FacebookId(json.getLong("handshake_initiator_facebook_id"));
 
                 var sig = Util.base64(secondPart.substring(idx + 1));
 
@@ -204,7 +206,7 @@ public class ClientSingleton {
         return (SccEncryption.encrypt(user.ephemeral_key_outgoing, secondPartPlainText));
     }
 
-    public void handshakeWithFacebookId(long facebook_id) throws Exception {
+    public void handshakeWithFacebookId(FacebookId facebook_id) throws Exception {
         var user = db.getUserWithFacebookId(facebook_id);
         user.ephemeral_key_outgoing = SccEncryption.generateSymetricKey();
         user.ephemeral_id_outgoing = UUID.randomUUID();
@@ -226,7 +228,7 @@ public class ClientSingleton {
         db.updateUserInDb(user); // only set when webrequest succeeded
     }
 
-    public void sendMessageToFacebookId(long facebook_id, JSONObject jsonPayload) throws Exception {
+    public void sendMessageToFacebookId(FacebookId facebook_id, JSONObject jsonPayload) throws Exception {
         assert jsonPayload.get("message_type") != null;
         assert jsonPayload.get("content") != null;
         jsonPayload.put("sent_time", ZonedDateTime.now(ZoneOffset.UTC).toString());
@@ -264,7 +266,7 @@ public class ClientSingleton {
     }
 
     // File Transfer
-    public void sendFileToFacebookId(long facebook_id, JSONObject jsonPayload) throws Exception {
+    public void sendFileToFacebookId(FacebookId facebook_id, JSONObject jsonPayload) throws Exception {
         assert jsonPayload.get("message_type") != null;
         assert jsonPayload.get("content") != null;
         var payload = jsonPayload.toString();
@@ -314,7 +316,7 @@ public class ClientSingleton {
         pullServerEvents();
     }
 
-    public void inviteUserToChannel(Channel ch, long invited_facebook_id) throws Exception {
+    public void inviteUserToChannel(Channel ch, FacebookId invited_facebook_id) throws Exception {
         var json = new JSONObject();
         json.put("message_type", "invite_to_channel");
         var jsonContent = new JSONObject();
@@ -334,7 +336,7 @@ public class ClientSingleton {
         sendMessageToChannel(ch, json);
     }
 
-    public void removeUserToChannel(Channel ch, long removed_facebook_id) throws Exception {
+    public void removeUserToChannel(Channel ch, FacebookId removed_facebook_id) throws Exception {
         var json = new JSONObject();
         json.put("message_type", "remove_person_from_channel");
         var jsonContent = new JSONObject();

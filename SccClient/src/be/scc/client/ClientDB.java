@@ -20,7 +20,7 @@ public class ClientDB {
     private Connection conn = null;
     private Collection<Channel> buildedChannels;
     // Don't forget to save to database when changing these properties:
-    public long facebook_id;
+    public FacebookId facebook_id = null;
     public KeyPair keyPair;
     public long last_handshake_buffer_index = 0;
     public long last_message_buffer_index = 0;
@@ -54,7 +54,7 @@ public class ClientDB {
 
     }
 
-    public void addUser(int id, long facebook_id, String facebook_name, RSAPublicKey public_key) throws Exception {
+    public void addUser(int id, FacebookId facebook_id, String facebook_name, RSAPublicKey public_key) throws Exception {
         var user = getUserWithFacebookId(facebook_id);
         if (user == null)
             user = new Local_user();
@@ -67,7 +67,7 @@ public class ClientDB {
         PreparedStatement pstmt = conn.prepareStatement("INSERT OR REPLACE INTO local_users VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         var i = 0;
         pstmt.setLong(++i, user.id);
-        pstmt.setLong(++i, user.facebook_id);
+        pstmt.setString(++i, user.facebook_id == null ? null : user.facebook_id.toString());
         pstmt.setString(++i, user.facebook_name);
         pstmt.setString(++i, SccEncryption.serializeKey(user.public_key));
         pstmt.setString(++i, SccEncryption.serializeKey(user.ephemeral_key_outgoing));
@@ -89,7 +89,7 @@ public class ClientDB {
         PreparedStatement pstmt = conn.prepareStatement("REPLACE INTO local_users VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         var i = 0;
         pstmt.setLong(++i, user.id);
-        pstmt.setLong(++i, user.facebook_id);
+        pstmt.setString(++i, user.facebook_id == null ? null : user.facebook_id.toString());
         pstmt.setString(++i, user.facebook_name);
         pstmt.setString(++i, SccEncryption.serializeKey(user.public_key));
         pstmt.setString(++i, SccEncryption.serializeKey(user.ephemeral_key_outgoing));
@@ -123,7 +123,7 @@ public class ClientDB {
                 "last_message_buffer_index=?" +
                 "");
         var i = 0;
-        pstmt.setLong(++i, facebook_id);
+        pstmt.setString(++i, facebook_id == null ? null : facebook_id.toString());
         pstmt.setString(++i, private_key);
         pstmt.setString(++i, public_key);
         pstmt.setLong(++i, last_handshake_buffer_index);
@@ -141,7 +141,7 @@ public class ClientDB {
             saveToDb();
             return;
         }
-        var facebook_id = result.getLong("facebook_id");
+        var facebook_id = new FacebookId(result.getLong("facebook_id"));
 
         var private_key = result.getString("private_key");
         var public_key = result.getString("public_key");
@@ -189,8 +189,8 @@ public class ClientDB {
     }
 //SELECT ephemeral_id_outgoing FROM local_users WHERE ephemeral_id_outgoing IS NOT NULL
 
-    public Local_user getUserWithFacebookId(long facebook_id) throws SQLException, GeneralSecurityException {
-        if (facebook_id < 0) throw new SccException("invalid facebook_id:" + facebook_id);
+    public Local_user getUserWithFacebookId(FacebookId facebook_id) throws SQLException, GeneralSecurityException {
+        if (facebook_id == null) throw new SccException("facebook_id is null!");
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery("SELECT * from local_users WHERE facebook_id=" + facebook_id);
         if (result.isClosed()) return null;
@@ -200,7 +200,7 @@ public class ClientDB {
     public Local_user getUserFromResultRow(ResultSet result) throws SQLException, GeneralSecurityException {
         var row = new Local_user();
         row.id = result.getInt("id");
-        row.facebook_id = result.getLong("facebook_id");
+        row.facebook_id = new FacebookId(result.getLong("facebook_id"));
         row.facebook_name = result.getString("facebook_name");
 
         var public_key = result.getString("public_key");
@@ -266,7 +266,7 @@ public class ClientDB {
         PreparedStatement pstmt = conn.prepareStatement("INSERT OR REPLACE INTO cached_messages VALUES (?, ?, ?)");
         var i = 0;
         pstmt.setLong(++i, row.id);
-        pstmt.setLong(++i, row.from_facebook_id);
+        pstmt.setString(++i, row.from_facebook_id == null ? null : row.from_facebook_id.toString());
         pstmt.setString(++i, row.message);
         pstmt.executeUpdate();
 
@@ -350,7 +350,7 @@ public class ClientDB {
 
                 // Is also used to create initial channel
                 case "invite_to_channel": {
-                    var invited_facebook_id = content.getLong("invited_facebook_id");
+                    var invited_facebook_id = new FacebookId(content.getLong("invited_facebook_id"));
                     var remoteChannel = Channel.fromJson(content.getJSONObject("channel_content"));
                     channels.putIfAbsent(remoteChannel.uuid, remoteChannel);
 
@@ -368,13 +368,13 @@ public class ClientDB {
                 }
 
                 case "remove_person_from_channel": {
-                    var removed_facebook_id = content.getLong("removed_facebook_id");
+                    var removed_facebook_id = new FacebookId(content.getLong("removed_facebook_id"));
                     var channel_uuid = UUID.fromString(content.getString("channel_uuid"));
                     var ch = channels.get(channel_uuid);
 
-                    if (ch.hasOwner(messageRow.from_facebook_id) || messageRow.from_facebook_id == removed_facebook_id) {
+                    if (ch.hasOwner(messageRow.from_facebook_id) || messageRow.from_facebook_id.equals(removed_facebook_id)) {
                         // If the last OWNER leaves the channel, no one can invite again.
-                        if (removed_facebook_id == facebook_id) {
+                        if (removed_facebook_id.equals(facebook_id)) {
                             ch.status = ChannelStatus.ARCHIEVED;
                         }
                         // No one will send use messages.
