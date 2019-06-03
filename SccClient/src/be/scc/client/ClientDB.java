@@ -271,6 +271,7 @@ public class ClientDB {
         pstmt.executeUpdate();
 
         dispatcher.sccDispatchModelChanged();
+        dispatcher.sccDispatchModelChanged();
     }
 
     public List<Cached_message_row> getMessagesForFacebookId(long facebook_id) {
@@ -314,11 +315,15 @@ public class ClientDB {
     }
 
     public void rebuildChannelsFromMessageCache() {
-        buildedChannels = buildChannelsFromMessageCache();
+        var tmpBuildedChannels = buildChannelsFromMessageCache();
+        if(tmpBuildedChannels != buildedChannels) {
+            buildedChannels = tmpBuildedChannels;
+            dispatcher.sccDispatchModelChanged();
+        }
     }
 
     public Channel getChannelByUuid(UUID uuid) {
-        for (var ch : buildedChannels) {
+        for (var ch : getBuildedChannels()) {
             if (ch.uuid.equals(uuid))
                 return ch;
         }
@@ -333,10 +338,12 @@ public class ClientDB {
         for (Cached_message_row messageRow : messages) {
             String message_type;
             JSONObject content;
+            ZonedDateTime sent_time;
             {
                 var json = new JSONObject(messageRow.message); // Scope block the json to be accesed lateron.
                 message_type = json.getString("message_type");
                 content = json.getJSONObject("content");
+                sent_time = ZonedDateTime.parse(json.getString("sent_time"));
             }
             switch (message_type) {
 
@@ -401,7 +408,7 @@ public class ClientDB {
                             var cm = new ChatMessage();
                             cm.message = chat_message;
                             cm.from_facebook_id = messageRow.from_facebook_id;
-                            cm.date = ZonedDateTime.now(ZoneOffset.UTC); // TODO: Makes no sense, date should be stored in cached_messages
+                            cm.date = sent_time;
                             ch.chatMessages.add(cm);
                         } else
                             System.err.println("User not in channel! facebook_id:" + messageRow.from_facebook_id);

@@ -95,7 +95,7 @@ class DbSingleton {
 
     public JSONObject getMessages(int last_message_buffer_index, String[] ephemeral_ids) throws SQLException {
         Statement statement = conn.createStatement();
-        var temp = StringUtils.join((Arrays.asList(ephemeral_ids).stream().map(e -> "\"" + e + "\"").collect(Collectors.toList())), ", ");
+        var temp = StringUtils.join((Arrays.stream(ephemeral_ids).map(e -> "\"" + e + "\"").collect(Collectors.toList())), ", ");
         ResultSet result = statement.executeQuery("SELECT * FROM message_buffer WHERE id>" + last_message_buffer_index + " AND target_ephemeral_id IN (" + temp + ")");
 
         var jsonArr = Util.sqlResultsToJson(result); //, List.of("id", "message"));

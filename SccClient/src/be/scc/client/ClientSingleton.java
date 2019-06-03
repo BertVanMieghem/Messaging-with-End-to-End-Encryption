@@ -67,7 +67,7 @@ public class ClientSingleton {
 
     public void pullUsers() throws Exception {
         var last_user_index = db.getLargestUserId();
-        URL url = new URL("http://localhost:5665/get_users?last_user_index="+last_user_index);
+        URL url = new URL("http://localhost:5665/get_users?last_user_index=" + last_user_index);
 
         var jsonObj = Util.syncJsonRequest(url);
         for (Object row : jsonObj.getJSONArray("users")) {
@@ -160,8 +160,10 @@ public class ClientSingleton {
                         cm.message = payload;
                         db.insertCachedMessage(cm);
 
-                        System.out.println("message_type: " + message_type);
-                        System.out.println("content: " + content);
+                        System.out.println("Got message:");
+                        System.out.println("  id: " + h.id);
+                        System.out.println("  message_type: " + message_type);
+                        System.out.println("  content: " + content);
 
                         h.client_can_decode = "YES";
                         break;
@@ -174,13 +176,13 @@ public class ClientSingleton {
                 h.client_can_decode = "NO";
             }
             db.insertMessage(h);
-            ClientSingleton.inst().db.last_message_buffer_index = h.id;
+            ClientSingleton.inst().db.last_message_buffer_index = Math.max(h.id, ClientSingleton.inst().db.last_message_buffer_index);
         }
         db.saveToDb();
     }
 
     /**
-     * Can not be used when decripting handshake, becouse we don't know what user to verify with then.
+     * Can not be used when decrypting handshake, because we don't know what user to verify with then.
      */
     private String decryptPayloadAndVerify(byte[] secondPartEncrypted, Local_user user) throws Exception {
         var secondPart = SccEncryption.decrypt(user.ephemeral_key_ingoing, secondPartEncrypted);
@@ -227,6 +229,7 @@ public class ClientSingleton {
     public void sendMessageToFacebookId(long facebook_id, JSONObject jsonPayload) throws Exception {
         assert jsonPayload.get("message_type") != null;
         assert jsonPayload.get("content") != null;
+        jsonPayload.put("sent_time", ZonedDateTime.now(ZoneOffset.UTC).toString());
         var payload = jsonPayload.toString();
 
         var user = db.getUserWithFacebookId(facebook_id);

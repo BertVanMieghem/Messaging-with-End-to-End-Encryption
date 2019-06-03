@@ -204,6 +204,7 @@ public class ChatDialog extends JDialog implements SccListener {
     public void sccModelChanged() {
 
         currentUser.setText("" + ClientSingleton.inst().db.facebook_id);
+        setTitle("" + ClientSingleton.inst().db.facebook_id);
 
         {
             var users = ClientSingleton.inst().db.getUsers();
@@ -230,18 +231,18 @@ public class ChatDialog extends JDialog implements SccListener {
                     // The following triggeres a change in the dropdown that we explicitly need to disable.
                     options.forEach(opt -> userDropdown.addItem(opt));
 
-                    System.out.println("selectedChannel: " + getSelectedChanel().name);
+                    //System.out.println("selectedChannel: " + getSelectedChanel().name);
                     localModelChanged();
                 }
             });
 
             channelsPane.setViewportView(new JScrollPane(jlist));
             jlist.setCellRenderer(new ChannelRenderer());
-
         }
 
         {
             var messages = ClientSingleton.inst().db.getAllCachedMessages();
+            System.out.println(messages.get(messages.size() - 1).message);
             String[][] us = messages.stream().map(Cached_message_row::toStringList).toArray(String[][]::new);
 
             var jTable = new JTable(us, Cached_message_row.columnNames);
