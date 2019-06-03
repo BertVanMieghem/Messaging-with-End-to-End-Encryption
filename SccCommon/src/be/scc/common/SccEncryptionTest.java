@@ -74,14 +74,66 @@ public class SccEncryptionTest {
 
     @Test
     void hash() throws Exception {
+
         var message1 = "Hash me.".repeat(1000);
         var message3 = "Jow.";
+
+        // Warmup
+        SccEncryption.SlowHash(message1.getBytes());
+
+        long start = System.nanoTime();
 
         SccHash hash1 = SccEncryption.Hash(message1.getBytes());
         SccHash hash2 = SccEncryption.Hash(message1.getBytes()); // Doubled
         SccHash hash3 = SccEncryption.Hash(message3.getBytes());
 
+        long finish = System.nanoTime();
+        long timeElapsed = finish - start;
+
+        System.out.println("timeElapsed: " + (timeElapsed / 1000000));
+        System.out.println(hash1);
+        System.out.println(hash3);
+
         assert hash1.equals(hash2);
         assert !hash1.equals(hash3);
     }
+
+    @Test
+    void hashSlow() throws Exception {
+        var message1 = "Hash me.".repeat(1000);
+        var message3 = "Jow.";
+
+        // Warmup
+        SccEncryption.SlowHash(message1.getBytes());
+
+        long start = System.nanoTime();
+
+        SccHash hash1 = SccEncryption.SlowHash(message1.getBytes());
+        SccHash hash2 = SccEncryption.SlowHash(message1.getBytes()); // Doubled
+        SccHash hash3 = SccEncryption.SlowHash(message3.getBytes());
+
+        long finish = System.nanoTime();
+        long timeElapsed = finish - start;
+
+        System.out.println("timeElapsed: " + (timeElapsed / 1000000));
+        System.out.println(hash1);
+        System.out.println(hash3);
+
+        assert hash1.equals(hash2);
+        assert !hash1.equals(hash3);
+    }
+
+    /*
+    public byte[] generateSalt() {
+        SecureRandom random = new SecureRandom();
+        byte bytes[] = new byte[20];
+        random.nextBytes(bytes);
+        return bytes;
+    }
+
+    @Test
+    void makeSalt() {
+        var s = generateSalt();
+        System.out.println(Util.base64(s));
+    }*/
 }

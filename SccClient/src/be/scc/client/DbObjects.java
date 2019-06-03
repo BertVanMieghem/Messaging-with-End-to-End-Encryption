@@ -277,17 +277,17 @@ class Channel {
 class Cached_message_row {
     public long id;
     public FacebookId from_facebook_id;
-    public String message;
+    public JSONObject message;
     public final static String[] columnNames = {"id", "from_facebook_id", "message"};
 
     public void fillInFromSqlResult(ResultSet result) throws SQLException {
         id = result.getLong("id");
         from_facebook_id = new FacebookId(result.getLong("from_facebook_id"));
-        message = result.getString("message");
+        message = new JSONObject(result.getString("message"));
     }
 
     public String[] toStringList() {
-        Object[] tmp = {id, from_facebook_id, message};
+        Object[] tmp = {id, from_facebook_id, message.toString()};
         return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
     }
 

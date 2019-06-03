@@ -152,20 +152,20 @@ public class ClientSingleton {
                     try {
                         var message = Util.base64(h.message);
                         String payload = decryptPayloadAndVerify(message, user);
-                        var json = new JSONObject(payload);
-                        var message_type = json.getString("message_type");
-                        var content = json.getJSONObject("content");
 
                         var cm = new Cached_message_row();
                         cm.id = h.id;
                         cm.from_facebook_id = user.facebook_id;
-                        cm.message = payload;
+                        cm.message = new JSONObject(payload);
                         db.insertCachedMessage(cm);
 
-                        System.out.println("Got message:");
-                        System.out.println("  id: " + h.id);
-                        System.out.println("  message_type: " + message_type);
-                        System.out.println("  content: " + content);
+                        //var json = new JSONObject(payload);
+                        //var message_type = json.getString("message_type");
+                        //var content = json.getJSONObject("content");
+                        //System.out.println("Got message:");
+                        //System.out.println("  id: " + h.id);
+                        //System.out.println("  message_type: " + message_type);
+                        //System.out.println("  content: " + content);
 
                         h.client_can_decode = "YES";
                         break;

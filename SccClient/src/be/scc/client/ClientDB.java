@@ -267,7 +267,7 @@ public class ClientDB {
         var i = 0;
         pstmt.setLong(++i, row.id);
         pstmt.setString(++i, row.from_facebook_id == null ? null : row.from_facebook_id.toString());
-        pstmt.setString(++i, row.message);
+        pstmt.setString(++i, row.message.toString());
         pstmt.executeUpdate();
 
         dispatcher.sccDispatchModelChanged();
@@ -337,15 +337,11 @@ public class ClientDB {
         var channels = new HashMap<UUID, Channel>();
 
         for (Cached_message_row messageRow : messages) {
-            String message_type;
-            JSONObject content;
-            ZonedDateTime sent_time;
-            {
-                var json = new JSONObject(messageRow.message); // Scope block the json to be accesed lateron.
-                message_type = json.getString("message_type");
-                content = json.getJSONObject("content");
-                sent_time = ZonedDateTime.parse(json.getString("sent_time"));
-            }
+
+            String message_type = messageRow.message.getString("message_type");
+            JSONObject content = messageRow.message.getJSONObject("content");
+            ZonedDateTime sent_time = ZonedDateTime.parse(messageRow.message.getString("sent_time"));
+
             switch (message_type) {
 
                 // Is also used to create initial channel
