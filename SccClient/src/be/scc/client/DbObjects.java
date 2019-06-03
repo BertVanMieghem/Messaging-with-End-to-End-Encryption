@@ -30,6 +30,20 @@ class ChannelMember {
         json.put("status", status);
         return json;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChannelMember that = (ChannelMember) o;
+        return facebook_id == that.facebook_id &&
+                status == that.status;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(facebook_id, status);
+    }
 }
 
 enum ChannelStatus {
@@ -70,6 +84,21 @@ class ChatMessage { // superclass
         return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChatMessage that = (ChatMessage) o;
+        return from_facebook_id == that.from_facebook_id &&
+                isTrusted == that.isTrusted &&
+                Objects.equals(message, that.message) &&
+                Objects.equals(date, that.date);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(message, date, from_facebook_id, isTrusted);
+    }
 }
 
 class FileMessage {
@@ -103,6 +132,24 @@ class FileMessage {
     public String[] toStringList() {
         Object[] tmp = {file, date, from_facebook_id};
         return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FileMessage that = (FileMessage) o;
+        return from_facebook_id == that.from_facebook_id &&
+                isTrusted == that.isTrusted &&
+                Objects.equals(file, that.file) &&
+                Objects.equals(fileName, that.fileName) &&
+                Objects.equals(extension, that.extension) &&
+                Objects.equals(date, that.date);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(file, fileName, extension, date, from_facebook_id, isTrusted);
     }
 }
 
@@ -199,6 +246,24 @@ class Channel {
         }
 
         return ch;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Channel channel = (Channel) o;
+        return Objects.equals(uuid, channel.uuid) &&
+                Objects.equals(name, channel.name) &&
+                Objects.equals(members, channel.members) &&
+                Objects.equals(chatMessages, channel.chatMessages) &&
+                Objects.equals(fileMessages, channel.fileMessages) &&
+                status == channel.status;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid, name, members, chatMessages, fileMessages, status);
     }
 }
 

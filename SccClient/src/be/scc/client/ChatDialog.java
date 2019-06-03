@@ -242,7 +242,6 @@ public class ChatDialog extends JDialog implements SccListener {
 
         {
             var messages = ClientSingleton.inst().db.getAllCachedMessages();
-            System.out.println(messages.get(messages.size() - 1).message);
             String[][] us = messages.stream().map(Cached_message_row::toStringList).toArray(String[][]::new);
 
             var jTable = new JTable(us, Cached_message_row.columnNames);

@@ -314,11 +314,17 @@ public class ClientDB {
         return buildedChannels;
     }
 
+    public static <T> boolean listEqualsIgnoreOrder(List<T> list1, List<T> list2) {
+        return new HashSet<>(list1).equals(new HashSet<>(list2));
+    }
+
     public void rebuildChannelsFromMessageCache() {
         var tmpBuildedChannels = buildChannelsFromMessageCache();
-        if(tmpBuildedChannels != buildedChannels) {
+        if (Objects.equals(tmpBuildedChannels, buildedChannels)) {
             buildedChannels = tmpBuildedChannels;
             dispatcher.sccDispatchModelChanged();
+        } else {
+            buildedChannels = tmpBuildedChannels;
         }
     }
 
@@ -412,7 +418,7 @@ public class ClientDB {
                             ch.chatMessages.add(cm);
                         } else
                             System.err.println("User not in channel! facebook_id:" + messageRow.from_facebook_id);
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         System.err.println(e.getClass().getName() + ": " + e.getMessage());
                     }
                     break;
