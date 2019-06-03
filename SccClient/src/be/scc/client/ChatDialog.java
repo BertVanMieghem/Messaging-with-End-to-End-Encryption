@@ -1,5 +1,6 @@
 package be.scc.client;
 
+import be.scc.common.FacebookId;
 import be.scc.common.Util;
 import org.json.JSONObject;
 
@@ -194,8 +195,8 @@ public class ChatDialog extends JDialog implements SccListener {
     @Override
     public void sccModelChanged() {
 
-        currentUser.setText("" + ClientSingleton.inst().db.facebook_id);
-        setTitle("" + ClientSingleton.inst().db.facebook_id);
+        currentUser.setText("" + ClientSingleton.inst().db.facebook_id_long);
+        setTitle("facebook_id_long: " + ClientSingleton.inst().db.facebook_id_long + "    facebook_id: " + ClientSingleton.inst().db.facebook_id);
 
         {
             var users = ClientSingleton.inst().db.getUsers();

@@ -1,10 +1,16 @@
 package be.scc.client;
 
+import be.scc.common.FacebookId;
+import be.scc.common.SccEncryption;
+import be.scc.common.SccHash;
+import be.scc.common.Util;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.crypto.SecretKey;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.sql.*;
 import java.time.ZonedDateTime;
@@ -73,7 +79,7 @@ class ChatMessage { // superclass
         var cm = new ChatMessage();
         cm.message = json.getString("message");
         cm.date = ZonedDateTime.parse(json.getString("date"));
-        cm.from_facebook_id = new FacebookId(json.getLong("from_facebook_id"));
+        cm.from_facebook_id = FacebookId.fromString(json.getString("from_facebook_id"));
         cm.isTrusted = false;
         return cm;
     }
@@ -123,7 +129,7 @@ class FileMessage {
         var fm = new FileMessage();
         fm.file = json.getString("file");
         fm.date = ZonedDateTime.parse(json.getString("date"));
-        fm.from_facebook_id = new FacebookId(json.getLong("from_facebook_id"));
+        fm.from_facebook_id = FacebookId.fromString(json.getString("from_facebook_id"));
         fm.isTrusted = false;
         return fm;
     }
@@ -232,7 +238,7 @@ class Channel {
         for (Object om : members) {
             var jm = (JSONObject) om;
             var m = new ChannelMember();
-            m.facebook_id = new FacebookId(jm.getLong("facebook_id"));
+            m.facebook_id = FacebookId.fromString(jm.getString("facebook_id"));
             m.status = MemberStatus.valueOf(jm.getString("status"));
             ch.members.add(m);
         }
@@ -282,7 +288,7 @@ class Cached_message_row {
 
     public void fillInFromSqlResult(ResultSet result) throws SQLException {
         id = result.getLong("id");
-        from_facebook_id = new FacebookId(result.getLong("from_facebook_id"));
+        from_facebook_id = FacebookId.fromString(result.getString("from_facebook_id"));
         message = new JSONObject(result.getString("message"));
     }
 
@@ -326,32 +332,5 @@ class Local_user {
     public String[] toStringList() {
         Object[] tmp = {id, facebook_id, facebook_name, public_key, ephemeral_key_outgoing, ephemeral_key_ingoing, ephemeral_id_outgoing, ephemeral_id_ingoing};
         return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
-    }
-}
-
-class FacebookId {
-    public FacebookId(long facebook_id) {
-        assert facebook_id > 0;
-        this.facebook_id = facebook_id;
-    }
-
-    private long facebook_id;
-
-    @Override
-    public String toString() {
-        return "" + facebook_id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        FacebookId that = (FacebookId) o;
-        return facebook_id == that.facebook_id;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(facebook_id);
     }
 }

@@ -1,5 +1,6 @@
 package be.scc.server;
 
+import be.scc.common.FacebookId;
 import be.scc.common.SccEncryption;
 import be.scc.common.Util;
 import com.sun.net.httpserver.HttpExchange;
@@ -35,9 +36,9 @@ public class Main {
 
                         URL url = new URL("https://graph.facebook.com/v3.2/me?access_token=" + access_token + "&method=get&pretty=0&sdk=joey&suppress_http_code=1");
                         var obj = Util.syncJsonRequest(url);
-                        long facebook_id = Long.parseLong(obj.getString("id"));
+                        long facebook_id_long = Long.parseLong(obj.getString("id")); // This must not be stored on disk
+                        var facebook_id = FacebookId.doSlowHash(facebook_id_long);
                         String facebook_name = obj.getString("name");
-
 
                         DbSingleton.inst().insertUser(facebook_id, facebook_name, SccEncryption.deserialisePublicKey(public_key));
                         JSONObject jsonRet = new JSONObject();

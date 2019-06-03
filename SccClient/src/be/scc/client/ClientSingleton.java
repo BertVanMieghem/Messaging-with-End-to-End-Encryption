@@ -1,5 +1,6 @@
 package be.scc.client;
 
+import be.scc.common.FacebookId;
 import be.scc.common.SccEncryption;
 import be.scc.common.SccException;
 import be.scc.common.Util;
@@ -72,7 +73,7 @@ public class ClientSingleton {
         for (Object row : jsonObj.getJSONArray("users")) {
             var obj = (JSONObject) row;
             db.addUser(obj.getInt("id"),
-                    new FacebookId(obj.getLong("facebook_id")),
+                    FacebookId.fromString(obj.getString("facebook_id")),
                     obj.getString("facebook_name"),
                     SccEncryption.deserialisePublicKey(obj.getString("public_key")));
         }
@@ -111,7 +112,7 @@ public class ClientSingleton {
                 var idx = secondPart.lastIndexOf("|");
                 String payload = secondPart.substring(0, idx);
                 var json = new JSONObject(payload);
-                var from_facebook_id = new FacebookId(json.getLong("handshake_initiator_facebook_id"));
+                var from_facebook_id = FacebookId.fromString(json.getString("handshake_initiator_facebook_id"));
 
                 var sig = Util.base64(secondPart.substring(idx + 1));
 

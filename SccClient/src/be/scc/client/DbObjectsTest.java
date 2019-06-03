@@ -1,7 +1,10 @@
 package be.scc.client;
 
+import be.scc.common.FacebookId;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
+
+import java.security.NoSuchAlgorithmException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -10,7 +13,7 @@ import java.util.UUID;
 public class DbObjectsTest {
 
     @Test
-    void channel() {
+    void channel() throws NoSuchAlgorithmException {
         assert true; // to make PMD happy
         var ch = new Channel();
         ch.name = "test channel name";
@@ -18,17 +21,17 @@ public class DbObjectsTest {
         ch.members = new ArrayList<>();
 
         var mOwner = new ChannelMember();
-        mOwner.facebook_id = new FacebookId(654354351);
+        mOwner.facebook_id = FacebookId.doSlowHash(654354351);
         mOwner.status = MemberStatus.OWNER;
         ch.members.add(mOwner);
 
         var mMemeber = new ChannelMember();
-        mMemeber.facebook_id = new FacebookId(879789456);
+        mMemeber.facebook_id = FacebookId.doSlowHash(879789456);
         mMemeber.status = MemberStatus.MEMBER;
         ch.members.add(mMemeber);
 
         var mPending = new ChannelMember();
-        mPending.facebook_id = new FacebookId(23147844);
+        mPending.facebook_id = FacebookId.doSlowHash(23147844);
         mPending.status = MemberStatus.INVITE_PENDING;
         ch.members.add(mPending);
 
@@ -48,9 +51,9 @@ public class DbObjectsTest {
             ch.chatMessages.add(cm);
         }
 
-        assert ch.hasOwner(new FacebookId(654354351));
-        assert ch.hasMember(new FacebookId(654354351));
-        assert ch.hasMember(new FacebookId(879789456));
+        assert ch.hasOwner(FacebookId.doSlowHash(654354351));
+        assert ch.hasMember(FacebookId.doSlowHash(654354351));
+        assert ch.hasMember(FacebookId.doSlowHash(879789456));
         assert !ch.hasOwner(null);
         assert !ch.hasMember(null);
 

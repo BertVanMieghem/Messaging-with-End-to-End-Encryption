@@ -1,5 +1,6 @@
 package be.scc.client;
 
+import be.scc.common.FacebookId;
 import be.scc.common.SccEncryption;
 import be.scc.common.Util;
 import com.sun.net.httpserver.HttpExchange;
@@ -45,7 +46,7 @@ public class FacebookLoginHandler implements HttpHandler {
 
                     String ret = Util.syncRequestPost(url, params);
                     JSONObject obj = new JSONObject(ret);
-                    var facebook_id = new FacebookId(obj.getLong("facebook_id"));
+                    var facebook_id = FacebookId.fromString(obj.getString("facebook_id"));
 
                     ClientSingleton.inst().db.facebook_id = facebook_id;
                     ClientSingleton.inst().db.keyPair = (pair);

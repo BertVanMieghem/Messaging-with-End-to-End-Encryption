@@ -1,5 +1,6 @@
 package be.scc.server;
 
+import be.scc.common.FacebookId;
 import be.scc.common.SccEncryption;
 import be.scc.common.Util;
 import org.json.*;
@@ -36,12 +37,12 @@ class DbSingleton {
     }
 
 
-    public void insertUser(long facebook_id, String facebook_name, PublicKey public_key) throws SQLException {
+    public void insertUser(FacebookId facebook_id, String facebook_name, PublicKey public_key) throws SQLException {
         var public_key_str = SccEncryption.serializeKey(public_key);
 
         PreparedStatement pstmt = conn.prepareStatement("INSERT INTO users VALUES (NULL, ?, ?, ?)");
         var i = 0;
-        pstmt.setLong(++i, facebook_id);
+        pstmt.setString(++i, facebook_id.toString());
         pstmt.setString(++i, facebook_name);
         pstmt.setString(++i, public_key_str);
         pstmt.executeUpdate();
@@ -49,9 +50,9 @@ class DbSingleton {
 
     public JSONObject getAllUsers(int last_user_index) throws SQLException {
         Statement statement = conn.createStatement();
-        ResultSet result = statement.executeQuery("SELECT * from users WHERE id>"+last_user_index);
+        ResultSet result = statement.executeQuery("SELECT * from users WHERE id>" + last_user_index);
         //var collumnNames = List.of("id", "facebook_id", "public_key");
-        var jsonArr = Util.sqlResultsToJson(result); // Information on the server is not considered private
+        var jsonArr = Util.sqlResultsToJson(result); // Information on the server is considered public, so just get all properties
 
         var rootJson = new JSONObject();
         rootJson.put("users", jsonArr);

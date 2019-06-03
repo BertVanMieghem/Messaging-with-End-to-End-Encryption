@@ -1,5 +1,6 @@
 package be.scc.client;
 
+import be.scc.common.FacebookId;
 import be.scc.common.SccException;
 import be.scc.common.Util;
 import be.scc.common.SccEncryption;
@@ -20,6 +21,7 @@ public class ClientDB {
     private Connection conn = null;
     private Collection<Channel> buildedChannels;
     // Don't forget to save to database when changing these properties:
+    public long facebook_id_long = 0;
     public FacebookId facebook_id = null;
     public KeyPair keyPair;
     public long last_handshake_buffer_index = 0;
@@ -116,6 +118,7 @@ public class ClientDB {
         }
 
         PreparedStatement pstmt = conn.prepareStatement("UPDATE single_row SET " +
+                "facebook_id_long=?," +
                 "facebook_id=?," +
                 "private_key=?," +
                 "public_key=?," +
@@ -123,6 +126,7 @@ public class ClientDB {
                 "last_message_buffer_index=?" +
                 "");
         var i = 0;
+        pstmt.setLong(++i, facebook_id_long);
         pstmt.setString(++i, facebook_id == null ? null : facebook_id.toString());
         pstmt.setString(++i, private_key);
         pstmt.setString(++i, public_key);
@@ -137,11 +141,13 @@ public class ClientDB {
         ResultSet result = statement.executeQuery("SELECT * from single_row");
         if (result.isClosed()) {
             Statement statement2 = conn.createStatement();
-            statement2.execute("INSERT INTO single_row VALUES (0, NULL, NULL, 0, 0)");
+            statement2.execute("INSERT INTO single_row VALUES (0, NULL, NULL, NULL, 0, 0)");
             saveToDb();
             return;
         }
-        var facebook_id = new FacebookId(result.getLong("facebook_id"));
+        var facebook_id_long = result.getLong("facebook_id_long");
+        var facebook_id = FacebookId.fromString(result.getString("facebook_id"));
+        assert Objects.equals(facebook_id, FacebookId.doSlowHash(facebook_id_long));
 
         var private_key = result.getString("private_key");
         var public_key = result.getString("public_key");
@@ -152,6 +158,7 @@ public class ClientDB {
         var last_handshake_buffer_index = result.getLong("last_handshake_buffer_index");
         var last_message_buffer_index = result.getLong("last_message_buffer_index");
 
+        this.facebook_id_long = facebook_id_long;
         this.facebook_id = facebook_id;
         this.keyPair = pair;
         this.last_handshake_buffer_index = last_handshake_buffer_index;
@@ -192,7 +199,7 @@ public class ClientDB {
     public Local_user getUserWithFacebookId(FacebookId facebook_id) throws SQLException, GeneralSecurityException {
         if (facebook_id == null) throw new SccException("facebook_id is null!");
         Statement statement = conn.createStatement();
-        ResultSet result = statement.executeQuery("SELECT * from local_users WHERE facebook_id=" + facebook_id);
+        ResultSet result = statement.executeQuery("SELECT * from local_users WHERE facebook_id=\"" + facebook_id+"\"");
         if (result.isClosed()) return null;
         return getUserFromResultRow(result);
     }
@@ -200,7 +207,7 @@ public class ClientDB {
     public Local_user getUserFromResultRow(ResultSet result) throws SQLException, GeneralSecurityException {
         var row = new Local_user();
         row.id = result.getInt("id");
-        row.facebook_id = new FacebookId(result.getLong("facebook_id"));
+        row.facebook_id = FacebookId.fromString(result.getString("facebook_id"));
         row.facebook_name = result.getString("facebook_name");
 
         var public_key = result.getString("public_key");
@@ -346,7 +353,7 @@ public class ClientDB {
 
                 // Is also used to create initial channel
                 case "invite_to_channel": {
-                    var invited_facebook_id = new FacebookId(content.getLong("invited_facebook_id"));
+                    var invited_facebook_id = FacebookId.fromString(content.getString("invited_facebook_id"));
                     var remoteChannel = Channel.fromJson(content.getJSONObject("channel_content"));
                     channels.putIfAbsent(remoteChannel.uuid, remoteChannel);
 
@@ -364,7 +371,7 @@ public class ClientDB {
                 }
 
                 case "remove_person_from_channel": {
-                    var removed_facebook_id = new FacebookId(content.getLong("removed_facebook_id"));
+                    var removed_facebook_id = FacebookId.fromString(content.getString("removed_facebook_id"));
                     var channel_uuid = UUID.fromString(content.getString("channel_uuid"));
                     var ch = channels.get(channel_uuid);
 
