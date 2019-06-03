@@ -314,17 +314,12 @@ public class ClientDB {
         return buildedChannels;
     }
 
-    public static <T> boolean listEqualsIgnoreOrder(List<T> list1, List<T> list2) {
-        return new HashSet<>(list1).equals(new HashSet<>(list2));
-    }
 
     public void rebuildChannelsFromMessageCache() {
         var tmpBuildedChannels = buildChannelsFromMessageCache();
-        if (Objects.equals(tmpBuildedChannels, buildedChannels)) {
+        if (!Util.listEqualsIgnoreOrder(tmpBuildedChannels, buildedChannels)) {
             buildedChannels = tmpBuildedChannels;
             dispatcher.sccDispatchModelChanged();
-        } else {
-            buildedChannels = tmpBuildedChannels;
         }
     }
 

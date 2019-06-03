@@ -17,7 +17,6 @@ public class ChatDialog extends JDialog implements SccListener {
     private JPanel contentPane;
     private JButton sendButton;
     private JTextField messageInput;
-    private JButton btnPullFromServer;
     private JScrollPane tableHolder;
     private JPanel rightPanel;
     private JLabel currentUser;
@@ -55,13 +54,6 @@ public class ChatDialog extends JDialog implements SccListener {
 
         ClientSingleton.inst().db.dispatcher.addListener(this);
 
-        btnPullFromServer.addActionListener(e -> {
-            try {
-                ClientSingleton.inst().pullServerEvents();
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-        });
         sendButton.addActionListener(e -> {
             try {
                 var chat_message = messageInput.getText();
@@ -276,9 +268,6 @@ public class ChatDialog extends JDialog implements SccListener {
     private void $$$setupUI$$$() {
         contentPane = new JPanel();
         contentPane.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(10, 6, new Insets(10, 10, 10, 10), -1, -1));
-        btnPullFromServer = new JButton();
-        btnPullFromServer.setText("Pull From Server");
-        contentPane.add(btnPullFromServer, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         tableHolder = new JScrollPane();
         contentPane.add(tableHolder, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 8, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(400, 100), null, 0, false));
         rightPanel = new JPanel();
@@ -334,7 +323,7 @@ public class ChatDialog extends JDialog implements SccListener {
         panel3.add(renameChannelButton, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         autoPullCheckBox = new JCheckBox();
         autoPullCheckBox.setSelected(true);
-        autoPullCheckBox.setText("auto pull");
+        autoPullCheckBox.setText("auto pull from server");
         contentPane.add(autoPullCheckBox, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         currentUser = new JLabel();
         currentUser.setText("Label");

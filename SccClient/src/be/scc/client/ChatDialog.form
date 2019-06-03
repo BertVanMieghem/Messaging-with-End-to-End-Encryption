@@ -8,14 +8,6 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="7219" class="javax.swing.JButton" binding="btnPullFromServer">
-        <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Pull From Server"/>
-        </properties>
-      </component>
       <scrollpane id="8953" binding="tableHolder">
         <constraints>
           <grid row="2" column="0" row-span="8" col-span="2" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
@@ -187,7 +179,7 @@
         </constraints>
         <properties>
           <selected value="true"/>
-          <text value="auto pull"/>
+          <text value="auto pull from server"/>
         </properties>
       </component>
       <component id="40a06" class="javax.swing.JLabel" binding="currentUser">
