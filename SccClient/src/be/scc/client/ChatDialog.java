@@ -9,7 +9,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -25,7 +24,7 @@ public class ChatDialog extends JDialog implements SccListener {
     private JComboBox userDropdown;
     private JButton btnInviteUser;
     private JButton btnRemoveUser;
-    private JButton createChanelButton;
+    private JButton createChannelButton;
     private JScrollPane channelChatMessagesPane;
     private JScrollPane channelFileMessagesPane;
     private JButton btnAcceptInvite;
@@ -57,7 +56,7 @@ public class ChatDialog extends JDialog implements SccListener {
         sendButton.addActionListener(e -> {
             try {
                 var chat_message = messageInput.getText();
-                var ch = getSelectedChanel();
+                var ch = getSelectedChannel();
 
                 var json = new JSONObject();
                 json.put("message_type", "chat_message_to_channel");
@@ -92,7 +91,7 @@ public class ChatDialog extends JDialog implements SccListener {
                 byte[] dataByte = new byte[(int) chosenFile.length()];
                 fileInputStream.read(dataByte);
 
-                var ch = getSelectedChanel();
+                var ch = getSelectedChannel();
 
                 var json = new JSONObject();
                 json.put("message_type", "file_message_to_channel");
@@ -111,7 +110,7 @@ public class ChatDialog extends JDialog implements SccListener {
             }
         });
 
-        createChanelButton.addActionListener(e -> {
+        createChannelButton.addActionListener(e -> {
             try {
                 ClientSingleton.inst().createNewChannel();
             } catch (Exception e1) {
@@ -122,7 +121,7 @@ public class ChatDialog extends JDialog implements SccListener {
         btnInviteUser.addActionListener(e -> {
             try {
                 var userOption = getSelectedUserFromDropdown();
-                ClientSingleton.inst().inviteUserToChannel(getSelectedChanel(), userOption.facebook_id);
+                ClientSingleton.inst().inviteUserToChannel(getSelectedChannel(), userOption.facebook_id);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -131,7 +130,7 @@ public class ChatDialog extends JDialog implements SccListener {
         btnRemoveUser.addActionListener(e -> {
             try {
                 var userOption = getSelectedUserFromDropdown();
-                ClientSingleton.inst().removeUserToChannel(getSelectedChanel(), userOption.facebook_id);
+                ClientSingleton.inst().removeUserToChannel(getSelectedChannel(), userOption.facebook_id);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -139,7 +138,7 @@ public class ChatDialog extends JDialog implements SccListener {
 
         btnAcceptInvite.addActionListener(e -> {
             try {
-                ClientSingleton.inst().acceptInvite(getSelectedChanel());
+                ClientSingleton.inst().acceptInvite(getSelectedChannel());
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -147,7 +146,7 @@ public class ChatDialog extends JDialog implements SccListener {
         renameChannelButton.addActionListener(e -> {
             try {
                 var new_channel_name = txtChannelName.getText();
-                ClientSingleton.inst().renameChannel(getSelectedChanel(), new_channel_name);
+                ClientSingleton.inst().renameChannel(getSelectedChannel(), new_channel_name);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -223,7 +222,7 @@ public class ChatDialog extends JDialog implements SccListener {
                     // The following triggeres a change in the dropdown that we explicitly need to disable.
                     options.forEach(opt -> userDropdown.addItem(opt));
 
-                    //System.out.println("selectedChannel: " + getSelectedChanel().name);
+                    //System.out.println("selectedChannel: " + getSelectedChannel().name);
                     localModelChanged();
                 }
             });
@@ -247,7 +246,7 @@ public class ChatDialog extends JDialog implements SccListener {
     }
 
 
-    private Channel getSelectedChanel() {
+    private Channel getSelectedChannel() {
         return ClientSingleton.inst().db.getChannelByUuid(selectedChannelUuid);
     }
 
@@ -284,9 +283,9 @@ public class ChatDialog extends JDialog implements SccListener {
         final JLabel label3 = new JLabel();
         label3.setText("channels");
         contentPane.add(label3, new com.intellij.uiDesigner.core.GridConstraints(0, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        createChanelButton = new JButton();
-        createChanelButton.setText("Create Chanel");
-        contentPane.add(createChanelButton, new com.intellij.uiDesigner.core.GridConstraints(1, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        createChannelButton = new JButton();
+        createChannelButton.setText("Create Channel");
+        contentPane.add(createChannelButton, new com.intellij.uiDesigner.core.GridConstraints(1, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         channelChatMessagesPane = new JScrollPane();
         contentPane.add(channelChatMessagesPane, new com.intellij.uiDesigner.core.GridConstraints(2, 4, 6, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JPanel panel1 = new JPanel();
@@ -366,7 +365,7 @@ public class ChatDialog extends JDialog implements SccListener {
             var opt = new UserOption();
             opt.facebook_id = user.facebook_id;
             opt.name = user.facebook_name;
-            var selectedChannel = getSelectedChanel();
+            var selectedChannel = getSelectedChannel();
             var mem = selectedChannel.getMember(user.facebook_id);
             if (mem != null)
                 opt.memberStatus = mem.status;
@@ -391,7 +390,7 @@ public class ChatDialog extends JDialog implements SccListener {
 
         // swing doesn't allow to disable a panel :(
         if (selectedChannelUuid != null) {
-            var selectedChannel = getSelectedChanel();
+            var selectedChannel = getSelectedChannel();
 
             // chat messages
             String[][] us = selectedChannel.chatMessages.stream().map(ChatMessage::toStringList).toArray(String[][]::new);

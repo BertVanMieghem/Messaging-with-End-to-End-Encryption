@@ -49,7 +49,7 @@ public class LoginDialog extends JDialog {
 
     public void initialise() throws IOException {
         // Port should not be in this list: https://svn.nmap.org/nmap/nmap-services
-        // Port number is 'Secure Chanel Chat Interface' written in bad leet
+        // Port number is 'Secure Channel Chat Interface' written in bad leet
         server = HttpServer.create(new InetSocketAddress(5661), 0);
         server.createContext("/", new FacebookLoginHandler());
         server.setExecutor(null); // creates a default executor
