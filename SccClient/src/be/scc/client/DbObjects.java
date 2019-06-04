@@ -57,11 +57,14 @@ enum ChannelStatus {
     ARCHIEVED,
 }
 
-class ChatMessage { // superclass
-    public String message;
+class ChatOrFileMessage {
+
     public ZonedDateTime date;
     public FacebookId from_facebook_id;
-    private boolean isTrusted = true;
+    protected boolean isTrusted = true;
+}
+class ChatMessage extends ChatOrFileMessage{ // superclass
+    public String message;
     public final static String[] columnNames = {"message", "date", "from_facebook_id"};
 
 
@@ -105,13 +108,10 @@ class ChatMessage { // superclass
     }
 }
 
-class FileMessage {
+class FileMessage extends ChatOrFileMessage{
     public String file;
     public String fileName;
     public String extension;
-    public ZonedDateTime date;
-    public FacebookId from_facebook_id;
-    private boolean isTrusted = true;
     public final static String[] columnNames = {"fileName", "date", "from_facebook_id"};
 
 

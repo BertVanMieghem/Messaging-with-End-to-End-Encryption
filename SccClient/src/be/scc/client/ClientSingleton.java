@@ -23,6 +23,7 @@ public class ClientSingleton {
     public LoginDialog loginDialog;
     public ChatDialog chatDialog;
     public ClientDB db = new ClientDB();
+    public static final String serverUrl = "http://localhost:5665";
 
     private static ClientSingleton single_instance = null;
 
@@ -67,7 +68,7 @@ public class ClientSingleton {
 
     public void pullUsers() throws Exception {
         var last_user_index = db.getLargestUserId();
-        URL url = new URL("http://localhost:5665/get_users?last_user_index=" + last_user_index);
+        URL url = new URL(serverUrl + "/get_users?last_user_index=" + last_user_index);
 
         var jsonObj = Util.syncJsonRequest(url);
         for (Object row : jsonObj.getJSONArray("users")) {
@@ -91,7 +92,7 @@ public class ClientSingleton {
     public void pullHandshakes() throws Exception {
         if (db.keyPair == null)
             return;
-        URL url = new URL("http://localhost:5665/get_handshake_buffer?last_handshake_buffer_index="
+        URL url = new URL(serverUrl + "/get_handshake_buffer?last_handshake_buffer_index="
                 + ClientSingleton.inst().db.last_handshake_buffer_index);
 
         var jsonObj = Util.syncJsonRequest(url);
@@ -136,7 +137,7 @@ public class ClientSingleton {
     }
 
     public void pullMessages() throws Exception {
-        URL url = new URL("http://localhost:5665/get_message_buffer?last_message_buffer_index="
+        URL url = new URL(serverUrl + "/get_message_buffer?last_message_buffer_index="
                 + ClientSingleton.inst().db.last_message_buffer_index);
 
         var params = new HashMap<String, String>();
@@ -225,7 +226,7 @@ public class ClientSingleton {
         var params = new HashMap<String, String>();
         params.put("message", message);
 
-        Util.syncRequestPost(new URL("http://localhost:5665/add_handshake"), params);
+        Util.syncRequestPost(new URL(serverUrl + "/add_handshake"), params);
         db.updateUserInDb(user); // only set when webrequest succeeded
     }
 
@@ -245,7 +246,7 @@ public class ClientSingleton {
         var params = new HashMap<String, String>();
         params.put("message", secondPart);
         params.put("target_ephemeral_id", user.ephemeral_id_outgoing.toString());
-        var result = Util.syncRequestPost(new URL("http://localhost:5665/add_message"), params);
+        var result = Util.syncRequestPost(new URL(serverUrl + "/add_message"), params);
         System.out.println("[sendMessageToFacebookId]" + result);
     }
 
@@ -282,7 +283,7 @@ public class ClientSingleton {
         var params = new HashMap<String, String>();
         params.put("file", secondPart);
         params.put("target_ephemeral_id", user.ephemeral_id_outgoing.toString());
-        var result = Util.syncRequestPost(new URL("http://localhost:5665/add_file"), params);
+        var result = Util.syncRequestPost(new URL(serverUrl + "/add_file"), params);
         System.out.println("[sendFileToFacebookId]" + result);
     }
 

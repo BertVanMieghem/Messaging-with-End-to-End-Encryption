@@ -59,7 +59,7 @@ public class FacebookLoginHandler implements HttpHandler {
                 try {
                     KeyPair pair = SccEncryption.generateKeypair();
 
-                    URL url = new URL("http://localhost:5665/register_user");
+                    URL url = new URL(ClientSingleton.serverUrl + "/register_user");
                     var params = new HashMap<String, String>();
                     params.put("access_token", access_token);
                     params.put("public_key", SccEncryption.serializeKey(pair.getPublic()));
@@ -75,6 +75,7 @@ public class FacebookLoginHandler implements HttpHandler {
                     ClientSingleton.inst().db.facebook_id = facebook_id;
                     ClientSingleton.inst().db.keyPair = (pair);
                     ClientSingleton.inst().db.saveToDb();
+                    ClientSingleton.inst().pullUsers(); // the ChatDialog likes to have everything in place before it exists
 
                     //ClientSingleton.inst().fromLoginToChatDialog();
                     Runnable runner = () -> ClientSingleton.inst().fromLoginToChatDialog();
