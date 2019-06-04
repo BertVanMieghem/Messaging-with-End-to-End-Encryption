@@ -91,19 +91,6 @@ public class Main {
                         break;
                     }
 
-                    case "/add_file": {
-                        var bodyParams = Util.getBodyParams(httpExchange);
-                        var file = bodyParams.get("file").get(0);
-                        var target_ephemeral_id = bodyParams.get("target_ephemeral_id").get(0);
-
-                        DbSingleton.inst().addFile(file, UUID.fromString(target_ephemeral_id));
-                        JSONObject jsonRet = new JSONObject();
-                        jsonRet.put("file", path + " done");
-                        //jsonRet.put("message_id", id);
-                        data = jsonRet.toString().getBytes();
-                        break;
-                    }
-
                     case "/get_message_buffer": {
                         URI uri = httpExchange.getRequestURI();
                         var qs = Util.decodeQueryString(uri);

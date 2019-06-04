@@ -109,15 +109,14 @@ class ChatMessage extends ChatOrFileMessage{ // superclass
 }
 
 class FileMessage extends ChatOrFileMessage{
-    public String file;
-    public String fileName;
-    public String extension;
-    public final static String[] columnNames = {"fileName", "date", "from_facebook_id"};
+    public String file_content;
+    public String file_name;
+    public final static String[] columnNames = {"file_name", "date", "from_facebook_id"};
 
 
     public JSONObject toJson() {
         var json = new JSONObject();
-        json.put("file", file);
+        json.put("file_content", file_content);
         json.put("date", date.toString());
         json.put("from_facebook_id", from_facebook_id);
         return json;
@@ -125,7 +124,7 @@ class FileMessage extends ChatOrFileMessage{
 
     public static FileMessage fromJson(JSONObject json) {
         var fm = new FileMessage();
-        fm.file = json.getString("file");
+        fm.file_content = json.getString("file_content");
         fm.date = ZonedDateTime.parse(json.getString("date"));
         fm.from_facebook_id = FacebookId.fromString(json.getString("from_facebook_id"));
         fm.isTrusted = false;
@@ -134,7 +133,7 @@ class FileMessage extends ChatOrFileMessage{
 
 
     public String[] toStringList() {
-        Object[] tmp = {file, date, from_facebook_id};
+        Object[] tmp = {file_content, date, from_facebook_id};
         return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
     }
 
@@ -144,16 +143,15 @@ class FileMessage extends ChatOrFileMessage{
         if (o == null || getClass() != o.getClass()) return false;
         FileMessage that = (FileMessage) o;
         return isTrusted == that.isTrusted &&
-                Objects.equals(file, that.file) &&
-                Objects.equals(fileName, that.fileName) &&
-                Objects.equals(extension, that.extension) &&
+                Objects.equals(file_content, that.file_content) &&
+                Objects.equals(file_name, that.file_name) &&
                 Objects.equals(date, that.date) &&
                 Objects.equals(from_facebook_id, that.from_facebook_id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(file, fileName, extension, date, from_facebook_id, isTrusted);
+        return Objects.hash(file_content, file_name, date, from_facebook_id, isTrusted);
     }
 }
 

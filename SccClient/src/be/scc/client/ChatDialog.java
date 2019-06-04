@@ -92,13 +92,6 @@ public class ChatDialog extends JDialog implements SccListener {
                 int choice = chooser.showOpenDialog(ChatDialog.this);
                 if (choice != JFileChooser.APPROVE_OPTION) return;
                 File chosenFile = chooser.getSelectedFile();
-                String fileName = chosenFile.getName();
-                String extension = "";
-
-                int i = fileName.lastIndexOf('.');
-                if (i > 0)
-                    extension = fileName.substring(i);
-
 
                 FileInputStream fileInputStream = new FileInputStream(chosenFile);
                 byte[] dataByte = new byte[(int) chosenFile.length()];
@@ -109,14 +102,13 @@ public class ChatDialog extends JDialog implements SccListener {
                 var json = new JSONObject();
                 json.put("message_type", "file_message_to_channel");
                 var jsonContent = new JSONObject();
-                jsonContent.put("file_message", Util.base64(dataByte));
+                jsonContent.put("file_content", Util.base64(dataByte));
                 jsonContent.put("file_name", chosenFile.getName());
-                jsonContent.put("file_extension", extension);
                 jsonContent.put("channel_uuid", ch.uuid);
                 json.put("content", jsonContent);
 
-                ClientSingleton.inst().sendFileToChannelMembers(ch, json);
-                System.out.println("Sent file '" + chosenFile.getName() + "' to channel");
+                ClientSingleton.inst().sendMessageToChannel(ch, json);
+                System.out.println("Sent file_content '" + chosenFile.getName() + "' to channel");
 
             } catch (Exception el) {
                 el.printStackTrace();
@@ -422,7 +414,7 @@ public class ChatDialog extends JDialog implements SccListener {
             JScrollBar vertical = channelChatMessagesPane.getVerticalScrollBar();
             vertical.setValue(vertical.getMaximum());
 
-            // file messages
+            // file_content messages
             var fm = selectedChannel.fileMessages;
             var listModel = new DefaultListModel<FileMessage>();
             listModel.addAll(fm);
@@ -467,22 +459,20 @@ public class ChatDialog extends JDialog implements SccListener {
         }
     }
 
+    // TODO: Is this sane?
     public void saveFileToHardDrive(FileMessage file) {
         JFileChooser chooser = new JFileChooser();
         chooser.setCurrentDirectory(new File("./"));
-
-        int i = file.fileName.lastIndexOf('.');
-        chooser.setSelectedFile(new File(file.fileName.substring(0, i)));
-
-        String extensionNoDot = file.fileName.substring(i + 1);
-        chooser.setFileFilter((new FileNameExtensionFilter(extensionNoDot + " file", extensionNoDot)));
+        chooser.setSelectedFile(new File(file.file_name));
+        //String extensionNoDot = file.file_name.substring(i + 1);
+        //chooser.setFileFilter((new FileNameExtensionFilter(extensionNoDot + " file_content", extensionNoDot)));
         int actionDialog = chooser.showSaveDialog(this);
 
         if (actionDialog == JFileChooser.APPROVE_OPTION) {
-            File tempPath = new File(chooser.getSelectedFile() + file.extension);
+            File tempPath = chooser.getSelectedFile();
             try {
-                writeFileAsBytes(tempPath.toString(), file.file);
-                System.out.println("Saved file '" + file.fileName + "'to hard drive");
+                writeFileAsBytes(tempPath.toString(), file.file_content);
+                System.out.println("Saved file_content '" + file.file_name + "'to hard drive");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
