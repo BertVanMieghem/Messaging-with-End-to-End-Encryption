@@ -63,7 +63,8 @@ class ChatOrFileMessage {
     public FacebookId from_facebook_id;
     protected boolean isTrusted = true;
 }
-class ChatMessage extends ChatOrFileMessage{ // superclass
+
+class ChatMessage extends ChatOrFileMessage { // superclass
     public String message;
     public final static String[] columnNames = {"message", "date", "from_facebook_id"};
 
@@ -108,7 +109,7 @@ class ChatMessage extends ChatOrFileMessage{ // superclass
     }
 }
 
-class FileMessage extends ChatOrFileMessage{
+class FileMessage extends ChatOrFileMessage {
     public String file_content;
     public String file_name;
     public final static String[] columnNames = {"file_name", "date", "from_facebook_id"};
@@ -328,6 +329,26 @@ class Local_user {
     public String[] toStringList() {
         Object[] tmp = {id, facebook_id, facebook_name, public_key, ephemeral_key_outgoing, ephemeral_key_ingoing, ephemeral_id_outgoing, ephemeral_id_ingoing};
         return Stream.of(tmp).map(o -> "" + o).toArray(String[]::new);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Local_user that = (Local_user) o;
+        return id == that.id &&
+                Objects.equals(facebook_id, that.facebook_id) &&
+                Objects.equals(facebook_name, that.facebook_name) &&
+                Objects.equals(public_key, that.public_key) &&
+                Objects.equals(ephemeral_key_outgoing, that.ephemeral_key_outgoing) &&
+                Objects.equals(ephemeral_key_ingoing, that.ephemeral_key_ingoing) &&
+                Objects.equals(ephemeral_id_outgoing, that.ephemeral_id_outgoing) &&
+                Objects.equals(ephemeral_id_ingoing, that.ephemeral_id_ingoing);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, facebook_id, facebook_name, public_key, ephemeral_key_outgoing, ephemeral_key_ingoing, ephemeral_id_outgoing, ephemeral_id_ingoing);
     }
 }
 

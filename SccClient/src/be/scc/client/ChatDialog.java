@@ -6,7 +6,6 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -19,7 +18,7 @@ public class ChatDialog extends JDialog implements SccListener {
     private JTextField messageInput;
     private JScrollPane tableHolder;
     private JLabel currentUser;
-    private JScrollPane chatHistoryHolder;
+    private JScrollPane messageHistoryHolder;
     private JScrollPane channelsPane;
     private JComboBox userDropdown;
     private JButton btnInviteUser;
@@ -218,6 +217,7 @@ public class ChatDialog extends JDialog implements SccListener {
             listModel.addAll(channels);
 
             var jlist = new JList<>(listModel);
+            jlist.setCellRenderer(new ChannelRenderer());
             jlist.getSelectionModel().addListSelectionListener(event -> {
                 if (!event.getValueIsAdjusting()) {
                     selectedChannelUuid = jlist.getSelectedValue().uuid;
@@ -231,9 +231,7 @@ public class ChatDialog extends JDialog implements SccListener {
                     localModelChanged();
                 }
             });
-
-            channelsPane.setViewportView(new JScrollPane(jlist));
-            jlist.setCellRenderer(new ChannelRenderer());
+            channelsPane.setViewportView(jlist);
         }
 
         {
@@ -244,7 +242,7 @@ public class ChatDialog extends JDialog implements SccListener {
             jTable.getColumnModel().getColumn(0).setMaxWidth(18);
             jTable.getColumnModel().getColumn(1).setMaxWidth(125);
             jTable.getColumnModel().getColumn(1).setPreferredWidth(125);
-            chatHistoryHolder.setViewportView(jTable);
+            messageHistoryHolder.setViewportView(jTable);
         }
 
         localModelChanged();
@@ -332,8 +330,8 @@ public class ChatDialog extends JDialog implements SccListener {
         autoPullCheckBox.setSelected(true);
         autoPullCheckBox.setText("auto pull from server");
         debugViewPanel.add(autoPullCheckBox, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        chatHistoryHolder = new JScrollPane();
-        debugViewPanel.add(chatHistoryHolder, new com.intellij.uiDesigner.core.GridConstraints(2, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        messageHistoryHolder = new JScrollPane();
+        debugViewPanel.add(messageHistoryHolder, new com.intellij.uiDesigner.core.GridConstraints(2, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
         label2.setText("messages for event sourcing");
         debugViewPanel.add(label2, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -406,31 +404,37 @@ public class ChatDialog extends JDialog implements SccListener {
         if (selectedChannelUuid != null) {
             var selectedChannel = getSelectedChannel();
 
-            // chat messages
-            String[][] us = selectedChannel.chatMessages.stream().map(ChatMessage::toStringList).toArray(String[][]::new);
-            var jTable = new JTable(us, ChatMessage.columnNames);
-            channelChatMessagesPane.setViewportView(jTable);
+            {
+                var listModel = new DefaultListModel<ChatMessage>();
+                var channels = selectedChannel.chatMessages;
+                listModel.addAll(channels);
+                var jlist = new JList<>(listModel);
+                jlist.setCellRenderer(new ChatMessageRenderer());
+                jlist.setSelectionModel(new NoSelectionModel());
+                channelChatMessagesPane.setViewportView(jlist);
 
-            JScrollBar vertical = channelChatMessagesPane.getVerticalScrollBar();
-            vertical.setValue(vertical.getMaximum());
+                JScrollBar vertical = channelChatMessagesPane.getVerticalScrollBar();
+                vertical.setValue(vertical.getMaximum());
+            }
 
-            // file_content messages
-            var fm = selectedChannel.fileMessages;
-            var listModel = new DefaultListModel<FileMessage>();
-            listModel.addAll(fm);
-            var jList = new JList<>(listModel);
-            jList.getSelectionModel().addListSelectionListener(e -> {
-                if (!e.getValueIsAdjusting()) {
-                    var file = jList.getSelectedValue();
-                    saveFileToHardDrive(file);
-                }
-            });
+            {
+                // file_content messages
+                var fm = selectedChannel.fileMessages;
+                var listModel = new DefaultListModel<FileMessage>();
+                listModel.addAll(fm);
+                var jList = new JList<>(listModel);
+                jList.setCellRenderer(new FileRenderer());
+                jList.getSelectionModel().addListSelectionListener(e -> {
+                    if (!e.getValueIsAdjusting()) {
+                        var file = jList.getSelectedValue();
+                        saveFileToHardDrive(file);
+                    }
+                });
+                channelFileMessagesPane.setViewportView(jList);
 
-            channelFileMessagesPane.setViewportView(new JScrollPane(jList));
-            jList.setCellRenderer(new FileRenderer());
-
-            JScrollBar scrollFiles = channelFileMessagesPane.getVerticalScrollBar();
-            scrollFiles.setValue(scrollFiles.getMaximum());
+                JScrollBar scrollFiles = channelFileMessagesPane.getVerticalScrollBar();
+                scrollFiles.setValue(scrollFiles.getMaximum());
+            }
 
 
             var memberInChannel = selectedChannel.getMember(ClientSingleton.inst().db.facebook_id);

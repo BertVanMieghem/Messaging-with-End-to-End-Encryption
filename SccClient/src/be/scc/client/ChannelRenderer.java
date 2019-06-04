@@ -1,10 +1,11 @@
 package be.scc.client;
 
-import java.awt.Component;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
+import java.awt.*;
+import java.security.GeneralSecurityException;
+import java.sql.SQLException;
+import java.util.Objects;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 public class ChannelRenderer extends JLabel implements ListCellRenderer<Channel> {
 
@@ -13,13 +14,13 @@ public class ChannelRenderer extends JLabel implements ListCellRenderer<Channel>
     }
 
     @Override
-    public Component getListCellRendererComponent(JList<? extends Channel> list, Channel country, int index,
+    public Component getListCellRendererComponent(JList<? extends Channel> list, Channel listItem, int index,
                                                   boolean isSelected, boolean cellHasFocus) {
 
         ImageIcon imageIcon = new ImageIcon(getClass().getResource("gb.png"));
 
         setIcon(imageIcon);
-        setText(country.name);
+        setText(listItem.name);
 
         if (isSelected) {
             setBackground(list.getSelectionBackground());
@@ -32,3 +33,4 @@ public class ChannelRenderer extends JLabel implements ListCellRenderer<Channel>
         return this;
     }
 }
+
