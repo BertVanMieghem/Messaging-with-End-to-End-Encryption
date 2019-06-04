@@ -209,7 +209,7 @@ public class ChatDialog extends JDialog implements SccListener {
     public void sccModelChanged() throws Exception {
 
         currentUser.setText("" + ClientSingleton.inst().db.facebook_id_long);
-        setTitle("ChatDialog. Active User: " + ClientSingleton.inst().db.getUserWithFacebookId(ClientSingleton.inst().db.facebook_id).facebook_name);
+        setTitle("Secure Channel Chat. Active User: " + ClientSingleton.inst().db.getUserWithFacebookId(ClientSingleton.inst().db.facebook_id).facebook_name);
 
         {
             var users = ClientSingleton.inst().db.getUsers();
