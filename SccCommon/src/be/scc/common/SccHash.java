@@ -1,7 +1,5 @@
 package be.scc.common;
 
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 public class SccHash {

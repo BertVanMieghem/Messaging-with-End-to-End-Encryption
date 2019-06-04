@@ -6,6 +6,7 @@ import javax.crypto.SecretKey;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Objects;
 
 public class SccEncryptionTest {
 
@@ -56,8 +57,23 @@ public class SccEncryptionTest {
         assert (origMessage.equals(resultText));
 
         var serialised = SccEncryption.serializeKey(key);
+        System.out.println(serialised);
         var deserialised = SccEncryption.deserialiseSymetricKey(serialised);
         assert deserialised.equals(key);
+    }
+
+    @Test
+    protected void symetricPadding() throws Exception {
+        SecretKey key = SccEncryption.generateSymetricKey();
+
+        String msg1 = "Hellooooooooooo one";
+        String msg2 = "Hellooooooooooo two";
+        var enc1 = Util.base64(SccEncryption.encrypt(key, msg1));
+        var enc2 = Util.base64(SccEncryption.encrypt(key, msg2));
+
+        System.out.println("enc1: " + enc1);
+        System.out.println("enc2: " + enc2);
+        assert !Objects.equals(enc1.substring(0, 10), enc2.substring(0, 10));
     }
 
     @Test

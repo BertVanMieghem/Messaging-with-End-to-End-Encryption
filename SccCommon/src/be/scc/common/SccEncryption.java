@@ -6,6 +6,7 @@ import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.*;
+import java.util.Arrays;
 import java.util.Base64;
 import javax.crypto.*;
 import javax.crypto.spec.*;
@@ -106,16 +107,33 @@ public class SccEncryption {
         return (SecretKeySpec) keyGenerator.generateKey();
     }
 
+    static public byte[] concatBytes(byte[] a, byte[] b) {
+        byte[] destination = new byte[a.length + b.length];
+        System.arraycopy(a, 0, destination, 0, a.length);
+        System.arraycopy(b, 0, destination, a.length, b.length);
+        return destination;
+    }
+
+    private static final int randomPrefixLength = 5;
+
     static public byte[] encrypt(SecretKey key, String plaintext) throws GeneralSecurityException {
         Cipher enc = Cipher.getInstance("AES/CBC/PKCS5PADDING");
         enc.init(Cipher.ENCRYPT_MODE, key, iv);
-        return enc.doFinal(plaintext.getBytes(StandardCharsets.UTF_8));
+
+        var rawText = plaintext.getBytes(StandardCharsets.UTF_8);
+
+        SecureRandom secureRandom = new SecureRandom();
+        var randomB = new byte[randomPrefixLength];
+        secureRandom.nextBytes(randomB);
+
+        return enc.doFinal(concatBytes(randomB, rawText));
     }
 
     static public String decrypt(SecretKey key, byte[] cipherText) throws GeneralSecurityException {
         Cipher dec = Cipher.getInstance("AES/CBC/PKCS5PADDING");
         dec.init(Cipher.DECRYPT_MODE, key, iv);
         byte[] returned = dec.doFinal(cipherText);
+        returned = Arrays.copyOfRange(returned, randomPrefixLength, returned.length); // Strip off the random prefix
         return new String(returned, StandardCharsets.UTF_8);
     }
 

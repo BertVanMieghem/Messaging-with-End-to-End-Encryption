@@ -1,18 +1,18 @@
 package be.scc.client;
 
 import be.scc.common.FacebookId;
-import be.scc.common.SccEncryption;
-import be.scc.common.SccHash;
-import be.scc.common.Util;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.security.PublicKey;
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 enum MemberStatus {
