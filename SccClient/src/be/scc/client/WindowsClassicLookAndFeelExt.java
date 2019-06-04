@@ -2,7 +2,6 @@ package be.scc.client;
 
 
 import javax.swing.*;
-import javax.swing.plaf.ComponentUI;
 
 /**
  * https://stackoverflow.com/a/3587482/1448736
@@ -20,20 +19,35 @@ public class WindowsClassicLookAndFeelExt
 }
 
 
+/**
+ * https://stackoverflow.com/a/31669551/1448736
+ */
 class NoSelectionModel extends DefaultListSelectionModel {
 
+    /**
+     * Intentionally empty
+     */
     @Override
     public void setAnchorSelectionIndex(final int anchorIndex) {
     }
 
+    /**
+     * Intentionally empty
+     */
     @Override
     public void setLeadAnchorNotificationEnabled(final boolean flag) {
     }
 
+    /**
+     * Intentionally empty
+     */
     @Override
     public void setLeadSelectionIndex(final int leadIndex) {
     }
 
+    /**
+     * Intentionally empty
+     */
     @Override
     public void setSelectionInterval(final int index0, final int index1) {
     }

@@ -9,8 +9,8 @@ import java.util.Objects;
 
 public class ChatMessageRenderer extends JPanel implements ListCellRenderer<ChatMessage> {
 
-    JLabel sanderLbl = new JLabel();
-    JLabel messageLbl = new JLabel() {
+    private JLabel sanderLbl = new JLabel();
+    private JLabel messageLbl = new JLabel() {
         @Override
         protected void paintComponent(Graphics g) {
             Dimension arcs = new Dimension(20, 20);
@@ -28,8 +28,8 @@ public class ChatMessageRenderer extends JPanel implements ListCellRenderer<Chat
         }
     };
 
-    Component glueLeft = Box.createHorizontalGlue();
-    Component glueRight = Box.createHorizontalGlue();
+    private Component glueLeft = Box.createHorizontalGlue();
+    private Component glueRight = Box.createHorizontalGlue();
 
     public ChatMessageRenderer() {
         this.add(sanderLbl);

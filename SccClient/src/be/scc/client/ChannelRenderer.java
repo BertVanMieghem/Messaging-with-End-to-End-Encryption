@@ -1,11 +1,7 @@
 package be.scc.client;
 
 import java.awt.*;
-import java.security.GeneralSecurityException;
-import java.sql.SQLException;
-import java.util.Objects;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 
 public class ChannelRenderer extends JLabel implements ListCellRenderer<Channel> {
 
