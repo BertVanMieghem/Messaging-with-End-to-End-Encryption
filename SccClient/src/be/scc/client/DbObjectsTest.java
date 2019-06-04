@@ -13,7 +13,7 @@ import java.util.UUID;
 public class DbObjectsTest {
 
     @Test
-    void channel() throws NoSuchAlgorithmException {
+    protected void channel() throws NoSuchAlgorithmException {
         assert true; // to make PMD happy
         var ch = new Channel();
         ch.name = "test channel name";

@@ -10,7 +10,7 @@ import java.security.interfaces.RSAPublicKey;
 public class SccEncryptionTest {
 
     @Test
-    void makeKeyEncryptDecrypt() throws Exception {
+    protected void makeKeyEncryptDecrypt() throws Exception {
         KeyPair pair = SccEncryption.generateKeypair();
 
         String origMessage = "Hello test!";
@@ -20,7 +20,7 @@ public class SccEncryptionTest {
     }
 
     @Test
-    void serialising() throws Exception {
+    protected void serialising() throws Exception {
         KeyPair pairOrig = SccEncryption.generateKeypair();
 
         var priv = (RSAPrivateKey) pairOrig.getPrivate();
@@ -47,7 +47,7 @@ public class SccEncryptionTest {
     }
 
     @Test
-    void symetric() throws Exception {
+    protected void symetric() throws Exception {
         SecretKey key = SccEncryption.generateSymetricKey();
 
         String origMessage = "Hello test!";
@@ -61,7 +61,7 @@ public class SccEncryptionTest {
     }
 
     @Test
-    void signature() throws Exception {
+    protected void signature() throws Exception {
         var message = "sign me plz.".repeat(1000);
 
         KeyPair pair = SccEncryption.generateKeypair();
@@ -73,19 +73,19 @@ public class SccEncryptionTest {
     }
 
     @Test
-    void hash() throws Exception {
+    protected void hash() throws Exception {
 
-        var message1 = "Hash me.".repeat(1000);
+        var message1 = "hash me.".repeat(1000);
         var message3 = "Jow.";
 
         // Warmup
-        SccEncryption.SlowHash(message1.getBytes());
+        SccEncryption.slowHash(message1.getBytes());
 
         long start = System.nanoTime();
 
-        SccHash hash1 = SccEncryption.Hash(message1.getBytes());
-        SccHash hash2 = SccEncryption.Hash(message1.getBytes()); // Doubled
-        SccHash hash3 = SccEncryption.Hash(message3.getBytes());
+        SccHash hash1 = SccEncryption.hash(message1.getBytes());
+        SccHash hash2 = SccEncryption.hash(message1.getBytes()); // Doubled
+        SccHash hash3 = SccEncryption.hash(message3.getBytes());
 
         long finish = System.nanoTime();
         long timeElapsed = finish - start;
@@ -99,18 +99,18 @@ public class SccEncryptionTest {
     }
 
     @Test
-    void hashSlow() throws Exception {
-        var message1 = "Hash me.".repeat(1000);
+    protected void hashSlow() throws Exception {
+        var message1 = "hash me.".repeat(1000);
         var message3 = "Jow.";
 
         // Warmup
-        SccEncryption.SlowHash(message1.getBytes());
+        SccEncryption.slowHash(message1.getBytes());
 
         long start = System.nanoTime();
 
-        SccHash hash1 = SccEncryption.SlowHash(message1.getBytes());
-        SccHash hash2 = SccEncryption.SlowHash(message1.getBytes()); // Doubled
-        SccHash hash3 = SccEncryption.SlowHash(message3.getBytes());
+        SccHash hash1 = SccEncryption.slowHash(message1.getBytes());
+        SccHash hash2 = SccEncryption.slowHash(message1.getBytes()); // Doubled
+        SccHash hash3 = SccEncryption.slowHash(message3.getBytes());
 
         long finish = System.nanoTime();
         long timeElapsed = finish - start;

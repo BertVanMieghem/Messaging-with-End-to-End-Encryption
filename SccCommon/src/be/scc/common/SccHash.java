@@ -5,11 +5,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 public class SccHash {
+    public final byte[] bytes;
+
     public SccHash(byte[] bytes) {
         this.bytes = bytes;
     }
-
-    public final byte[] bytes;
 
     @Override
     public String toString() {

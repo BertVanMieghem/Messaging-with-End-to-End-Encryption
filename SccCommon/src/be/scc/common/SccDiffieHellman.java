@@ -8,6 +8,9 @@ import javax.crypto.interfaces.*;
 
 //import com.sun.crypto.provider.SunJCE;
 
+/**
+ * Example from internet. Boken ATM.
+ */
 public class SccDiffieHellman {
 
     private SccDiffieHellman() {
@@ -112,7 +115,7 @@ public class SccDiffieHellman {
         System.out.println("Alice secret: " + Util.toHexString(aliceSharedSecret));
         System.out.println("Bob   secret: " + Util.toHexString(bobSharedSecret));
         if (!java.util.Arrays.equals(aliceSharedSecret, bobSharedSecret))
-            throw new Exception("Shared secrets differ");
+            throw new SccException("Shared secrets differ");
         System.out.println("Shared secrets are the same");
 
         /*
@@ -163,7 +166,7 @@ public class SccDiffieHellman {
         aliceCipher.init(Cipher.DECRYPT_MODE, aliceAesKey, aesParams);
         byte[] recovered = aliceCipher.doFinal(ciphertext);
         if (!java.util.Arrays.equals(cleartext, recovered))
-            throw new Exception("AES in CBC mode recovered text is " +
+            throw new SccException("AES in CBC mode recovered text is " +
                     "different from cleartext");
         System.out.println("AES in CBC mode recovered text is " +
                 "same as cleartext");
