@@ -198,7 +198,7 @@ public class Util {
 
 
     public static <T> boolean listEqualsIgnoreOrder(Collection<T> list1, Collection<T> list2) {
-        if (list1 == list2) return true; // OK to compare references here
+        if (Objects.equals(list1, list2)) return true;
         if (list1 == null || list2 == null) return false;
         if (list1.getClass() != list2.getClass()) return false; // Realy needed?
         return new HashSet<>(list1).equals(new HashSet<>(list2));

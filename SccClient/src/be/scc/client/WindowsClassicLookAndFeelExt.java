@@ -24,31 +24,23 @@ public class WindowsClassicLookAndFeelExt
  */
 class NoSelectionModel extends DefaultListSelectionModel {
 
-    /**
-     * Intentionally empty
-     */
     @Override
     public void setAnchorSelectionIndex(final int anchorIndex) {
+        // Intentionally empty
     }
 
-    /**
-     * Intentionally empty
-     */
     @Override
     public void setLeadAnchorNotificationEnabled(final boolean flag) {
+        // Intentionally empty
     }
 
-    /**
-     * Intentionally empty
-     */
     @Override
     public void setLeadSelectionIndex(final int leadIndex) {
+        // Intentionally empty
     }
 
-    /**
-     * Intentionally empty
-     */
     @Override
     public void setSelectionInterval(final int index0, final int index1) {
+        // Intentionally empty
     }
 }

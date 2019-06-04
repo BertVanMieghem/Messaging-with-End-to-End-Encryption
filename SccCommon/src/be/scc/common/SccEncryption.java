@@ -153,11 +153,6 @@ public class SccEncryption {
         return result;
     }
 
-
-    /**
-     * For making it extra difficult to reverse the hash, a salt per user could be provided.
-     * However, hash is atm only used to hash the userId and is not considered security critical
-     */
     static public SccHash hash(byte[] toBeHashed) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.reset();
@@ -166,6 +161,11 @@ public class SccEncryption {
         return new SccHash(digest);
     }
 
+    /**
+     * Maybe it would be better to use bcrypt
+     * For making it extra difficult to reverse the hash, a salt per user could be provided.
+     * However, hash is atm only used to hash the userId and is not considered security critical
+     */
     static public SccHash slowHash(byte[] toBeHashed) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.reset();

@@ -117,7 +117,7 @@ public class SccEncryptionTest {
     @Test
     protected void hashSlow() throws Exception {
         var message1 = "hash me.".repeat(1000);
-        var message3 = "Jow.";
+        var message3 = "108";
 
         // Warmup
         SccEncryption.slowHash(message1.getBytes());
@@ -132,8 +132,8 @@ public class SccEncryptionTest {
         long timeElapsed = finish - start;
 
         System.out.println("timeElapsed: " + (timeElapsed / 1000000));
-        System.out.println(hash1);
-        System.out.println(hash3);
+        System.out.println("hash1: " + hash1);
+        System.out.println("hash3: " + hash3);
 
         assert hash1.equals(hash2);
         assert !hash1.equals(hash3);

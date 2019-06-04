@@ -225,8 +225,12 @@ public class ClientDB {
 
     public Local_user getUserWithFacebookId(FacebookId facebook_id) throws SQLException, GeneralSecurityException {
         if (facebook_id == null) throw new SccException("facebook_id is null!");
-        Statement statement = conn.createStatement();
-        ResultSet result = statement.executeQuery("SELECT * from local_users WHERE facebook_id=\"" + facebook_id + "\"");
+        PreparedStatement pstmt = conn.prepareStatement("SELECT * from local_users WHERE " +
+                "facebook_id=?" +
+                "");
+        var i = 0;
+        pstmt.setString(++i, facebook_id.toString());
+        ResultSet result = pstmt.executeQuery();
         if (result.isClosed()) return null;
         return getUserFromResultRow(result);
     }
@@ -306,23 +310,6 @@ public class ClientDB {
 
         dispatcher.sccDispatchModelChanged();
         dispatcher.sccDispatchModelChanged();
-    }
-
-    public List<Cached_message_row> getMessagesForFacebookId(long facebook_id) {
-        var aggregate = new ArrayList<Cached_message_row>();
-        try {
-            Statement statement = conn.createStatement();
-            ResultSet result = statement.executeQuery("SELECT * from cached_messages WHERE from_facebook_id=" + facebook_id);
-
-            while (result.next()) {
-                var row = new Cached_message_row();
-                row.fillInFromSqlResult(result);
-                aggregate.add(row);
-            }
-        } catch (Exception ex) {
-            System.exit(1); // fail
-        }
-        return aggregate;
     }
 
     public List<Cached_message_row> getAllCachedMessages() {
