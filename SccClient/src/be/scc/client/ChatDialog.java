@@ -53,26 +53,30 @@ public class ChatDialog extends JDialog implements SccListener {
         setModal(true);
 
         ClientSingleton.inst().db.dispatcher.addListener(this);
+        Action submitMessage = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    var chat_message = messageInput.getText();
+                    var ch = getSelectedChannel();
 
-        sendButton.addActionListener(e -> {
-            try {
-                var chat_message = messageInput.getText();
-                var ch = getSelectedChannel();
+                    var json = new JSONObject();
+                    json.put("message_type", "chat_message_to_channel");
+                    var jsonContent = new JSONObject();
+                    jsonContent.put("chat_message", chat_message);
+                    jsonContent.put("channel_uuid", ch.uuid);
+                    json.put("content", jsonContent);
+                    ClientSingleton.inst().sendMessageToChannelMembers(ch, json);
 
-                var json = new JSONObject();
-                json.put("message_type", "chat_message_to_channel");
-                var jsonContent = new JSONObject();
-                jsonContent.put("chat_message", chat_message);
-                jsonContent.put("channel_uuid", ch.uuid);
-                json.put("content", jsonContent);
-                ClientSingleton.inst().sendMessageToChannelMembers(ch, json);
+                    messageInput.setText("");
 
-                messageInput.setText("");
-
-            } catch (Exception e1) {
-                e1.printStackTrace();
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
             }
-        });
+        };
+        messageInput.addActionListener(submitMessage);
+        sendButton.addActionListener(submitMessage);
 
         sendFileButton.addActionListener(e -> {
             try {
