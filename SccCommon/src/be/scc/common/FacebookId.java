@@ -7,7 +7,7 @@ public class FacebookId extends SccHash {
 
     public static FacebookId doSlowHash(long facebook_id) throws NoSuchAlgorithmException {
         var id = "" + facebook_id;
-        var tmp = SccEncryption.SlowHash(id.getBytes(StandardCharsets.UTF_8));
+        var tmp = SccEncryption.slowHash(id.getBytes(StandardCharsets.UTF_8));
         return new FacebookId(tmp.bytes);
     }
 

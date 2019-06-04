@@ -6,7 +6,6 @@ import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.*;
-import java.util.Arrays;
 import java.util.Base64;
 import javax.crypto.*;
 import javax.crypto.spec.*;
@@ -139,9 +138,9 @@ public class SccEncryption {
 
     /**
      * For making it extra difficult to reverse the hash, a salt per user could be provided.
-     * However, Hash is atm only used to hash the userId and is not considered security critical
+     * However, hash is atm only used to hash the userId and is not considered security critical
      */
-    static public SccHash Hash(byte[] toBeHashed) throws NoSuchAlgorithmException {
+    static public SccHash hash(byte[] toBeHashed) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.reset();
         md.update(Util.base64("MuW1OvmzZ8E1wzMugR9p3evkcrw="));
@@ -149,13 +148,13 @@ public class SccEncryption {
         return new SccHash(digest);
     }
 
-    static public SccHash SlowHash(byte[] toBeHashed) throws NoSuchAlgorithmException {
+    static public SccHash slowHash(byte[] toBeHashed) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.reset();
         md.update(Util.base64("MuW1OvmzZ8E1wzMugR9p3evkcrw="));
 
         for (int i = 0; i < 15000; i++) {
-            toBeHashed = Hash(toBeHashed).bytes;
+            toBeHashed = hash(toBeHashed).bytes;
         }
 
         return new SccHash(toBeHashed);

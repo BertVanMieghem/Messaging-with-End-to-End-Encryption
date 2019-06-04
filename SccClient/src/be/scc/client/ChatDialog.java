@@ -34,7 +34,6 @@ public class ChatDialog extends JDialog implements SccListener {
     private JButton sendFileButton;
     private JCheckBox debugViewCheckbox;
     private JPanel debugViewPanel;
-    private FileMessage selectedFile = null;
     private UUID selectedChannelUuid = null;
     private boolean isAutoPulling;
     private boolean debugView = true;

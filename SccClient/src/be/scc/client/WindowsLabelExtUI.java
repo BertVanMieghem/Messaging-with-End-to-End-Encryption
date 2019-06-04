@@ -9,7 +9,7 @@ public class WindowsLabelExtUI
         //extends com.sun.java.swing.plaf.motif.MotifLabelUI
         extends javax.swing.plaf.metal.MetalLabelUI
 {
-    static WindowsLabelExtUI singleton = new WindowsLabelExtUI();
+    private static WindowsLabelExtUI singleton = new WindowsLabelExtUI();
 
     public static ComponentUI createUI(JComponent c) {
         c.putClientProperty("html.disable", Boolean.TRUE);

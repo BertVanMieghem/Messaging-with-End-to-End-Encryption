@@ -12,7 +12,7 @@ import java.util.UUID;
 class UtilTest {
 
     @Test
-    public void splitQuery() throws URISyntaxException, UnsupportedEncodingException {
+    protected void splitQuery() throws URISyntaxException, UnsupportedEncodingException {
         URI uri = new URI("http://localhost:5661/login.html?testKey=testValue");
 
         Map<String, String> map = Util.decodeQueryString(uri);
@@ -21,7 +21,7 @@ class UtilTest {
     }
 
     @Test
-    public void postBody() {
+    protected void postBody() {
 
         var postParameters = new HashMap<String, String>();
         postParameters.put("testKey", "testValue");
@@ -37,7 +37,7 @@ class UtilTest {
     }
 
     @Test
-    public void hashMap() {
+    protected void hashMap() {
         HashMap<UUID, String> map1 = new HashMap<>();
         var g1 = UUID.randomUUID();
         var g2 = UUID.randomUUID();
