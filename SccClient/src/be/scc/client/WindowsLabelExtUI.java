@@ -1,11 +1,14 @@
 package be.scc.client;
 
-import com.sun.java.swing.plaf.windows.WindowsLabelUI;
 
 import javax.swing.*;
 import javax.swing.plaf.ComponentUI;
 
-public class WindowsLabelExtUI extends WindowsLabelUI {
+public class WindowsLabelExtUI
+        //extends com.sun.java.swing.plaf.windows.WindowsLabelUI
+        //extends com.sun.java.swing.plaf.motif.MotifLabelUI
+        extends javax.swing.plaf.metal.MetalLabelUI
+{
     static WindowsLabelExtUI singleton = new WindowsLabelExtUI();
 
     public static ComponentUI createUI(JComponent c) {

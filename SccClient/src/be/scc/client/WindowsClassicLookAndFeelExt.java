@@ -2,9 +2,11 @@ package be.scc.client;
 
 import javax.swing.UIDefaults;
 
-import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
-
-public class WindowsClassicLookAndFeelExt extends WindowsLookAndFeel {
+public class WindowsClassicLookAndFeelExt
+        //extends com.sun.java.swing.plaf.windows.WindowsLookAndFeel
+        //extends com.sun.java.swing.plaf.motif.MotifLookAndFeel
+        extends javax.swing.plaf.metal.MetalLookAndFeel
+{
     @Override
     protected void initClassDefaults(UIDefaults table) {
         super.initClassDefaults(table);

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="SecureChannelChat" options="--add-exports=java.desktop/com.sun.java.swing.plaf.windows=ALL-UNNAMED" />
+      <module name="SecureChannelChat" options="--add-exports=java.desktop/com.sun.java.swing.plaf.windows=ALL-UNNAMED --add-exports=java.desktop/com.sun.java.swing.plaf.motif=ALL-UNNAMED" />
     </option>
   </component>
 </project>
